@@ -34,6 +34,13 @@ jobs:
           else:
               raise ValueError('Expected a gzip-compressed TAR payload.')
           PY
+      - name: Generate bundled offline photo assets
+        run: |
+          python3 -m pip install --quiet pillow numpy scikit-image
+          mkdir -p assets/photos assets/thumbs
+          python3 build_assets.py
+          test "$(find assets/photos -name '*.jpg' | wc -l)" -eq 24
+          test "$(find assets/thumbs -name '*.jpg' | wc -l)" -eq 24
       - name: Verify website entry points
         run: |
           find . -maxdepth 3 -type f | head -60

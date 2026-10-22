@@ -1,0 +1,51 @@
+name: Unpack FlickSort prototype
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - site_payload.txt
+      - .github/workflows/unpack.yml
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Decode and unpack prototype files
+        run: |
+          python3 - <<'PY'
+          import base64, io, gzip, tarfile, pathlib
+          raw = base64.b64decode(pathlib.Path('site_payload.txt').read_text().strip(), validate=True)
+          decoded = gzip.decompress(raw)
+          print('Decoded bytes:', len(decoded))
+          if tarfile.is_tarfile(fileobj := io.BytesIO(decoded)):
+              fileobj.seek(0)
+              with tarfile.open(fileobj=fileobj) as tar:
+                  members = tar.getmembers()
+                  print('Archive members:', [(m.name,m.size) for m in members])
+                  for member in members:
+                      p=pathlib.PurePosixPath(member.name)
+                      if p.is_absolute() or '..' in p.parts or member.issym() or member.islnk():
+                          raise ValueError('Unsafe tar member: '+member.name)
+                  tar.extractall('.')
+          else:
+              raise ValueError('Expected a gzip-compressed TAR payload.')
+          PY
+      - name: Verify website entry points
+        run: |
+          find . -maxdepth 3 -type f | head -60
+          test -f classic.html
+          test -f flicksort.html
+          test -f index.html
+      - name: Commit generated website files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish FlickSort mobile gallery prototypes"
+            git push
+          fi

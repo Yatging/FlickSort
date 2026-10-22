@@ -1,0 +1,71 @@
+# FlickSort · Mobile Photo Culling Prototypes
+
+**Two mobile-responsive web pages with the same photos, navigation, categories, study prompts and data logger.**
+
+- `classic.html` — traditional mobile-gallery browsing + **four classification buttons**.
+- `flicksort.html` — conventional horizontal browsing + **four diagonal classification gestures**, with no long press.
+
+The two pages share `shared.css`, `app.js` and a folder of 24 **bundled sample photos**, so no internet connection or account is required for the actual interface. The interface uses system-font fallbacks and requires no online font service.
+
+## Open
+
+Unzip the whole folder (preserve the `assets/` subfolder). The easiest desktop option is opening `classic.html` or `flicksort.html` directly in a browser. For the most reliable mobile experience, serve the folder over your local network using:
+
+```bash
+cd FlickSort-Prototype
+python -m http.server 8000 --bind 0.0.0.0
+```
+
+Open `http://<your-computer-local-IP>:8000/classic.html` or `/flicksort.html` on a phone connected to the same Wi-Fi. Some corporate/college networks isolate devices; a web deployment is another option. The code does not require an API key or backend. Deployment to HTTPS is recommended before real participant recruitment. Do not expose the local development server to public networks.
+
+## Direct interaction
+
+| Input | Classic | FlickSort |
+| --- | --- | --- |
+| ← Swipe left | Next | Next |
+| → Swipe right | Previous | Previous |
+| ↗ Swipe up-right | No category action | Keep |
+| ↖ Swipe up-left | No category action | Edit |
+| ↙ Swipe down-left | No category action | Maybe |
+| ↘ Swipe down-right | No category action | Reject |
+| Tap four category buttons | Classify | Not shown |
+| Undo | Restores last classification | Restores last classification |
+
+Drag with a mouse on desktop to simulate a touch swipe. The gallery swipe target uses `pointer` events and is intended for mobile touchscreens. Reject labels a photo; it never deletes an image.
+
+**Initial recognition specification (unvalidated):** displacement ≥ 60 CSS px; horizontal when axis deviation ≤20°; diagonal when 30–60° from horizontal; other directions cancel. At short motion distances the interface previews the candidate without committing it. Recognition is evaluated on release, not on long press. Calibrate these defaults with a pilot study on real phones before collecting formal data.
+
+## Built-in study configuration
+
+Tap **Start test** in either page, then choose:
+1. Anonymous Participant ID (`P01`, for example).
+2. Navigation Demand: **Low**, sequential targets 01→12; or **High**, nonsequential targets.
+3. Group order (G1–G4) for documenting counterbalancing.
+4. **1** or **3** pilot batches (12 or 36 instructed classification tasks), followed by four navigation-only probes.
+
+Four unscored practice tasks run first. After training, click “Begin scored trials” to start recording the main tasks. For each classification trial, find the target photo, assign the prompted category, and click **Submit**; both interfaces use an identical Submit button. When ready, export **Trials CSV** and **Events CSV** (one file of each per participant × condition). Data are kept **in memory only** until downloaded. They are not sent to a server. Download before reloading/closing.
+
+To complete the full four conditions, each participant must open and test **both** pages, each once at Low and once at High navigation demand. Follow the order specified in the separate experiment design document (G1: A-B-D-C, etc.).
+
+> **Important limitation:** This is a **pilot/testable prototype**, not a fully validated experimental apparatus. The 24 bundled sample images are reused across batches if 3 repetitions are selected. A confirmatory experiment should expand and counterbalance photo sets, stabilize thresholds based on a pilot, verify participant consent and instructions, and test that study segments meet the course's 30–45 minute requirement. The study manager currently starts one participant × condition run at a time; it does not automatically orchestrate the full four-block sequence across the two HTML pages. Times and categorization accuracy should be analyzed externally (JASP/R/Python).
+
+## CSV fields
+
+Trials include `participant_id`, `technique`, `navigation_demand`, `condition_1`, `condition_2`, `target_photo_id`, `target_category`, `user_response`, `first_category_action`, `first_attempt_error`, `accuracy`, `final_error`, `trial_duration_ms`, `photo_transition_count`, `undo_count`, `reclassification_count`, `cancel_count`, `practice_flag`, `probe`, etc.
+
+Events include `event_timestamp`, `event_type`, `gesture_dx`, `gesture_dy`, `distance_px`, `angle_deg`, `duration_ms`, `speed_px_ms`, and `recognized_action`. Event logs include classified photo IDs and trial indices. `first_attempt_error` is based on the first category attempted **on the target photo**, while wrong-photo classifications are counted separately. For unbiased navigation interference metrics, examine **probe events**; the probe's pass/fail combines target-reach status with unintended category actions and is not a substitute for counting category activations.
+
+## Sources and privacy
+
+24 sample images are derived from the bundled demo images in the open-source `scikit-image` distribution (coffee, cat, astronaut, motorcycle, rocket, Hubble deep field, camera, moon), each cropped/color-varied to create three burst-like examples. Verify image licensing and provenance before publicly redistributing or using in a formal publication. Replace sample photos with team-owned or clearly licensed study stimuli before final submission. Avoid photos with personally identifying participants without consent.
+
+## Files
+
+- `classic.html` and `flicksort.html`: two separate entry pages.
+- `shared.css`: layout, phone frame, responsive rules.
+- `app.js`: photo navigation, classification, angle recognition, practice/main study manager and CSV export.
+- `assets/photos/01.jpg ... 24.jpg`: full-size example images.
+- `assets/thumbs/01.jpg ... 24.jpg`: grid thumbnails.
+- `build_assets.py`: offline photo-generation build script for the demo sample set.
+
+**Research scope:** Buttons vs FlickSort × Low vs High Navigation is a 2×2 within-subjects design. The current program measures this comparison; it does *not* independently evaluate user-specific recognition thresholds, adaptive hints or unaided gesture discoverability. Those require separate controlled conditions and study designs.

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" data-mode="flicksort">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#10171b">
+  <title>FlickSort — Gesture Photo Gallery · FlickSort Study</title>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="workspace">
+  <aside class="project-panel">
+    <span class="brand-mark">F<span>·</span>S</span>
+    <div class="meta-label">SM2291 / HCI RESEARCH</div>
+    <h1>Same gallery.<br><em>Different interaction.</em></h1>
+    <p>Mobile-first photo culling prototypes for the FlickSort controlled experiment.</p>
+    <div class="version-switch"><a href="classic.html">01 &nbsp; Classic buttons <span>↗</span></a><a class="active" href="flicksort.html">02 &nbsp; FlickSort gestures <span>↗</span></a></div>
+    <div class="instruction-card"><div class="meta-label">THIS VERSION</div><h3>Swipe to classify</h3><p>Swipe horizontally to browse. Four diagonal gestures directly assign a category.</p><div class="compact-key"><span>← Next</span><span>→ Previous</span><span>↗ ↖ ↙ ↘ to tag</span></div></div>
+    <p class="muted-foot">Identical pictures, labels, navigation and data capture in both versions.</p>
+  </aside>
+
+  <main class="phone" id="phoneApp">
+    <header class="phone-header"><div class="phone-brand"><div class="phone-brand-icon">F.</div><div><div class="phone-name">FLICKSORT</div><div class="phone-sub">Directional gesture</div></div></div><button class="small-icon" id="helpBtn" aria-label="Show gesture guide" title="Help">?</button></header>
+    <section class="task-strip" id="taskStrip"><div class="task-top"><span id="taskKicker">YOUR LIBRARY</span><span id="taskCount">24 photos</span></div><div class="task-main" id="taskTitle">Every shot has a story.</div><div class="task-desc" id="taskDescription">Browse sideways. Swipe diagonally to sort.</div></section>
+    <section class="stage-wrap"><div class="photo-stage" id="touchZone" aria-label="Photo viewer; swipe left to next photo, right to previous"><img id="mainPhoto" draggable="false" src="assets/photos/01.jpg" alt="Sample photograph"><div class="corner-fade"></div><div class="photo-counter" id="photoCounter">01 / 24</div><div class="current-tag" id="currentTag" hidden></div><div class="direction-cue" id="directionCue" aria-live="polite"></div><div class="toast" id="toast" role="status" aria-live="polite"></div><div class="swipe-guide" id="swipeGuide"><span>← NEXT</span><span>PREVIOUS →</span></div></div>
+      <div class="photo-detail"><div><div class="photo-title" id="photoTitle">Morning ritual</div><div class="photo-id" id="photoId">PHOTO #01 · SHOT 1/3</div></div><div class="detail-action"><button class="ghost-mini" id="undoBtn" title="Undo last classification" disabled>↶ &nbsp;Undo</button></div></div>
+      <div class="timeline"><div class="timeline-fill" id="timelineFill"></div></div>
+    </section>
+    <section class="action-zone"><div class="action-head"><span>GESTURE TO CLASSIFY</span><span id="classificationSummary">0 / 24 SORTED</span></div><div class="gesture-actions" id="gestureActions"><div class="gesture-row"><div class="gesture-legend"><span class="gesture-arrow edit-text">↖</span><span>Edit</span></div><div class="gesture-legend"><span class="gesture-arrow keep-text">↗</span><span>Keep</span></div><div class="gesture-legend"><span class="gesture-arrow maybe-text">↙</span><span>Maybe</span></div><div class="gesture-legend"><span class="gesture-arrow reject-text">↘</span><span>Reject</span></div></div><div class="gesture-caption">No long press. Just swipe from the photo.</div></div></section>
+    <section class="study-cta" id="studyCta" hidden><div><strong id="studyActionTitle">Finish this trial</strong><small id="studyActionSub">Submit when ready</small></div><button id="submitTrial" class="primary-button">Submit <span>→</span></button></section>
+    <footer class="phone-footer"><button id="gridBtn" class="footer-button"><span class="footer-icon">▦</span><span>All photos</span></button><button id="studyBtn" class="footer-button center"><span class="footer-icon">◷</span><span>Start test</span></button><button id="saveBtn" class="footer-button"><span class="footer-icon">↓</span><span>Export log</span></button></footer>
+  </main>
+
+  <aside class="inspector-panel"><div class="meta-label">EXPERIMENT DASHBOARD</div><h2>Interaction,<br>not interface.</h2><div class="stat-grid"><div><span id="statKeep">0</span><small>Keep</small></div><div><span id="statEdit">0</span><small>Edit</small></div><div><span id="statMaybe">0</span><small>Maybe</small></div><div><span id="statReject">0</span><small>Reject</small></div></div><div class="inspector-rule"></div><div class="meta-label">LIVE EVENT</div><div class="event-readout" id="lastEvent">Waiting for an action…</div><div class="inspector-rule"></div><p>For study runs, assign a participant ID and navigation-demand condition, then export trial and event data.</p><button class="inspector-start" id="desktopTestBtn">Configure a study run →</button><div class="note">Prototype data only. The included images are local sample assets; replace and counterbalance before final participant collection.</div></aside>
+</div>
+<div class="modal-overlay" id="modalOverlay" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-top"><div><div class="meta-label" id="modalEyebrow">FLICKSORT LAB</div><h2 id="modalTitle">Set up a study run</h2></div><button class="modal-close" id="modalClose" aria-label="Close">×</button></div><div id="modalBody"></div></div></div>
+<script defer src="app.js"></script>
+</body></html>

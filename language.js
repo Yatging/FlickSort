@@ -17,7 +17,8 @@
     ["DEMO ONLY · ORIGINAL INTERACTION", "仅供展示 · 原版交互界面"],
     ["FlickSort gestures", "FlickSort 手势"],
     ["Earlier gesture prototype retained to show the original interaction and animation.", "保留早期手势原型，用于展示原始交互与动画。"],
-    ["Use anonymous participant IDs only.", "请只使用匿名参与者编号。"],
+    ["Use anonymous participant IDs only.", "请只使用匿名参与者编号。"], ["· Use anonymous participant IDs only.", "· 请只使用匿名参与者编号。"],
+    ["FlickSort V3 · Research / Pilot Testing ·", "FlickSort V3 · 研究 / Pilot 测试 ·"],
 
     ["Same gallery.", "同一个图库。"], ["Different interaction.", "不同的交互。"],
     ["Mobile-first photo culling prototypes for the FlickSort controlled experiment.", "为 FlickSort 受控实验设计的移动优先图片筛选原型。"],

@@ -17,6 +17,7 @@ Asset set: `city-vehicles-v1`
 - Loaded the deployed GitHub Pages study and its 24-card asset review sheet successfully after commit `7410e3e` was published.
 - Visually reviewed all 24 browser-rendered illustrations against their manifest bus/car flags and answer labels. Each target vehicle was distinct and the backgrounds contained no unplanned buses or passenger cars.
 - Ran automated boundary checks for Overall Score, rounding, clipping and all six gesture mappings (next, previous, Edit, Keep, Maybe, Reject), plus short-motion cancellation.
+- Verified EN / 中文 switching on the homepage, both legacy demos, V3 setup, an active V3 task, the V3 results screen, a legacy setup modal and the 24-card stimulus review sheet. The selected language persisted across routes, and switching did not change the experiment's underlying condition or answer codes.
 
 ## Honest remaining limitations
 

@@ -10,9 +10,12 @@
 <body>
   <header><h1>Stimulus review sheet</h1><p>Asset set: <b>city-vehicles-v1</b> · 24 original deterministic illustrations.</p><p class="warning"><b>Status:</b> generator inputs and browser rendering have been checked by the implementation agent. Independent human review is still required before formal data collection; this page does not mark that review complete.</p><button onclick="window.print()">Print / Save review sheet</button></header>
   <main class="grid" id="grid"></main>
+  <script src="../language.js"></script>
   <script>
     fetch('image_manifest.json').then(r=>r.json()).then(items=>{
-      document.querySelector('#grid').innerHTML=items.map(item=>`<article class="card"><img src="${item.file}" alt="${item.alt}"><div class="copy"><div class="top"><span class="id">${item.id.toUpperCase()} · ${item.title}</span><span class="answer">${item.answer}</span></div><div class="facts">Bus: ${item.contains_bus?'YES':'NO'} · Car: ${item.contains_car?'YES':'NO'}</div><p class="reason">${item.reason}</p><span class="status">Independent human review: PENDING</span></div></article>`).join('');
+      const t=value=>window.FlickSortLanguage?.t(value)||value;
+      const labels={keep:'Keep',edit:'Edit',maybe:'Maybe',reject:'Reject'};
+      document.querySelector('#grid').innerHTML=items.map(item=>`<article class="card"><img src="${item.file}" alt="${t(item.title)}: ${t(item.reason)}"><div class="copy"><div class="top"><span class="id">${item.id.toUpperCase()} · ${t(item.title)}</span><span class="answer">${t(labels[item.answer])}</span></div><div class="facts">Bus: ${item.contains_bus?'YES':'NO'} · Car: ${item.contains_car?'YES':'NO'}</div><p class="reason">${t(item.reason)}</p><span class="status">Independent human review: PENDING</span></div></article>`).join('');
     });
   </script>
 </body>

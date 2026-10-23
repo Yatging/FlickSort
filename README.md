@@ -4,6 +4,8 @@
 
 The newly added [`study-v3/`](study-v3/) page implements the revised, objective CAPTCHA-style study without changing the original `classic.html`, `flicksort.html`, `app.js`, CSS, assets, or their existing 2×2 data structure. On GitHub Pages, open `/FlickSort/study-v3/`.
 
+Every web page now includes an **EN / 中文** switch. The choice is stored locally and follows the participant across the homepage, both legacy demos, the V3 study and the stimulus review sheet. Translation is presentation-only: CSV headers, condition codes, image IDs, answer codes and build identifiers remain stable in English for combined analysis.
+
 - **Demo Mode:** four representative classification tasks and two navigation-only trials.
 - **Full Pilot Mode:** four unscored tutorial tasks, Level 1 (12 images: bus visible → Keep; otherwise → Reject), Level 2 (12 mutually exclusive bus/car combinations), four navigation-only trials, and a compact results screen.
 - Both **Classic** and **FlickSort** run from the same page and use the same images, fixed answers, task order, rule cards and Submit step. FlickSort retains the stacked-card drag and release animation with no long press.

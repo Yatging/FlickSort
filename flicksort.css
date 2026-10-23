@@ -1,0 +1,529 @@
+/* FlickSort-only presentation layer. The Classic control remains entirely on shared.css. */
+html[data-mode="flicksort"] {
+  --fs-ink: #201b16;
+  --fs-muted: #756b5f;
+  --fs-paper: #e9e2d6;
+  --fs-paper-hi: #f7f0e4;
+  --fs-screen: #111310;
+  --fs-screen-soft: #1a1c18;
+  --fs-cream: #f5eddf;
+  --fs-edit: #e7b466;
+  --fs-keep: #8ec9a5;
+  --fs-maybe: #8bafe4;
+  --fs-reject: #e58d84;
+  --fs-rust: #a84c36;
+  --fs-ease: cubic-bezier(.22, 1, .36, 1);
+  font-family: "Avenir Next", "Segoe UI", Arial, sans-serif;
+  color-scheme: light;
+}
+
+html[data-mode="flicksort"] body {
+  color: var(--fs-ink);
+  background:
+    radial-gradient(circle at 72% 32%, rgba(255, 248, 232, .92), transparent 36%),
+    radial-gradient(circle at 15% 80%, rgba(177, 124, 94, .15), transparent 35%),
+    linear-gradient(135deg, #eee8dd, var(--fs-paper) 64%, #ddd4c5);
+}
+
+html[data-mode="flicksort"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  opacity: .12;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitchTiles'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E");
+}
+
+html[data-mode="flicksort"] .workspace {
+  grid-template-columns: minmax(235px, 306px) minmax(345px, 410px) minmax(220px, 260px);
+  gap: clamp(26px, 3.4vw, 48px);
+  max-width: 1280px;
+  padding: 27px 28px;
+}
+
+html[data-mode="flicksort"] .project-panel,
+html[data-mode="flicksort"] .inspector-panel {
+  color: var(--fs-ink);
+}
+
+html[data-mode="flicksort"] .brand-mark {
+  color: var(--fs-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+}
+
+html[data-mode="flicksort"] .brand-mark span,
+html[data-mode="flicksort"] .project-panel h1 em {
+  color: var(--fs-rust);
+}
+
+html[data-mode="flicksort"] .meta-label,
+html[data-mode="flicksort"] .project-panel > p,
+html[data-mode="flicksort"] .instruction-card p,
+html[data-mode="flicksort"] .muted-foot,
+html[data-mode="flicksort"] .inspector-panel p,
+html[data-mode="flicksort"] .note {
+  color: var(--fs-muted) !important;
+}
+
+html[data-mode="flicksort"] .project-panel h1,
+html[data-mode="flicksort"] .inspector-panel h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  letter-spacing: -.045em;
+}
+
+html[data-mode="flicksort"] .project-panel h1 {
+  font-size: clamp(38px, 3.5vw, 55px);
+  line-height: .98;
+  margin-top: 18px;
+}
+
+html[data-mode="flicksort"] .version-switch a {
+  color: #655d54;
+  border-color: rgba(32, 27, 22, .17);
+  background: rgba(255, 251, 243, .28);
+}
+
+html[data-mode="flicksort"] .version-switch a:hover {
+  color: var(--fs-ink);
+  border-color: rgba(32, 27, 22, .4);
+}
+
+html[data-mode="flicksort"] .version-switch a.active {
+  color: var(--fs-cream);
+  border-color: var(--fs-ink);
+  background: var(--fs-ink);
+}
+
+html[data-mode="flicksort"] .instruction-card {
+  border-color: rgba(32, 27, 22, .18);
+}
+
+html[data-mode="flicksort"] .compact-key span {
+  color: #554c42;
+  border-color: rgba(32, 27, 22, .18);
+  background: rgba(255, 252, 245, .35);
+}
+
+html[data-mode="flicksort"] .flick-phone {
+  color: var(--fs-cream);
+  background: var(--fs-screen);
+  border: 6px solid #272720;
+  border-radius: 39px;
+  box-shadow: 0 36px 95px rgba(75, 55, 39, .34), 0 4px 20px rgba(55, 41, 30, .2);
+}
+
+html[data-mode="flicksort"] .phone-header {
+  padding: 18px 20px 11px;
+}
+
+html[data-mode="flicksort"] .phone-brand-icon {
+  color: var(--fs-ink);
+  background: var(--fs-cream);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  border-radius: 50%;
+}
+
+html[data-mode="flicksort"] .phone-name { color: var(--fs-cream); }
+html[data-mode="flicksort"] .phone-sub { color: rgba(245, 237, 223, .46); }
+html[data-mode="flicksort"] .small-icon {
+  color: var(--fs-cream);
+  border-color: rgba(245, 237, 223, .17);
+  background: rgba(255, 255, 255, .04);
+}
+
+html[data-mode="flicksort"] .task-strip {
+  margin: 1px 17px 11px;
+  min-height: 75px;
+  border: 1px solid rgba(245, 237, 223, .1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .025));
+}
+
+html[data-mode="flicksort"] .task-top { color: rgba(245, 237, 223, .43); }
+html[data-mode="flicksort"] .task-main {
+  color: var(--fs-cream);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 18px;
+}
+html[data-mode="flicksort"] .task-desc { color: rgba(245, 237, 223, .55); }
+
+html[data-mode="flicksort"] .stage-wrap {
+  padding: 0 14px;
+  min-height: 285px;
+}
+
+html[data-mode="flicksort"] .photo-stage {
+  min-height: 210px;
+  border: 1px solid rgba(245, 237, 223, .11);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .065), transparent 48%),
+    #090a08;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .32);
+  cursor: grab;
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+html[data-mode="flicksort"] .photo-stage:active { cursor: grabbing; }
+
+html[data-mode="flicksort"] .photo-deck {
+  position: absolute;
+  z-index: 4;
+  inset: 42px 15px 38px;
+  perspective: 900px;
+  pointer-events: none;
+}
+
+html[data-mode="flicksort"] .deck-card {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 17px;
+  background: #252620;
+  transform-origin: 50% 60%;
+  transition: transform 420ms var(--fs-ease), opacity 260ms ease, filter 260ms ease;
+  box-shadow: 0 18px 34px -16px rgba(0, 0, 0, .9);
+  will-change: transform, opacity;
+}
+
+html[data-mode="flicksort"] .deck-card img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+html[data-mode="flicksort"] .deck-card-2 {
+  z-index: 1;
+  opacity: .48;
+  filter: brightness(.52) saturate(.8);
+  transform: translateY(17px) scale(.91);
+}
+
+html[data-mode="flicksort"] .deck-card-1 {
+  z-index: 2;
+  opacity: .72;
+  filter: brightness(.7) saturate(.9);
+  transform: translateY(9px) scale(.955);
+}
+
+html[data-mode="flicksort"] .deck-card-active {
+  z-index: 3;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+}
+
+html[data-mode="flicksort"] .photo-stage.is-dragging .deck-card-active {
+  transition: none;
+  filter: saturate(1.03) brightness(1.02);
+  box-shadow: 0 24px 46px -14px rgba(0, 0, 0, .94);
+}
+
+html[data-mode="flicksort"] .photo-stage.is-dragging .deck-card-1 {
+  transform: translateY(6px) scale(.966);
+}
+
+html[data-mode="flicksort"] .corner-fade {
+  z-index: 6;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .18), transparent 25%, transparent 72%, rgba(0, 0, 0, .25));
+}
+
+html[data-mode="flicksort"] .corner-album {
+  --accent: var(--fs-edit);
+  position: absolute;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 72px;
+  padding: 5px 8px 5px 5px;
+  color: var(--fs-cream);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 11px;
+  background: rgba(9, 10, 8, .62);
+  opacity: .78;
+  pointer-events: none;
+  backdrop-filter: blur(9px);
+  transition: transform 190ms var(--fs-ease), opacity 160ms ease, border-color 160ms ease, box-shadow 190ms ease;
+}
+
+html[data-mode="flicksort"] .corner-album > span {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  color: #221d17;
+  border-radius: 7px;
+  background: var(--accent);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+html[data-mode="flicksort"] .corner-album strong {
+  font-size: 8px;
+  line-height: 1;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+html[data-mode="flicksort"] .corner-edit { --accent: var(--fs-edit); top: 9px; left: 9px; }
+html[data-mode="flicksort"] .corner-keep { --accent: var(--fs-keep); top: 9px; right: 9px; }
+html[data-mode="flicksort"] .corner-maybe { --accent: var(--fs-maybe); bottom: 9px; left: 9px; }
+html[data-mode="flicksort"] .corner-reject { --accent: var(--fs-reject); right: 9px; bottom: 9px; }
+
+html[data-mode="flicksort"] .corner-album.is-targeted {
+  z-index: 25;
+  opacity: 1;
+  border-color: var(--accent);
+  transform: scale(1.08);
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 28px -10px var(--accent);
+}
+
+html[data-mode="flicksort"] .photo-counter {
+  z-index: 14;
+  top: 50px;
+  left: 24px;
+  color: rgba(255, 255, 255, .88);
+  background: rgba(8, 9, 7, .42);
+}
+
+html[data-mode="flicksort"] .current-tag {
+  z-index: 14;
+  top: 50px;
+  right: 24px;
+}
+
+html[data-mode="flicksort"] .swipe-guide {
+  z-index: 14;
+  right: 24px;
+  bottom: 47px;
+  left: 24px;
+  color: rgba(255, 255, 255, .8);
+}
+
+html[data-mode="flicksort"] .direction-cue {
+  z-index: 28;
+  top: 50%;
+  right: auto !important;
+  bottom: auto !important;
+  left: 50% !important;
+  min-width: 138px !important;
+  padding: 10px 14px !important;
+  border-color: rgba(255, 255, 255, .18);
+  transform: translate(-50%, -50%) scale(.94) !important;
+}
+
+html[data-mode="flicksort"] .direction-cue.active {
+  transform: translate(-50%, -50%) scale(1) !important;
+}
+
+html[data-mode="flicksort"] .toast {
+  z-index: 30;
+  bottom: 45px;
+}
+
+html[data-mode="flicksort"] .flick-ghost {
+  position: absolute;
+  z-index: 22;
+  inset: 42px 15px 38px;
+  border-radius: 17px;
+  background-position: center;
+  background-size: cover;
+  pointer-events: none;
+  transition: transform 340ms cubic-bezier(.55, 0, .8, .35), opacity 330ms ease, filter 330ms ease;
+  will-change: transform, opacity;
+  box-shadow: 0 18px 34px -16px rgba(0, 0, 0, .9);
+}
+
+html[data-mode="flicksort"] .photo-detail {
+  height: 48px;
+  color: var(--fs-cream);
+}
+
+html[data-mode="flicksort"] .photo-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+html[data-mode="flicksort"] .photo-id { color: rgba(245, 237, 223, .4); }
+html[data-mode="flicksort"] .ghost-mini {
+  color: rgba(245, 237, 223, .72);
+  border-color: rgba(245, 237, 223, .14);
+  background: rgba(255, 255, 255, .035);
+}
+
+html[data-mode="flicksort"] .flick-filmstrip {
+  flex: 0 0 49px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 1px 0 7px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+html[data-mode="flicksort"] .film-thumb {
+  position: relative;
+  width: 33px;
+  height: 39px;
+  overflow: hidden;
+  border: 1px solid rgba(245, 237, 223, .11);
+  border-radius: 7px;
+  opacity: .43;
+  transform: translateY(1px);
+  transition: opacity 220ms ease, transform 240ms var(--fs-ease), width 240ms var(--fs-ease);
+}
+
+html[data-mode="flicksort"] .film-thumb img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+html[data-mode="flicksort"] .film-thumb.is-active {
+  width: 37px;
+  opacity: 1;
+  border-color: rgba(245, 237, 223, .88);
+  box-shadow: 0 0 0 1px rgba(245, 237, 223, .75);
+  transform: translateY(-2px);
+}
+
+html[data-mode="flicksort"] .film-thumb.is-empty {
+  visibility: hidden;
+}
+
+html[data-mode="flicksort"] .timeline {
+  margin-bottom: 8px;
+  background: rgba(245, 237, 223, .1);
+}
+html[data-mode="flicksort"] .timeline-fill { background: var(--fs-rust); }
+
+html[data-mode="flicksort"] .action-zone {
+  height: 103px;
+  color: var(--fs-cream);
+}
+html[data-mode="flicksort"] .action-head { color: rgba(245, 237, 223, .42); }
+html[data-mode="flicksort"] .gesture-actions {
+  height: 68px;
+  border-color: rgba(245, 237, 223, .14);
+  background: rgba(255, 255, 255, .035);
+}
+html[data-mode="flicksort"] .gesture-legend { color: rgba(245, 237, 223, .7); }
+html[data-mode="flicksort"] .keep-text { color: var(--fs-keep); }
+html[data-mode="flicksort"] .edit-text { color: var(--fs-edit); }
+html[data-mode="flicksort"] .maybe-text { color: var(--fs-maybe); }
+html[data-mode="flicksort"] .reject-text { color: var(--fs-reject); }
+html[data-mode="flicksort"] .gesture-caption { color: rgba(245, 237, 223, .34); }
+
+html[data-mode="flicksort"] .study-cta {
+  color: var(--fs-cream);
+  border-color: rgba(245, 237, 223, .12);
+  background: #1c201b;
+}
+html[data-mode="flicksort"] .study-cta strong { color: var(--fs-cream); }
+html[data-mode="flicksort"] .study-cta small { color: rgba(245, 237, 223, .5); }
+html[data-mode="flicksort"] .primary-button { color: var(--fs-screen); background: var(--fs-cream); }
+
+html[data-mode="flicksort"] .phone-footer {
+  color: var(--fs-cream);
+  border-color: rgba(245, 237, 223, .1);
+  background: #0e100d;
+}
+html[data-mode="flicksort"] .footer-button { color: rgba(245, 237, 223, .45); }
+html[data-mode="flicksort"] .footer-button.center { color: var(--fs-cream); }
+
+html[data-mode="flicksort"] .inspector-panel {
+  padding: 24px;
+  border: 1px solid rgba(32, 27, 22, .14);
+  border-radius: 22px;
+  background: rgba(255, 252, 245, .38);
+  backdrop-filter: blur(8px);
+}
+html[data-mode="flicksort"] .inspector-panel h2 { font-size: 34px; }
+html[data-mode="flicksort"] .stat-grid > div {
+  border-color: rgba(32, 27, 22, .12);
+  background: rgba(255, 252, 245, .45);
+}
+html[data-mode="flicksort"] .stat-grid small { color: var(--fs-muted); }
+html[data-mode="flicksort"] .inspector-rule { background: rgba(32, 27, 22, .14); }
+html[data-mode="flicksort"] .event-readout { color: #514a41; }
+html[data-mode="flicksort"] .inspector-start {
+  color: var(--fs-cream);
+  border-color: var(--fs-ink);
+  background: var(--fs-ink);
+}
+
+@media (max-width: 1100px) {
+  html[data-mode="flicksort"] .workspace {
+    grid-template-columns: minmax(245px, 300px) minmax(345px, 410px);
+  }
+}
+
+@media (max-width: 690px) {
+  html[data-mode="flicksort"] body { background: var(--fs-screen); }
+  html[data-mode="flicksort"] body::before { opacity: .05; }
+  html[data-mode="flicksort"] .workspace { padding: 0; }
+  html[data-mode="flicksort"] .flick-phone {
+    border: 0;
+    border-radius: 0;
+    background: var(--fs-screen);
+  }
+  html[data-mode="flicksort"] .phone-header { padding-top: max(13px, env(safe-area-inset-top)); }
+  html[data-mode="flicksort"] .stage-wrap { padding: 0 12px; min-height: 220px; }
+  html[data-mode="flicksort"] .photo-stage { min-height: 178px; }
+  html[data-mode="flicksort"] .photo-deck,
+  html[data-mode="flicksort"] .flick-ghost { inset: 40px 12px 36px; }
+  html[data-mode="flicksort"] .corner-album { min-width: 68px; }
+  html[data-mode="flicksort"] .film-thumb { width: 31px; height: 37px; }
+  html[data-mode="flicksort"] .film-thumb.is-active { width: 35px; }
+}
+
+@media (max-height: 720px) {
+  html[data-mode="flicksort"] .task-strip { min-height: 61px; padding: 8px 12px; margin-bottom: 7px; }
+  html[data-mode="flicksort"] .task-main { margin-top: 4px; font-size: 15px; }
+  html[data-mode="flicksort"] .task-desc { margin-top: 2px; }
+  html[data-mode="flicksort"] .stage-wrap { min-height: 170px; }
+  html[data-mode="flicksort"] .photo-stage { min-height: 132px; }
+  html[data-mode="flicksort"] .photo-deck,
+  html[data-mode="flicksort"] .flick-ghost { inset: 38px 11px 34px; }
+  html[data-mode="flicksort"] .photo-detail { height: 39px; }
+  html[data-mode="flicksort"] .flick-filmstrip { flex-basis: 37px; padding-bottom: 4px; }
+  html[data-mode="flicksort"] .film-thumb { width: 27px; height: 31px; }
+  html[data-mode="flicksort"] .film-thumb.is-active { width: 30px; height: 34px; }
+  html[data-mode="flicksort"] .action-zone { height: 88px; padding-top: 5px; }
+  html[data-mode="flicksort"] .gesture-actions { height: 60px; padding-top: 5px; }
+  html[data-mode="flicksort"] .gesture-caption { padding-top: 3px; }
+  html[data-mode="flicksort"] .phone-footer { height: calc(52px + env(safe-area-inset-bottom, 0px)); }
+}
+
+@media (max-width: 370px) {
+  html[data-mode="flicksort"] .corner-album { min-width: 0; padding-right: 5px; }
+  html[data-mode="flicksort"] .corner-album strong { display: none; }
+  html[data-mode="flicksort"] .photo-counter { left: 18px; }
+  html[data-mode="flicksort"] .current-tag { right: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-mode="flicksort"] *,
+  html[data-mode="flicksort"] *::before,
+  html[data-mode="flicksort"] *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+
+  html[data-mode="flicksort"] .flick-ghost { display: none !important; }
+}

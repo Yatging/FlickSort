@@ -7,6 +7,8 @@
 
 The two pages share `shared.css`, `app.js` and a folder of 24 **bundled sample photos**, so no internet connection or account is required for the actual interface. The interface uses system-font fallbacks and requires no online font service.
 
+`flicksort.css` is an additional FlickSort-only presentation layer. It supplies the editorial desktop setting, dark stacked-card viewer, corner labels, filmstrip and release animations without changing the Classic control layout. Gesture recognition and event logging still run synchronously on pointer release; visual fly-out effects are non-blocking, and `prefers-reduced-motion` removes them.
+
 ## Open
 
 Unzip the whole folder (preserve the `assets/` subfolder). The easiest desktop option is opening `classic.html` or `flicksort.html` directly in a browser. For the most reliable mobile experience, serve the folder over your local network using:
@@ -62,7 +64,8 @@ Events include `event_timestamp`, `event_type`, `gesture_dx`, `gesture_dy`, `dis
 ## Files
 
 - `classic.html` and `flicksort.html`: two separate entry pages.
-- `shared.css`: layout, phone frame, responsive rules.
+- `shared.css`: matched layout, phone frame and responsive foundations used by both versions.
+- `flicksort.css`: FlickSort-only visual treatment, card-stack motion and reduced-motion fallback.
 - `app.js`: photo navigation, classification, angle recognition, practice/main study manager and CSV export.
 - `assets/photos/01.jpg ... 24.jpg`: full-size example images.
 - `assets/thumbs/01.jpg ... 24.jpg`: grid thumbnails.

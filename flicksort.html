@@ -4,6 +4,7 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#10171b">
   <title>FlickSort — Gesture Photo Gallery · FlickSort Study</title>
   <link rel="stylesheet" href="shared.css">
+  <link rel="stylesheet" href="flicksort.css">
 </head>
 <body>
 <div class="workspace">
@@ -17,11 +18,28 @@
     <p class="muted-foot">Identical pictures, labels, navigation and data capture in both versions.</p>
   </aside>
 
-  <main class="phone" id="phoneApp">
+  <main class="phone flick-phone" id="phoneApp">
     <header class="phone-header"><div class="phone-brand"><div class="phone-brand-icon">F.</div><div><div class="phone-name">FLICKSORT</div><div class="phone-sub">Directional gesture</div></div></div><button class="small-icon" id="helpBtn" aria-label="Show gesture guide" title="Help">?</button></header>
     <section class="task-strip" id="taskStrip"><div class="task-top"><span id="taskKicker">YOUR LIBRARY</span><span id="taskCount">24 photos</span></div><div class="task-main" id="taskTitle">Every shot has a story.</div><div class="task-desc" id="taskDescription">Browse sideways. Swipe diagonally to sort.</div></section>
-    <section class="stage-wrap"><div class="photo-stage" id="touchZone" aria-label="Photo viewer; swipe left to next photo, right to previous"><img id="mainPhoto" draggable="false" src="assets/photos/01.jpg" alt="Sample photograph"><div class="corner-fade"></div><div class="photo-counter" id="photoCounter">01 / 24</div><div class="current-tag" id="currentTag" hidden></div><div class="direction-cue" id="directionCue" aria-live="polite"></div><div class="toast" id="toast" role="status" aria-live="polite"></div><div class="swipe-guide" id="swipeGuide"><span>← NEXT</span><span>PREVIOUS →</span></div></div>
+    <section class="stage-wrap"><div class="photo-stage" id="touchZone" aria-label="Photo viewer; swipe left to next photo, right to previous; diagonally toward a colored corner to classify">
+      <div class="corner-album corner-edit" data-corner="edit" aria-hidden="true"><span>↖</span><strong>Edit</strong></div>
+      <div class="corner-album corner-keep" data-corner="keep" aria-hidden="true"><span>↗</span><strong>Keep</strong></div>
+      <div class="corner-album corner-maybe" data-corner="maybe" aria-hidden="true"><span>↙</span><strong>Maybe</strong></div>
+      <div class="corner-album corner-reject" data-corner="reject" aria-hidden="true"><span>↘</span><strong>Reject</strong></div>
+      <div class="photo-deck" id="photoDeck">
+        <div class="deck-card deck-card-2" aria-hidden="true"><img id="stackPhoto2" draggable="false" src="assets/photos/03.jpg" alt=""></div>
+        <div class="deck-card deck-card-1" aria-hidden="true"><img id="stackPhoto1" draggable="false" src="assets/photos/02.jpg" alt=""></div>
+        <div class="deck-card deck-card-active" id="gestureCard"><img id="mainPhoto" draggable="false" src="assets/photos/01.jpg" alt="Sample photograph"></div>
+      </div>
+      <div class="corner-fade"></div><div class="photo-counter" id="photoCounter">01 / 24</div><div class="current-tag" id="currentTag" hidden></div><div class="direction-cue" id="directionCue" aria-live="polite"></div><div class="toast" id="toast" role="status" aria-live="polite"></div><div class="swipe-guide" id="swipeGuide"><span>← NEXT</span><span>PREVIOUS →</span></div></div>
       <div class="photo-detail"><div><div class="photo-title" id="photoTitle">Morning ritual</div><div class="photo-id" id="photoId">PHOTO #01 · SHOT 1/3</div></div><div class="detail-action"><button class="ghost-mini" id="undoBtn" title="Undo last classification" disabled>↶ &nbsp;Undo</button></div></div>
+      <div class="flick-filmstrip" id="flickFilmstrip" aria-label="Nearby photos" aria-live="off">
+        <span class="film-thumb" data-offset="-2"><img draggable="false" alt=""></span>
+        <span class="film-thumb" data-offset="-1"><img draggable="false" alt=""></span>
+        <span class="film-thumb is-active" data-offset="0"><img draggable="false" src="assets/thumbs/01.jpg" alt="Current photo"></span>
+        <span class="film-thumb" data-offset="1"><img draggable="false" src="assets/thumbs/02.jpg" alt=""></span>
+        <span class="film-thumb" data-offset="2"><img draggable="false" src="assets/thumbs/03.jpg" alt=""></span>
+      </div>
       <div class="timeline"><div class="timeline-fill" id="timelineFill"></div></div>
     </section>
     <section class="action-zone"><div class="action-head"><span>GESTURE TO CLASSIFY</span><span id="classificationSummary">0 / 24 SORTED</span></div><div class="gesture-actions" id="gestureActions"><div class="gesture-row"><div class="gesture-legend"><span class="gesture-arrow edit-text">↖</span><span>Edit</span></div><div class="gesture-legend"><span class="gesture-arrow keep-text">↗</span><span>Keep</span></div><div class="gesture-legend"><span class="gesture-arrow maybe-text">↙</span><span>Maybe</span></div><div class="gesture-legend"><span class="gesture-arrow reject-text">↘</span><span>Reject</span></div></div><div class="gesture-caption">No long press. Just swipe from the photo.</div></div></section>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101514">
+  <title>FlickSort Vehicle Study · V3</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell" id="appShell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="FlickSort study home"><span>F</span>lickSort <b>V3</b></a>
+      <div class="build-chip">BUILD <span id="buildLabel">3.0.0</span></div>
+    </header>
+
+    <section class="screen setup-screen" id="setupScreen">
+      <div class="setup-copy">
+        <p class="eyebrow">CITY VEHICLE RECOGNITION STUDY</p>
+        <h1>One picture.<br><em>One clear rule.</em></h1>
+        <p class="lede">A standalone CAPTCHA-style test using original, controlled illustrations. The Classic and FlickSort conditions use exactly the same images, answers, levels and instructions.</p>
+        <div class="scope-note"><strong>No photography terms.</strong> Count every visible bus and ordinary passenger car, even if it is small or partly near an edge.</div>
+      </div>
+
+      <form class="setup-card" id="setupForm">
+        <div class="card-head"><span>NEW STUDY RUN</span><small>Local data only</small></div>
+        <label class="field">Anonymous participant ID
+          <input id="participantId" name="participant" autocomplete="off" maxlength="24" placeholder="e.g. P014" required>
+        </label>
+        <fieldset>
+          <legend>Technique</legend>
+          <div class="segmented">
+            <label><input type="radio" name="technique" value="classic" checked><span><b>Classic</b><small>Tap four buttons</small></span></label>
+            <label><input type="radio" name="technique" value="flicksort"><span><b>FlickSort</b><small>Diagonal gestures</small></span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Run</legend>
+          <div class="segmented">
+            <label><input type="radio" name="runMode" value="demo" checked><span><b>Demo</b><small>4 tasks + 2 navigation</small></span></label>
+            <label><input type="radio" name="runMode" value="pilot"><span><b>Full pilot</b><small>Tutorial + 24 + 4 navigation</small></span></label>
+          </div>
+        </fieldset>
+        <div class="benchmark-note"><span>⏱</span><div><b>T_ref = 180 seconds</b><small>Provisional demonstration benchmark; not pilot-validated.</small></div></div>
+        <button class="primary wide" type="submit">Start <span>→</span></button>
+        <p class="privacy">Responses stay in this browser until you download the CSV files.</p>
+      </form>
+    </section>
+
+    <section class="screen study-screen" id="studyScreen" hidden>
+      <aside class="study-sidebar">
+        <div class="run-meta"><span id="sideTechnique">CLASSIC</span><small id="sideParticipant">P000</small></div>
+        <div class="phase-list" aria-label="Study progress">
+          <div data-phase="tutorial"><i>1</i><span>Tutorial<small>Not scored</small></span></div>
+          <div data-phase="level1"><i>2</i><span>Level 1<small>Bus or no bus</small></span></div>
+          <div data-phase="level2"><i>3</i><span>Level 2<small>Vehicle sorting</small></span></div>
+          <div data-phase="navigation"><i>4</i><span>Navigation<small>No classification</small></span></div>
+          <div data-phase="results"><i>5</i><span>Results<small>Screenshot + CSV</small></span></div>
+        </div>
+        <button class="text-button" id="quitBtn">End this local run</button>
+      </aside>
+
+      <div class="study-main">
+        <section class="task-banner" id="taskBanner">
+          <div><p id="phaseKicker">TUTORIAL · NOT SCORED</p><h2 id="taskTitle">Learn the controls</h2></div>
+          <div class="task-progress"><span id="trialCounter">1 / 4</span><div><i id="trialProgress"></i></div></div>
+          <p id="taskInstruction">Follow the short practice steps. Correct answers are shown only here.</p>
+        </section>
+
+        <section class="rule-card" id="ruleCard" aria-label="Current classification rules">
+          <div data-rule="keep"><i>✓</i><span><b>Keep</b><small id="ruleKeep">Bus visible</small></span></div>
+          <div data-rule="edit"><i>✎</i><span><b>Edit</b><small id="ruleEdit">Car only</small></span></div>
+          <div data-rule="maybe"><i>?</i><span><b>Maybe</b><small id="ruleMaybe">Bus + car</small></span></div>
+          <div data-rule="reject"><i>×</i><span><b>Reject</b><small id="ruleReject">Neither</small></span></div>
+        </section>
+
+        <section class="viewer-panel">
+          <div class="photo-stage" id="touchZone">
+            <div class="corner-target edit"><span>↖</span><b>Edit</b></div>
+            <div class="corner-target keep"><span>↗</span><b>Keep</b></div>
+            <div class="corner-target maybe"><span>↙</span><b>Maybe</b></div>
+            <div class="corner-target reject"><span>↘</span><b>Reject</b></div>
+            <div class="card-stack" id="photoDeck">
+              <div class="photo-card back-two"><img id="backPhoto2" alt=""></div>
+              <div class="photo-card back-one"><img id="backPhoto1" alt=""></div>
+              <div class="photo-card active-card" id="gestureCard"><img id="mainPhoto" draggable="false" alt="Controlled vehicle scene"></div>
+            </div>
+            <div class="photo-badge" id="photoBadge">L1-01</div>
+            <div class="current-label" id="currentLabel" hidden></div>
+            <div class="gesture-preview" id="gesturePreview" aria-live="polite"></div>
+            <div class="toast" id="toast" role="status" aria-live="polite"></div>
+            <div class="browse-hint"><span>← NEXT</span><span>PREVIOUS →</span></div>
+          </div>
+
+          <div class="photo-meta">
+            <div><h3 id="photoName">Market Street</h3><p id="photoMeta">IMAGE 01 · CONTROLLED ILLUSTRATION</p></div>
+            <div class="undo-wrap">
+              <select id="undoReason" aria-label="Reason for undo">
+                <option value="unspecified">Undo reason…</option>
+                <option value="content_rethink">Content rethink</option>
+                <option value="accidental_input">Accidental input</option>
+              </select>
+              <button id="undoBtn" class="secondary" disabled>↶ Undo</button>
+            </div>
+          </div>
+
+          <div class="controls-row">
+            <div class="classic-controls" id="classicControls">
+              <button data-label="edit" class="edit"><span>✎</span>Edit</button>
+              <button data-label="keep" class="keep"><span>✓</span>Keep</button>
+              <button data-label="maybe" class="maybe"><span>?</span>Maybe</button>
+              <button data-label="reject" class="reject"><span>×</span>Reject</button>
+            </div>
+            <div class="flick-legend" id="flickLegend" hidden><span>↖ Edit</span><span>↗ Keep</span><span>↙ Maybe</span><span>↘ Reject</span><small>Release after a diagonal swipe · no long press</small></div>
+          </div>
+
+          <div class="submit-row">
+            <div><b id="submitHeading">Choose one category</b><small id="submitHint">Then submit your final answer.</small></div>
+            <button class="primary" id="submitBtn">Submit <span>→</span></button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="screen results-screen" id="resultsScreen" hidden>
+      <article class="result-card" id="resultCard">
+        <header><div><p>FLICKSORT VEHICLE STUDY</p><h1>Results / 结果</h1></div><div class="result-build"><span id="resultBuild">v3.0.0</span><small id="resultTimestamp"></small></div></header>
+        <div class="result-identity"><span><small>Participant</small><b id="resultParticipant">—</b></span><span><small>Technique</small><b id="resultTechnique">—</b></span><span><small>Asset set</small><b>city-vehicles-v1</b></span></div>
+        <div class="score-hero"><div class="score-ring"><strong id="overallScore">0</strong><span>/ 100</span></div><div><p>总分 / OVERALL SCORE</p><h2 id="scoreLabel">Demo preview</h2><small id="benchmarkLabel">Provisional demonstration benchmark · T_ref 180s</small></div></div>
+        <div class="metric-grid">
+          <div><span id="accuracyMetric">0%</span><small>准确率 / Accuracy</small></div>
+          <div><span id="timeMetric">0:00.0</span><small>主动用时 / Active time</small></div>
+          <div><span id="cancelMetric">0</span><small>取消 / Cancels</small></div>
+          <div><span id="undoMetric">0</span><small>撤销 / Undo</small></div>
+          <div><span id="navErrorMetric">0</span><small>导航误触 / Nav miscues</small></div>
+          <div><span id="navCorrectMetric">0 / 4</span><small>正确到达 / Nav correct</small></div>
+        </div>
+        <div class="score-formula" id="formulaText">70 × classification accuracy + 20 × time factor + 10 × navigation accuracy</div>
+        <p class="fairness-note">Cancels and Undo are shown separately but are not included in the score: gesture cancellation is technique-specific, and Undo can be reasonable error correction. Formal analysis must use time, accuracy and error measures separately—not the overall score alone.</p>
+      </article>
+      <div class="result-actions">
+        <button class="primary" id="downloadTrials">Download trials CSV</button>
+        <button class="secondary" id="downloadEvents">Download events CSV</button>
+        <button class="text-button" id="restartBtn">Start another run</button>
+      </div>
+    </section>
+  </main>
+  <script src="scoring.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

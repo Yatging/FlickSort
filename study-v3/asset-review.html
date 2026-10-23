@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FlickSort V3 · Stimulus Review Sheet</title>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#17201e;background:#f1eee7}body{margin:0;padding:28px}header{max-width:1100px;margin:auto auto 22px}h1{margin:0;font:500 42px Georgia,serif}p{color:#65706d;line-height:1.5}.warning{padding:12px 14px;border-left:4px solid #d6603f;background:#fff8e7}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;max-width:1400px;margin:auto}.card{overflow:hidden;border:1px solid #d6d1c6;border-radius:15px;background:white}.card img{width:100%;aspect-ratio:8/5;display:block;object-fit:cover;background:#d7ddd9}.copy{padding:12px}.top{display:flex;justify-content:space-between;gap:8px}.id{font-weight:850}.answer{padding:3px 7px;color:white;border-radius:6px;background:#17201e;font-size:11px;text-transform:uppercase}.facts{margin:7px 0;font-size:12px;font-weight:750}.reason{margin:0;color:#65706d;font-size:11px}.status{display:block;margin-top:8px;color:#a04b33;font-size:10px;font-weight:750}button{padding:10px 14px;border:0;border-radius:9px;color:white;background:#17201e;cursor:pointer}@media print{button{display:none}body{padding:10px}.grid{grid-template-columns:repeat(3,1fr);gap:7px}.card{break-inside:avoid}.copy{padding:7px}}
+  </style>
+</head>
+<body>
+  <header><h1>Stimulus review sheet</h1><p>Asset set: <b>city-vehicles-v1</b> · 24 original deterministic illustrations.</p><p class="warning"><b>Status:</b> generator inputs and browser rendering have been checked by the implementation agent. Independent human review is still required before formal data collection; this page does not mark that review complete.</p><button onclick="window.print()">Print / Save review sheet</button></header>
+  <main class="grid" id="grid"></main>
+  <script>
+    fetch('image_manifest.json').then(r=>r.json()).then(items=>{
+      document.querySelector('#grid').innerHTML=items.map(item=>`<article class="card"><img src="${item.file}" alt="${item.alt}"><div class="copy"><div class="top"><span class="id">${item.id.toUpperCase()} · ${item.title}</span><span class="answer">${item.answer}</span></div><div class="facts">Bus: ${item.contains_bus?'YES':'NO'} · Car: ${item.contains_car?'YES':'NO'}</div><p class="reason">${item.reason}</p><span class="status">Independent human review: PENDING</span></div></article>`).join('');
+    });
+  </script>
+</body>
+</html>

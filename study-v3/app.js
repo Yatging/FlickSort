@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const BUILD = "3.2.0";
+  const BUILD = "3.2.1";
   const ASSET_SET = "image-selection-realistic-v2";
   const T_REF_MS = 180000;
   const MIN_GESTURE = 60;
@@ -250,7 +250,9 @@
       ? `${completed} / ${total} · GROUP ${state.techniqueBlockIndex + 1}/${state.techniqueBlockCount}`
       : `${state.trialIndex + 1} / ${total}`;
     $("#trialProgress").style.width = `${((isChapter ? completed : state.trialIndex + 1) / total) * 100}%`;
-    $("#photoBadge").textContent = item.id.toUpperCase() + (state.phase === "navigation" && item.id === target.id ? " · TARGET" : "");
+    const targetReached = state.phase === "navigation" && item.id === target.id;
+    $("#photoBadge").textContent = item.id.toUpperCase() + (targetReached ? " · TARGET" : "");
+    $("#photoBadge").classList.toggle("target-match", targetReached);
     $("#photoMeta").textContent = `PHOTO ${item.id.toUpperCase()}`;
     $("#mainPhoto").src = item.file;
     $("#mainPhoto").alt = item.alt;
@@ -313,11 +315,15 @@
 
   function renderTaskInstruction() {
     const item = currentItem();
+    const navigation = state.phase === "navigation";
+    $("#taskBanner").classList.toggle("navigation-mode", navigation);
+    $("#navigationTarget").hidden = !navigation;
+    if (navigation) $("#navigationTargetId").textContent = item.id.toUpperCase();
     const setTaskPrompt = (text) => {
       $("#taskInstruction").textContent = text;
       $("#photoTaskPrompt").textContent = text;
     };
-    if (state.phase === "navigation") {
+    if (navigation) {
       setTaskPrompt(`Swipe left or right until ${item.id.toUpperCase()} is visible. Do not classify any photo.`);
       $("#submitHeading").textContent = "Navigation only";
       $("#submitHint").textContent = "Submit when the target picture is visible.";

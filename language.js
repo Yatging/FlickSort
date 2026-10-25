@@ -134,6 +134,7 @@
     ["Download trials CSV", "下载试次 CSV"], ["Download events CSV", "下载事件 CSV"], ["Start another run", "开始新测试"],
     ["Bus visible / 有巴士", "有巴士"], ["Not used / 不使用", "不使用"], ["No bus / 无巴士", "没有巴士"], ["Bus only / 只有巴士", "只有巴士"], ["Car only / 只有小汽车", "只有小汽车"], ["Bus + car / 两者都有", "两者都有"], ["Neither / 两者都没有", "两者都没有"],
     ["Navigation only / 仅导航", "仅导航"], ["Navigation only", "仅导航"], ["Submit when the target picture is visible.", "显示目标图片后提交。"], ["I’m there", "已到达"],
+    ["TARGET PHOTO", "目标照片"], ["Swipe until this photo ID is visible", "左右滑动，直到显示此照片编号"],
     ["Swipe left or right until L1-03 is visible. Do not classify any photo.", "左右滑动，直到显示 L1-03；不要为任何图片分类。"],
     ["Swipe left or right until L2-05 is visible. Do not classify any photo.", "左右滑动，直到显示 L2-05；不要为任何图片分类。"],
     ["Swipe left or right until L1-10 is visible. Do not classify any photo.", "左右滑动，直到显示 L1-10；不要为任何图片分类。"],

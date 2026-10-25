@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101514">
   <title>FlickSort Image Selection Study · V3</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3.2.1">
 </head>
 <body>
   <main class="app-shell" id="appShell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="FlickSort study home"><span>F</span>lickSort <b>V3</b></a>
-      <div class="build-chip">BUILD <span id="buildLabel">3.2.0</span></div>
+      <div class="build-chip">BUILD <span id="buildLabel">3.2.1</span></div>
     </header>
 
     <section class="screen setup-screen" id="setupScreen">
@@ -60,6 +60,11 @@
           <div class="task-heading">
             <p id="phaseKicker">TUTORIAL · NOT SCORED</p>
             <h2 id="taskInstruction">Follow the instruction below. Correct answers are shown only during practice.</h2>
+            <div class="navigation-target" id="navigationTarget" hidden>
+              <span>TARGET PHOTO</span>
+              <strong id="navigationTargetId">L1-03</strong>
+              <small>Swipe until this photo ID is visible</small>
+            </div>
             <div class="task-context"><span id="taskTitle">Learn the controls</span><span class="technique-chip" id="techniqueChip">CLASSIC</span></div>
           </div>
           <div class="task-progress"><span id="trialCounter">1 / 4</span><div><i id="trialProgress"></i></div></div>
@@ -146,8 +151,8 @@
       </div>
     </section>
   </main>
-  <script src="../language.js?v=3.3.0"></script>
-  <script src="scoring.js"></script>
-  <script src="app.js"></script>
+  <script src="../language.js?v=3.3.1"></script>
+  <script src="scoring.js?v=3.2.1"></script>
+  <script src="app.js?v=3.2.1"></script>
 </body>
 </html>

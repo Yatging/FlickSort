@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const BUILD = "3.1.0";
+  const BUILD = "3.1.1";
   const ASSET_SET = "image-selection-realistic-v2";
   const T_REF_MS = 180000;
   const MIN_GESTURE = 60;
@@ -171,8 +171,7 @@
     $("#trialCounter").textContent = isChapter ? `${completed} / ${total}` : `${state.trialIndex + 1} / ${total}`;
     $("#trialProgress").style.width = `${((isChapter ? completed : state.trialIndex + 1) / total) * 100}%`;
     $("#photoBadge").textContent = item.id.toUpperCase() + (state.phase === "navigation" && item.id === target.id ? " · TARGET" : "");
-    $("#photoName").textContent = item.title;
-    $("#photoMeta").textContent = `${item.id.toUpperCase()} · ORIGINAL CONTROLLED PHOTO`;
+    $("#photoMeta").textContent = `PHOTO ${item.id.toUpperCase()}`;
     $("#mainPhoto").src = item.file;
     $("#mainPhoto").alt = item.alt;
     const idx = state.currentImageIndex;
@@ -222,8 +221,12 @@
 
   function renderTaskInstruction() {
     const item = currentItem();
+    const setTaskPrompt = (text) => {
+      $("#taskInstruction").textContent = text;
+      $("#photoTaskPrompt").textContent = text;
+    };
     if (state.phase === "navigation") {
-      $("#taskInstruction").textContent = `Swipe left or right until ${item.id.toUpperCase()} is visible. Do not classify any photo.`;
+      setTaskPrompt(`Swipe left or right until ${item.id.toUpperCase()} is visible. Do not classify any photo.`);
       $("#submitHeading").textContent = "Navigation only";
       $("#submitHint").textContent = "Submit when the target picture is visible.";
       $("#submitBtn").innerHTML = "I’m there <span>→</span>";
@@ -234,11 +237,11 @@
       const tips = currentTechnique() === "flicksort"
         ? ["FlickSort: swipe diagonally toward the category shown in the rule card.", "FlickSort: ↖ Edit, ↗ Keep, ↙ Maybe, ↘ Reject.", "FlickSort: a short or unclear diagonal swipe cancels safely.", "FlickSort: classify this photo, then press Submit for practice feedback."]
         : ["Classic: tap one of the four category buttons below the photo.", "Classic: use the rule card, then tap the matching category.", "Classic: Undo can correct an accidental button tap.", "Classic: classify this photo, then press Submit for practice feedback."];
-      $("#taskInstruction").textContent = tips[state.trialIndex];
+      setTaskPrompt(tips[state.trialIndex]);
     } else if (state.phase === "level1") {
-      $("#taskInstruction").textContent = "For every photo: if any bus is visible, choose Keep. If no bus is visible, choose Reject.";
+      setTaskPrompt("For every photo: if any bus is visible, choose Keep. If no bus is visible, choose Reject.");
     } else {
-      $("#taskInstruction").textContent = "Classify every photo: bus only → Keep; car only → Edit; both → Maybe; neither → Reject.";
+      setTaskPrompt("Classify every photo: bus only → Keep; car only → Edit; both → Maybe; neither → Reject.");
     }
     if (state.phase === "tutorial") {
       $("#submitHeading").textContent = state.selectedLabel ? `Selected: ${LABELS[state.selectedLabel].en}` : "Choose one category";

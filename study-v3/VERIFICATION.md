@@ -2,7 +2,7 @@
 
 Date: 2026-10-25 (Asia/Hong_Kong)
 
-Build: `3.1.0`
+Build: `3.1.1`
 Asset set: `image-selection-realistic-v2`
 
 ## Completed checks
@@ -20,6 +20,7 @@ Asset set: `image-selection-realistic-v2`
 - Visually reviewed both generated source sheets and all 24 browser-rendered crops against their manifest bus/car flags and answer labels. Each target vehicle is distinct and the backgrounds contain no unplanned buses or passenger cars.
 - Ran automated boundary checks for Overall Score, rounding, clipping and all six gesture mappings (next, previous, Edit, Keep, Maybe, Reject), plus short-motion cancellation.
 - Verified EN / 中文 switching on the revised results screen, including the image-selection study title and mixed auto-alternating technique label. The selected language does not change experiment codes or answers.
+- Verified the revised L2 task hierarchy in English and Chinese: the complete classification rule is the primary page heading, the same live instruction is repeated in a highlighted `CURRENT TASK` panel beside the controls, and the photo ID is reduced to secondary metadata.
 
 ## Honest remaining limitations
 

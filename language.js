@@ -107,6 +107,7 @@
     ["Classic: tap one of the four category buttons below the photo.", "Classic：点击图片下方四个分类按钮之一。"], ["Classic: use the rule card, then tap the matching category.", "Classic：根据规则卡判断，然后点击对应类别。"], ["Classic: Undo can correct an accidental button tap.", "Classic：可用撤销纠正意外点击。"], ["Classic: classify this photo, then press Submit for practice feedback.", "Classic：为当前图片分类，然后点击提交查看练习反馈。"],
     ["For every photo: if any bus is visible, choose Keep. If no bus is visible, choose Reject.", "处理每张图片：只要看见任何巴士，就选择“保留”；没有巴士，就选择“拒绝”。"],
     ["Classify every photo: bus only → Keep; car only → Edit; both → Maybe; neither → Reject.", "为每张图片分类：只有巴士 → 保留；只有小汽车 → 编辑；两者都有 → 待定；两者都没有 → 拒绝。"],
+    ["CURRENT TASK", "当前任务"], ["Follow the instruction above.", "请按照上方任务指示操作。"],
     ["Finish every photo; you may work in any order.", "完成所有图片；可以按任意顺序处理。"], ["All photos are classified. Review freely or submit this chapter.", "所有图片均已分类；你可以自由检查或提交本章。"], ["Submit chapter", "提交本章"],
     ["DEMO · 4 REPRESENTATIVE TASKS", "DEMO · 4 个代表性任务"], ["Vehicle sorting demo", "车辆分类演示"], ["LEVEL 1 · 12 IMAGES", "关卡 1 · 12 张图片"], ["City Trip Cleanup", "城市出行整理"], ["LEVEL 2 · 12 IMAGES", "关卡 2 · 12 张图片"], ["City Vehicle Sorting", "城市车辆分类"], ["NAVIGATION ONLY", "仅导航"], ["Find the named picture", "找到指定图片"],
     ["Swipe ← next and → previous. Diagonal ↗ means Keep.", "左滑 ← 下一张，右滑 → 上一张；右上 ↗ 表示保留。"],
@@ -224,6 +225,7 @@
       if ((m = text.match(/^Current photo (\d+)$/))) return `当前照片 ${m[1]}`;
       if ((m = text.match(/^Photo (\d+)$/))) return `照片 ${m[1]}`;
       if ((m = text.match(/^Photo (L[12]-\d+)$/))) return `图片 ${m[1]}`;
+      if ((m = text.match(/^PHOTO (L[12]-\d+)$/))) return `图片编号 ${m[1]}`;
       if ((m = text.match(/^(\d+) of (\d+) photos classified$/))) return `已分类 ${m[1]} / ${m[2]} 张图片`;
       if ((m = text.match(/^Still unfinished: (.+)$/))) return `尚未完成：${m[1]}`;
       if ((m = text.match(/^(Level 1|Level 2|Demo) unfinished: (.+)$/))) return `${translateString(m[1], "zh")}尚未完成：${m[2]}`;
@@ -257,6 +259,7 @@
       if ((m = text.match(/^当前照片 (\d+)$/))) return `Current photo ${m[1]}`;
       if ((m = text.match(/^照片 (\d+)$/))) return `Photo ${m[1]}`;
       if ((m = text.match(/^图片 (L[12]-\d+)$/))) return `Photo ${m[1]}`;
+      if ((m = text.match(/^图片编号 (L[12]-\d+)$/))) return `PHOTO ${m[1]}`;
       if ((m = text.match(/^已分类 (\d+) \/ (\d+) 张图片$/))) return `${m[1]} of ${m[2]} photos classified`;
       if ((m = text.match(/^尚未完成：(.+)$/))) return `Still unfinished: ${m[1]}`;
       if ((m = text.match(/^(关卡 1|关卡 2|Demo)尚未完成：(.+)$/))) return `${translateString(m[1], "en")} unfinished: ${m[2]}`;

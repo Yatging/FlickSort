@@ -56,9 +56,12 @@
 
       <div class="study-main">
         <section class="task-banner" id="taskBanner">
-          <div><p id="phaseKicker">TUTORIAL · NOT SCORED</p><h2 id="taskTitle">Learn the controls</h2><span class="technique-chip" id="techniqueChip">CLASSIC</span></div>
+          <div class="task-heading">
+            <p id="phaseKicker">TUTORIAL · NOT SCORED</p>
+            <h2 id="taskInstruction">Follow the instruction below. Correct answers are shown only during practice.</h2>
+            <div class="task-context"><span id="taskTitle">Learn the controls</span><span class="technique-chip" id="techniqueChip">CLASSIC</span></div>
+          </div>
           <div class="task-progress"><span id="trialCounter">1 / 4</span><div><i id="trialProgress"></i></div></div>
-          <p id="taskInstruction">Follow the instruction below. Correct answers are shown only during practice.</p>
         </section>
 
         <section class="rule-card" id="ruleCard" aria-label="Current classification rules">
@@ -87,7 +90,10 @@
           </div>
 
           <div class="photo-meta">
-            <div><h3 id="photoName">Photo L1-01</h3><p id="photoMeta">ORIGINAL CONTROLLED PHOTO</p></div>
+            <div class="task-reminder" role="note" aria-live="polite">
+              <div class="task-reminder-head"><span>CURRENT TASK</span><small id="photoMeta">PHOTO L1-01</small></div>
+              <strong id="photoTaskPrompt">Follow the instruction above.</strong>
+            </div>
             <div class="undo-wrap">
               <select id="undoReason" aria-label="Reason for undo">
                 <option value="unspecified">Undo reason…</option>
@@ -139,7 +145,7 @@
       </div>
     </section>
   </main>
-  <script src="../language.js?v=3.2.0"></script>
+  <script src="../language.js?v=3.2.1"></script>
   <script src="scoring.js"></script>
   <script src="app.js"></script>
 </body>

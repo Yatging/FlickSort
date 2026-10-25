@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const BUILD = "3.1.1";
+  const BUILD = "3.2.0";
   const ASSET_SET = "image-selection-realistic-v2";
   const T_REF_MS = 180000;
   const MIN_GESTURE = 60;
@@ -14,9 +14,14 @@
   const $ = (selector) => document.querySelector(selector);
   const $$ = (selector) => [...document.querySelectorAll(selector)];
   const nowIso = () => new Date().toISOString();
+  function generateParticipantId() {
+    const random = new Uint32Array(1);
+    crypto.getRandomValues(random);
+    return `P-${random[0].toString(36).toUpperCase().padStart(7, "0")}`;
+  }
 
   const state = {
-    manifest: [], participant: "", technique: "mixed_auto_alternating", runMode: "demo",
+    manifest: [], participant: "", technique: "mixed_auto_grouped", runMode: "demo",
     phase: "setup", phaseItems: [], trialIndex: 0, currentImageIndex: 0,
     selectedLabel: null, trialStart: 0, trialPausedMs: 0, hiddenAt: null,
     activeMs: 0, lastTimerSync: null, classifications: new Map(), undoStack: [],
@@ -24,7 +29,8 @@
     accidentalClassifications: 0, navMistouches: 0, activePointer: null,
     toastTimer: null, completedPhases: new Set(), finished: false,
     randomizationSeed: 0, techniqueAssignments: new Map(), classificationDetails: new Map(),
-    firstSeenAt: new Map(), phaseStart: 0
+    firstSeenAt: new Map(), phaseStart: 0, chapterItems: [], techniqueBlockIndex: 0,
+    techniqueBlockCount: 0, techniqueBlockSize: 0
   };
 
   function logEvent(type, detail = {}) {
@@ -34,6 +40,9 @@
       participant_id: state.participant, technique: currentTechnique(), run_technique: state.technique,
       run_mode: state.runMode, phase: state.phase,
       trial_index: ["level1", "level2"].includes(state.phase) ? state.currentImageIndex + 1 : state.trialIndex + 1,
+      technique_block_index: state.techniqueBlockCount ? state.techniqueBlockIndex + 1 : "",
+      technique_block_count: state.techniqueBlockCount || "",
+      technique_block_size: state.techniqueBlockSize || "",
       target_image_id: ["tutorial", "navigation"].includes(state.phase) ? (item?.id || "") : "",
       displayed_image_id: displayedItem()?.id || "",
       event_type: type, ...detail
@@ -63,27 +72,65 @@
     return state.phaseItems.filter((item) => state.classifications.has(itemKey(item))).length;
   }
 
-  function assignAlternatingTechniques() {
+  function assignBlockedTechniques(items) {
     if (!["tutorial", "level1", "level2"].includes(state.phase)) return;
     const phaseOffset = { tutorial: 0, level1: 1, level2: 2 }[state.phase];
-    const assignments = FlickSortScoring.buildAlternatingTechniques(state.phaseItems.length, state.randomizationSeed, phaseOffset);
+    const assignments = FlickSortScoring.buildBlockedTechniques(items.length, state.randomizationSeed, phaseOffset);
     const first = assignments[0];
-    state.phaseItems.forEach((item, index) => {
+    state.techniqueBlockCount = 2;
+    state.techniqueBlockSize = Math.ceil(items.length / state.techniqueBlockCount);
+    items.forEach((item, index) => {
       state.techniqueAssignments.set(itemKey(item), assignments[index]);
     });
+    if (["level1", "level2"].includes(state.phase)) {
+      state.phaseItems = items.slice(0, state.techniqueBlockSize);
+      state.currentImageIndex = 0;
+    }
     logEvent("technique_assignment", {
       randomized_start: first,
       technique_order_seed: state.randomizationSeed,
-      assignment_order: state.phaseItems.map((item) => `${item.id}:${state.techniqueAssignments.get(itemKey(item))}`).join("|")
+      assignment_method: "random_start_then_two_contiguous_technique_blocks",
+      technique_block_count: state.techniqueBlockCount,
+      technique_block_size: state.techniqueBlockSize,
+      assignment_order: items.map((item) => `${item.id}:${state.techniqueAssignments.get(itemKey(item))}`).join("|")
     });
   }
 
+  function techniqueBlockForItem(item) {
+    if (!item || !state.chapterItems.length || !state.techniqueBlockSize) return "";
+    const index = state.chapterItems.findIndex((candidate) => candidate.id === item.id);
+    return index < 0 ? "" : Math.floor(index / state.techniqueBlockSize);
+  }
+
+  function activateTechniqueBlock(index, announce = false) {
+    state.techniqueBlockIndex = index;
+    const start = index * state.techniqueBlockSize;
+    state.phaseItems = state.chapterItems.slice(start, start + state.techniqueBlockSize);
+    state.currentImageIndex = 0;
+    state.undoStack = [];
+    state.selectedLabel = classificationFor(state.phaseItems[0]);
+    render();
+    const technique = currentTechnique();
+    logEvent("technique_block_start", {
+      technique_block_index: index + 1,
+      technique_block_count: state.techniqueBlockCount,
+      technique_block_size: state.phaseItems.length,
+      block_technique: technique,
+      block_image_ids: state.phaseItems.map((item) => item.id).join("|")
+    });
+    if (announce) showToast(`Group ${index + 1} of ${state.techniqueBlockCount} · ${technique === "classic" ? "Classic" : "FlickSort"}`, 2400);
+  }
+
   function itemsForLevel(level) { return state.manifest.filter((item) => item.level === level); }
+  function balancedLevel2Items() {
+    const ids = ["l2-01", "l2-02", "l2-04", "l2-07", "l2-08", "l2-10", "l2-03", "l2-05", "l2-06", "l2-09", "l2-11", "l2-12"];
+    return ids.map((id) => state.manifest.find((item) => item.id === id));
+  }
   function representativeItems() {
-    return ["l2-01", "l2-04", "l2-07", "l2-10"].map((id) => state.manifest.find((item) => item.id === id));
+    return ["l2-01", "l2-07", "l2-04", "l2-10"].map((id) => state.manifest.find((item) => item.id === id));
   }
   function tutorialItems() {
-    return ["l2-02", "l2-05", "l2-08", "l2-11"].map((id) => state.manifest.find((item) => item.id === id));
+    return ["l2-02", "l2-08", "l2-05", "l2-11"].map((id) => state.manifest.find((item) => item.id === id));
   }
   function navigationItems(full) {
     const ids = full ? ["l1-03", "l2-05", "l1-10", "l2-09"] : ["l1-03", "l2-09"];
@@ -118,17 +165,29 @@
     state.selectedLabel = null;
     state.undoStack = [];
     state.phaseCancelCount = 0;
+    state.chapterItems = [];
+    state.techniqueBlockIndex = 0;
+    state.techniqueBlockCount = 0;
+    state.techniqueBlockSize = 0;
     if (phase === "results") return showResults();
-    if (phase === "tutorial") state.phaseItems = tutorialItems();
-    if (phase === "level1") state.phaseItems = itemsForLevel("level1");
-    if (phase === "level2") state.phaseItems = state.runMode === "demo" ? representativeItems() : itemsForLevel("level2");
+    if (phase === "tutorial") {
+      state.chapterItems = tutorialItems();
+      state.phaseItems = state.chapterItems;
+    }
+    if (phase === "level1") state.chapterItems = itemsForLevel("level1");
+    if (phase === "level2") state.chapterItems = state.runMode === "demo" ? representativeItems() : balancedLevel2Items();
     if (phase === "navigation") state.phaseItems = navigationItems(state.runMode === "pilot");
     state.currentImageIndex = 0;
     state.phaseStart = performance.now();
-    assignAlternatingTechniques();
+    if (["tutorial", "level1", "level2"].includes(phase)) assignBlockedTechniques(state.chapterItems);
     if (["level1", "level2"].includes(phase)) {
-      render();
-      logEvent("phase_start", { image_count: state.phaseItems.length, free_order: 1 });
+      activateTechniqueBlock(0);
+      logEvent("phase_start", {
+        image_count: state.chapterItems.length,
+        free_order_within_block: 1,
+        technique_block_count: state.techniqueBlockCount,
+        technique_block_size: state.techniqueBlockSize
+      });
     } else {
       beginTrial();
     }
@@ -142,6 +201,8 @@
   }
 
   function beginTrial() {
+    const previousBlock = state.techniqueBlockIndex;
+    if (state.phase === "tutorial") state.techniqueBlockIndex = Math.floor(state.trialIndex / state.techniqueBlockSize);
     state.selectedLabel = null;
     state.undoStack = [];
     state.currentImageIndex = state.phase === "navigation"
@@ -150,6 +211,17 @@
     state.trialStart = performance.now();
     state.trialPausedMs = 0;
     render();
+    if (state.phase === "tutorial" && state.trialIndex % state.techniqueBlockSize === 0) {
+      logEvent("technique_block_start", {
+        technique_block_index: state.techniqueBlockIndex + 1,
+        technique_block_count: state.techniqueBlockCount,
+        technique_block_size: Math.min(state.techniqueBlockSize, state.phaseItems.length - state.techniqueBlockIndex * state.techniqueBlockSize),
+        block_technique: currentTechnique()
+      });
+      if (state.trialIndex > 0 && previousBlock !== state.techniqueBlockIndex) {
+        showToast(`Group ${state.techniqueBlockIndex + 1} of ${state.techniqueBlockCount} · ${currentTechnique() === "classic" ? "Classic" : "FlickSort"}`, 2400);
+      }
+    }
     logEvent("trial_start", { correct_answer: currentItem()?.answer || "navigation_only" });
   }
 
@@ -166,17 +238,33 @@
     }[state.phase];
     const isChapter = ["level1", "level2"].includes(state.phase);
     const completed = phaseCompletion();
+    const activeBlockIndex = isChapter ? state.techniqueBlockIndex : techniqueBlockForItem(item);
+    const activeBlockLength = state.phase === "tutorial" && activeBlockIndex !== ""
+      ? Math.min(state.techniqueBlockSize, state.chapterItems.length - activeBlockIndex * state.techniqueBlockSize)
+      : total;
     $("#phaseKicker").textContent = phaseCopy[0];
-    $("#taskTitle").textContent = phaseCopy[1];
-    $("#trialCounter").textContent = isChapter ? `${completed} / ${total}` : `${state.trialIndex + 1} / ${total}`;
+    $("#taskTitle").textContent = activeBlockIndex === ""
+      ? phaseCopy[1]
+      : `Group ${activeBlockIndex + 1} of ${state.techniqueBlockCount} · ${activeBlockLength} photos`;
+    $("#trialCounter").textContent = isChapter
+      ? `${completed} / ${total} · GROUP ${state.techniqueBlockIndex + 1}/${state.techniqueBlockCount}`
+      : `${state.trialIndex + 1} / ${total}`;
     $("#trialProgress").style.width = `${((isChapter ? completed : state.trialIndex + 1) / total) * 100}%`;
     $("#photoBadge").textContent = item.id.toUpperCase() + (state.phase === "navigation" && item.id === target.id ? " · TARGET" : "");
     $("#photoMeta").textContent = `PHOTO ${item.id.toUpperCase()}`;
     $("#mainPhoto").src = item.file;
     $("#mainPhoto").alt = item.alt;
     const idx = state.currentImageIndex;
-    $("#backPhoto1").src = state.phaseItems[(idx + 1) % total].file;
-    $("#backPhoto2").src = state.phaseItems[(idx + 2) % total].file;
+    if (state.phase === "tutorial") {
+      const blockStart = state.techniqueBlockIndex * state.techniqueBlockSize;
+      const blockLength = Math.min(state.techniqueBlockSize, state.phaseItems.length - blockStart);
+      const localIndex = idx - blockStart;
+      $("#backPhoto1").src = state.phaseItems[blockStart + (localIndex + 1) % blockLength].file;
+      $("#backPhoto2").src = state.phaseItems[blockStart + (localIndex + 2) % blockLength].file;
+    } else {
+      $("#backPhoto1").src = state.phaseItems[(idx + 1) % total].file;
+      $("#backPhoto2").src = state.phaseItems[(idx + 2) % total].file;
+    }
     if (!state.firstSeenAt.has(itemKey(item))) state.firstSeenAt.set(itemKey(item), performance.now());
     state.selectedLabel = classificationFor(item);
     $("#currentLabel").hidden = !state.selectedLabel;
@@ -195,6 +283,10 @@
     $("#classicControls").hidden = navigation || technique !== "classic";
     $("#flickLegend").hidden = navigation || technique !== "flicksort";
     $("#techniqueChip").textContent = navigation ? "NAVIGATION" : technique.toUpperCase();
+    const itemBlock = techniqueBlockForItem(displayedItem());
+    $("#sideTechnique").textContent = navigation
+      ? "NAVIGATION"
+      : `GROUP ${(itemBlock === "" ? state.techniqueBlockIndex : itemBlock) + 1}/${state.techniqueBlockCount} · ${technique.toUpperCase()}`;
     document.documentElement.dataset.technique = navigation ? "navigation" : technique;
   }
 
@@ -253,9 +345,21 @@
     const total = state.phaseItems.length;
     const completed = phaseCompletion();
     const missing = state.phaseItems.filter((photo) => !state.classifications.has(itemKey(photo))).map((photo) => photo.id.toUpperCase());
-    $("#submitHeading").textContent = `${completed} of ${total} photos classified`;
-    $("#submitHint").textContent = missing.length ? `Still unfinished: ${missing.join(", ")}` : "All photos are classified. Review freely or submit this chapter.";
-    $("#submitBtn").innerHTML = "Submit chapter <span>→</span>";
+    const hasNextBlock = state.techniqueBlockIndex + 1 < state.techniqueBlockCount;
+    const nextTechnique = hasNextBlock
+      ? state.techniqueAssignments.get(itemKey(state.chapterItems[(state.techniqueBlockIndex + 1) * state.techniqueBlockSize]))
+      : "";
+    $("#submitHeading").textContent = missing.length
+      ? `${completed} of ${total} photos classified`
+      : hasNextBlock ? `Group ${state.techniqueBlockIndex + 1} complete` : "Final group complete";
+    $("#submitHint").textContent = missing.length
+      ? `Still unfinished: ${missing.join(", ")}`
+      : hasNextBlock
+        ? `Continue when ready. The next group uses ${nextTechnique === "classic" ? "Classic" : "FlickSort"}.`
+        : "All photos are classified. Review this group or submit the chapter.";
+    $("#submitBtn").innerHTML = hasNextBlock
+      ? `Continue to ${nextTechnique === "classic" ? "Classic" : "FlickSort"} group <span>→</span>`
+      : "Submit chapter <span>→</span>";
     $("#submitBtn").classList.toggle("incomplete", missing.length > 0);
     $("#submitBtn").setAttribute("aria-disabled", missing.length ? "true" : "false");
   }
@@ -271,7 +375,14 @@
     const count = state.phaseItems.length;
     if (!count) return;
     syncActiveTimer();
-    state.currentImageIndex = (state.currentImageIndex + delta + count) % count;
+    if (state.phase === "tutorial") {
+      const blockStart = state.techniqueBlockIndex * state.techniqueBlockSize;
+      const blockLength = Math.min(state.techniqueBlockSize, count - blockStart);
+      const localIndex = state.currentImageIndex - blockStart;
+      state.currentImageIndex = blockStart + (localIndex + delta + blockLength) % blockLength;
+    } else {
+      state.currentImageIndex = (state.currentImageIndex + delta + count) % count;
+    }
     logEvent("navigation", { source, direction: delta > 0 ? "next" : "previous", ...gesture });
     animateFlyout(delta > 0 ? "next" : "previous");
     render();
@@ -350,27 +461,46 @@
     }
     const missing = state.phaseItems.filter((item) => !state.classifications.has(itemKey(item)));
     if (missing.length) {
-      const chapter = state.phase === "level1" ? "Level 1" : (state.runMode === "demo" ? "Demo" : "Level 2");
       const ids = missing.map((item) => item.id.toUpperCase()).join(", ");
-      logEvent("chapter_submit_blocked", { unfinished_image_ids: ids, unfinished_count: missing.length });
-      return showToast(`${chapter} unfinished: ${ids}`, 3600);
+      logEvent("technique_block_submit_blocked", { unfinished_image_ids: ids, unfinished_count: missing.length });
+      return showToast(`Group ${state.techniqueBlockIndex + 1} unfinished: ${ids}`, 3600);
     }
-    state.phaseItems.forEach((item, index) => {
+    const hasNextBlock = state.techniqueBlockIndex + 1 < state.techniqueBlockCount;
+    logEvent("technique_block_complete", {
+      technique_block_index: state.techniqueBlockIndex + 1,
+      block_technique: currentTechnique(),
+      completed_count: state.phaseItems.length
+    });
+    if (hasNextBlock) {
+      activateTechniqueBlock(state.techniqueBlockIndex + 1, true);
+      return;
+    }
+    state.chapterItems.forEach((item, index) => {
       const response = state.classifications.get(itemKey(item));
       const detail = state.classificationDetails.get(itemKey(item)) || {};
       const correct = response === item.answer;
+      const blockIndex = Math.floor(index / state.techniqueBlockSize);
       state.trials.push(trialRecord(item, state.techniqueAssignments.get(itemKey(item)), {
         trial_index: index + 1, final_response: response, accuracy: correct ? 1 : 0,
         content_judgment_error: correct ? 0 : 1, navigation_correct: "",
         trial_duration_ms: detail.decision_elapsed_ms || "", classified_at: detail.classified_at || "",
-        classification_source: detail.source || "", practice_flag: 0, free_processing_order: 1
+        classification_source: detail.source || "", practice_flag: 0,
+        technique_block_index: blockIndex + 1, technique_block_count: state.techniqueBlockCount,
+        technique_block_size: Math.min(state.techniqueBlockSize, state.chapterItems.length - blockIndex * state.techniqueBlockSize),
+        block_image_index: (index % state.techniqueBlockSize) + 1,
+        free_processing_order_within_block: 1
       }));
     });
-    logEvent("chapter_submit", { completed_count: state.phaseItems.length, free_processing_order: 1 });
+    logEvent("chapter_submit", {
+      completed_count: state.chapterItems.length,
+      free_processing_order_within_block: 1,
+      technique_block_count: state.techniqueBlockCount
+    });
     advancePhase();
   }
 
   function trialRecord(item = currentItem(), technique = currentTechnique(item), extra = {}) {
+    const itemBlock = techniqueBlockForItem(item);
     return {
       participant_id: state.participant, technique, run_technique: state.technique, run_mode: state.runMode,
       build_version: BUILD, asset_set: ASSET_SET, benchmark_status: "provisional_demonstration_not_pilot_validated",
@@ -381,6 +511,10 @@
       accidental_classification_count_total: state.accidentalClassifications,
       navigation_mistouch_count_total: state.navMistouches,
       active_operation_time_ms_total: Math.round(state.activeMs), technique_order_seed: state.randomizationSeed,
+      assignment_method: itemBlock === "" ? "" : "random_start_then_two_contiguous_technique_blocks",
+      technique_block_index: itemBlock === "" ? "" : itemBlock + 1,
+      technique_block_count: itemBlock === "" ? "" : state.techniqueBlockCount,
+      technique_block_size: itemBlock === "" ? "" : Math.min(state.techniqueBlockSize, state.chapterItems.length - itemBlock * state.techniqueBlockSize),
       submitted_at: nowIso(), ...extra
     };
   }
@@ -500,7 +634,7 @@
     $("#navErrorMetric").textContent = state.navMistouches;
     $("#navCorrectMetric").textContent = `${navCorrect} / ${nav.length}`;
     $("#resultParticipant").textContent = state.participant;
-    $("#resultTechnique").textContent = "Mixed · auto-alternating";
+    $("#resultTechnique").textContent = "Mixed · grouped alternation";
     $("#resultBuild").textContent = `v${BUILD}`;
     $("#resultTimestamp").textContent = new Date().toLocaleString([], { hour12: false });
     $("#scoreLabel").textContent = state.runMode === "pilot" ? "Pilot overview" : "Demo preview · not comparable";
@@ -531,7 +665,7 @@
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `flicksort_${kind}_${state.participant}_mixed_${Date.now()}.csv`;
+    link.download = `flicksort_${kind}_${state.participant}_mixed-blocks_${Date.now()}.csv`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 500);
   }
@@ -539,16 +673,19 @@
   function startRun(event) {
     event.preventDefault();
     state.participant = $("#participantId").value.trim().replace(/[^a-zA-Z0-9_-]/g, "-");
-    if (!state.participant) return;
+    if (!state.participant) {
+      state.participant = generateParticipantId();
+      $("#participantId").value = state.participant;
+    }
     state.runMode = new FormData(event.currentTarget).get("runMode");
     const seed = new Uint32Array(1);
     crypto.getRandomValues(seed);
     state.randomizationSeed = seed[0];
     $("#setupScreen").hidden = true;
     $("#studyScreen").hidden = false;
-    $("#sideTechnique").textContent = "MIXED · AUTO";
+    $("#sideTechnique").textContent = "GROUPED · AUTO";
     $("#sideParticipant").textContent = state.participant;
-    logEvent("run_start", { benchmark_status: "provisional_demonstration_not_pilot_validated", t_ref_ms: T_REF_MS, technique_order_seed: state.randomizationSeed, assignment_method: "random_start_then_alternate_by_photo" });
+    logEvent("run_start", { benchmark_status: "provisional_demonstration_not_pilot_validated", t_ref_ms: T_REF_MS, technique_order_seed: state.randomizationSeed, assignment_method: "random_start_then_two_contiguous_technique_blocks" });
     startPhase(phaseSequence()[0]);
   }
 
@@ -570,6 +707,7 @@
 
   async function init() {
     $("#buildLabel").textContent = BUILD;
+    $("#participantId").value = generateParticipantId();
     try {
       const response = await fetch("image_manifest.json", { cache: "no-store" });
       if (!response.ok) throw new Error(`Manifest HTTP ${response.status}`);

@@ -45,7 +45,15 @@
     );
   }
 
-  const api = { clip, computeScore, interpretGesture, buildAlternatingTechniques };
+  function buildBlockedTechniques(count, seed = 0, phaseOffset = 0) {
+    const total = Math.max(0, Number(count) || 0);
+    const first = ((Number(seed) + Number(phaseOffset)) & 1) === 0 ? "classic" : "flicksort";
+    const second = first === "classic" ? "flicksort" : "classic";
+    const firstBlockSize = Math.ceil(total / 2);
+    return Array.from({ length: total }, (_, index) => index < firstBlockSize ? first : second);
+  }
+
+  const api = { clip, computeScore, interpretGesture, buildAlternatingTechniques, buildBlockedTechniques };
   root.FlickSortScoring = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : globalThis);

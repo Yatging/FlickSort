@@ -43,6 +43,7 @@ button { cursor: pointer; }
 .field { display: grid; gap: 8px; color: #4f5a57; font-size: 12px; font-weight: 750; }
 .field input { width: 100%; padding: 14px 15px; border: 1px solid #cfc9bd; border-radius: 12px; outline: none; background: white; }
 .field input:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(23,32,30,.09); }
+.field-hint { color: var(--muted); font-size: 10px; font-weight: 550; }
 fieldset { min-width: 0; margin: 21px 0 0; padding: 0; border: 0; }
 legend { margin-bottom: 9px; color: #4f5a57; font-size: 12px; font-weight: 750; }
 .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -85,7 +86,7 @@ legend { margin-bottom: 9px; color: #4f5a57; font-size: 12px; font-weight: 750; 
 .task-banner h2 { max-width: 790px; margin: 7px 0 0; color: var(--ink); font: 650 clamp(25px, 3.2vw, 38px)/1.12 Georgia, serif; letter-spacing: -.035em; }
 .task-context { display: flex; gap: 9px; align-items: center; margin-top: 9px; color: var(--muted); font-size: 11px; font-weight: 780; }
 .technique-chip { display: inline-flex; padding: 4px 8px; color: #fff; border-radius: 999px; background: var(--ink); font-size: 9px; font-weight: 900; letter-spacing: .1em; }
-.task-progress { display: grid; gap: 6px; width: 120px; color: var(--muted); text-align: right; font-size: 11px; font-weight: 750; }
+.task-progress { display: grid; gap: 6px; width: 175px; color: var(--muted); text-align: right; font-size: 11px; font-weight: 750; }
 .task-progress div { height: 4px; overflow: hidden; background: #d9d5cc; border-radius: 4px; }
 .task-progress i { display: block; width: 0; height: 100%; background: var(--accent); transition: width .3s; }
 .rule-card { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin: 17px 0 13px; }
@@ -206,7 +207,7 @@ html[data-technique="classic"] .corner-target, html[data-technique="navigation"]
   .task-banner h2 { font-size: 22px; }
   .task-context { margin-top: 6px; font-size: 10px; }
   .rule-card { grid-template-columns: repeat(2,1fr); }
-  .task-progress { width: 88px; }
+  .task-progress { width: 132px; font-size: 9px; }
   .viewer-panel { border-radius: 18px; }
   .photo-stage { height: 38vh; min-height: 228px; }
   .photo-meta { padding: 10px 11px; }

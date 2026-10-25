@@ -11,23 +11,24 @@
   <main class="app-shell" id="appShell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="FlickSort study home"><span>F</span>lickSort <b>V3</b></a>
-      <div class="build-chip">BUILD <span id="buildLabel">3.0.0</span></div>
+      <div class="build-chip">BUILD <span id="buildLabel">3.2.0</span></div>
     </header>
 
     <section class="screen setup-screen" id="setupScreen">
       <div class="setup-copy">
         <p class="eyebrow">IMAGE SELECTION INTERACTION STUDY</p>
         <h1>Sort photos.<br><em>Compare interactions.</em></h1>
-        <p class="lede">This test compares two ways to classify the same controlled photos: Classic buttons and FlickSort gestures. The website assigns them automatically and alternates them by photo.</p>
-        <div class="scope-note"><strong>You do not choose a technique.</strong> Each chapter starts with a randomly selected technique, then alternates Classic and FlickSort. You may process the photos in any order.</div>
+        <p class="lede">This test compares two ways to classify the same controlled photos: Classic buttons and FlickSort gestures. Each technique is used for a complete group of photos before the interface switches.</p>
+        <div class="scope-note"><strong>You do not choose a technique.</strong> Each chapter randomly starts with Classic or FlickSort. Finish the current photo group, then continue with the other technique. Photos may be processed in any order within the current group.</div>
       </div>
 
       <form class="setup-card" id="setupForm">
         <div class="card-head"><span>NEW STUDY RUN</span><small>Local data only</small></div>
         <label class="field">Anonymous participant ID
-          <input id="participantId" name="participant" autocomplete="off" maxlength="24" placeholder="e.g. P014" required>
+          <input id="participantId" name="participant" autocomplete="off" maxlength="24" placeholder="Generated automatically">
+          <small class="field-hint">Generated automatically; you may edit it.</small>
         </label>
-        <div class="benchmark-note"><span>⇄</span><div><b>Automatic mixed-technique run</b><small>Classic and FlickSort alternate; the starting technique is randomized.</small></div></div>
+        <div class="benchmark-note"><span>⇄</span><div><b>Automatic grouped-technique run</b><small>Finish one Classic or FlickSort photo group before switching; the starting technique is randomized.</small></div></div>
         <fieldset>
           <legend>Run</legend>
           <div class="segmented">
@@ -43,7 +44,7 @@
 
     <section class="screen study-screen" id="studyScreen" hidden>
       <aside class="study-sidebar">
-        <div class="run-meta"><span id="sideTechnique">MIXED · AUTO</span><small id="sideParticipant">P000</small></div>
+        <div class="run-meta"><span id="sideTechnique">GROUPED · AUTO</span><small id="sideParticipant">P000</small></div>
         <div class="phase-list" aria-label="Study progress">
           <div data-phase="tutorial"><i>1</i><span>Tutorial<small>Not scored</small></span></div>
           <div data-phase="level1"><i>2</i><span>Level 1<small>Bus or no bus</small></span></div>
@@ -145,7 +146,7 @@
       </div>
     </section>
   </main>
-  <script src="../language.js?v=3.2.1"></script>
+  <script src="../language.js?v=3.3.0"></script>
   <script src="scoring.js"></script>
   <script src="app.js"></script>
 </body>

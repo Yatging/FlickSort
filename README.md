@@ -8,8 +8,9 @@ Every web page now includes an **EN / 中文** switch. The choice is stored loca
 
 - **Demo Mode:** four representative classification tasks and two navigation-only trials.
 - **Full Pilot Mode:** four unscored tutorial tasks, Level 1 (12 images: bus visible → Keep; otherwise → Reject), Level 2 (12 mutually exclusive bus/car combinations), four navigation-only trials, and a compact results screen.
-- Participants do not choose a technique. Each chapter randomly selects its first technique, then assigns **Classic** and **FlickSort** alternately across photos. The assignment seed and per-photo technique are logged. Both techniques use the same photos, fixed answers, rule cards and chapter-level Submit step. FlickSort retains the stacked-card drag and release animation with no long press.
-- Classification chapters have no required processing order. Participants may browse freely and classify any current photo. Submit is blocked until every photo in the chapter has a final category and the interface lists unfinished photo IDs.
+- Participants do not choose a technique. Each chapter randomly selects its first technique, then runs two contiguous technique blocks: Demo uses 2+2 photos and each full 12-photo chapter uses 6+6. Participants finish the current Classic or FlickSort block before switching to the other. Level 1 is balanced 3 Keep/3 Reject per block; Level 2 uses complementary 2/1/2/1 and 1/2/1/2 category distributions, with randomized technique order counterbalancing the two blocks across participants. The assignment seed, block index, block size and per-photo technique are logged. FlickSort retains the stacked-card drag and release animation with no long press.
+- Classification blocks have no required processing order within the active group. Participants may browse freely and classify any current photo in that group. Continue/Submit is blocked until every photo in the active block has a final category and the interface lists unfinished photo IDs.
+- The setup page generates an anonymous participant ID automatically. It remains editable before the run begins.
 - V3 stimuli are 24 original photorealistic city scenes stored as independent PNG crops, with two repository-local source sheets and crop metadata in `study-v3/generate_assets.js`. `image_manifest.json` and `image_manifest.csv` record the intended bus/car content, answer and reason for each image. They do not use or imitate the CityUHK logo.
 - The manifest deliberately says `human_reviewed: false` and `visual_review_status: pending_independent_human_review`. Generator structure and browser rendering can be checked during development, but this must not be represented as independent human verification. Complete that review before formal participant collection.
 - `study-v3/asset-review.html` renders all 24 images beside their intended labels and reasons as a printable review sheet for that independent check.
@@ -19,6 +20,8 @@ Every web page now includes an **EN / 中文** switch. The choice is stored loca
 - Trial CSV distinguishes final `content_judgment_error` from explicitly logged `gesture_cancel`, `navigation_mistouch`, and user-labelled `accidental_input` Undo events. It does not infer a recognition failure from the final label.
 
 Serve the repository over HTTP and open `http://localhost:8000/study-v3/`. Direct `file://` opening is intentionally rejected because V3 loads its manifest as a separate audited file.
+
+This GitHub Pages deployment intentionally remains local-data-only. A secure shared data store cannot be added to a static public page without selecting and configuring a server-side service, access control, retention policy and authorized data owner. Trials and events therefore remain available as CSV downloads; no participant data are transmitted by this build.
 
 V3 adds a new route only. The legacy Low/High Navigation Demand prototype and its CSV fields remain available unchanged at `classic.html` and `flicksort.html` for continuity with the planned 2×2 experiment.
 

@@ -9,7 +9,7 @@
     ["Start the vehicle study", "开始车辆识别测试"],
     ["Choose Classic or FlickSort, then run the short Demo or the complete Pilot with tutorial, 24 classification trials, navigation tasks and a screenshot-ready result.", "选择 Classic 或 FlickSort，然后进行简短 Demo 或完整 Pilot；完整流程包含教程、24 个分类试次、导航任务和便于截图的结果页。"],
     ["Start the image-selection study", "开始图片选择器测试"],
-    ["Run the short Demo or the complete Pilot. Classic and FlickSort are assigned automatically, start in randomized order and alternate across the same photos.", "进行简短 Demo 或完整 Pilot。Classic 与 FlickSort 会自动分配，随机决定起始方式，并在同一组图片中交替出现。"],
+    ["Run the short Demo or the complete Pilot. Each chapter randomly starts with Classic or FlickSort, completes one photo group, then switches to the other technique.", "进行简短 Demo 或完整 Pilot。每章会随机从 Classic 或 FlickSort 开始，完成一组图片后再切换到另一种操作方式。"],
     ["LEGACY INTERFACE SHOWCASE", "旧版界面展示"],
     ["Original demos", "原版 Demo"],
     ["These two pages are retained only to demonstrate the earlier interface. Do not use them for the current study or new participant data.", "以下两个页面仅用于展示早期界面，请勿用于当前研究或收集新的参与者数据。"],
@@ -87,12 +87,15 @@
 
     ["IMAGE SELECTION INTERACTION STUDY", "图片选择器交互测试"], ["Sort photos.", "为图片分类。"], ["Compare interactions.", "比较两种交互。"],
     ["This test compares two ways to classify the same controlled photos: Classic buttons and FlickSort gestures. The website assigns them automatically and alternates them by photo.", "本测试比较两种对相同可控图片进行分类的方式：Classic 按钮与 FlickSort 手势。网页会自动分配，并按图片交替使用。"],
+    ["This test compares two ways to classify the same controlled photos: Classic buttons and FlickSort gestures. Each technique is used for a complete group of photos before the interface switches.", "本测试比较两种对相同可控图片进行分类的方式：Classic 按钮与 FlickSort 手势。界面会让参与者完成一整组图片后，再切换操作方式。"],
     ["You do not choose a technique.", "无需选择操作方式。"], ["Each chapter starts with a randomly selected technique, then alternates Classic and FlickSort. You may process the photos in any order.", "每章会随机决定起始操作方式，随后 Classic 与 FlickSort 交替出现；图片可按任意顺序处理。"],
+    ["Each chapter randomly starts with Classic or FlickSort. Finish the current photo group, then continue with the other technique. Photos may be processed in any order within the current group.", "每章会随机从 Classic 或 FlickSort 开始。完成当前图片组后，再继续另一种操作方式；当前组内可按任意顺序处理图片。"],
     ["Automatic mixed-technique run", "自动混合操作测试"], ["Classic and FlickSort alternate; the starting technique is randomized.", "Classic 与 FlickSort 交替使用，起始操作方式随机决定。"], ["MIXED · AUTO", "混合 · 自动"],
+    ["Automatic grouped-technique run", "自动分组操作测试"], ["Finish one Classic or FlickSort photo group before switching; the starting technique is randomized.", "先完成一组 Classic 或 FlickSort 图片再切换；起始操作方式随机决定。"], ["GROUPED · AUTO", "分组 · 自动"],
     ["CITY VEHICLE RECOGNITION STUDY", "城市车辆识别测试"], ["One picture.", "一张图片。"], ["One clear rule.", "一条明确规则。"],
     ["A standalone CAPTCHA-style test using original, controlled illustrations. The Classic and FlickSort conditions use exactly the same images, answers, levels and instructions.", "使用原创、可控插图的独立 CAPTCHA 式测试。Classic 与 FlickSort 条件采用完全相同的图片、答案、关卡和说明。"],
     ["No photography terms.", "无需摄影术语。"], ["Count every visible bus and ordinary passenger car, even if it is small or partly near an edge.", "所有可见的巴士和普通小汽车都要计算，即使物体较小或靠近图片边缘。"],
-    ["NEW STUDY RUN", "新测试"], ["Local data only", "仅本地数据"], ["Anonymous participant ID", "匿名参与者编号"],
+    ["NEW STUDY RUN", "新测试"], ["Local data only", "仅本地数据"], ["Anonymous participant ID", "匿名参与者编号"], ["Generated automatically", "自动生成"], ["Generated automatically; you may edit it.", "编号会自动生成，也可以自行修改。"],
     ["Technique", "技术"], ["Tap four buttons", "点击四个按钮"], ["Diagonal gestures", "对角手势"], ["Run", "模式"],
     ["Demo", "演示"], ["4 tasks + 2 navigation", "4 个任务 + 2 个导航"], ["Full pilot", "完整 Pilot"], ["Tutorial + 24 + 4 navigation", "教程 + 24 个分类 + 4 个导航"],
     ["Provisional demonstration benchmark; not pilot-validated.", "暂定演示基准，尚未通过 pilot 验证。"], ["Start", "开始"],
@@ -121,7 +124,10 @@
     ["Bus visible", "有巴士"], ["Car only", "只有小汽车"], ["Bus + car", "巴士 + 小汽车"], ["Neither", "两者都没有"],
     ["Undo reason…", "撤销原因…"], ["Content rethink", "重新判断内容"], ["Accidental input", "意外输入"],
     ["Release after a diagonal swipe · no long press", "沿对角线滑动后松手 · 无需长按"], ["Choose one category", "选择一个分类"], ["Then submit your final answer.", "然后提交最终答案。"],
-    ["FLICKSORT IMAGE SELECTION STUDY", "FLICKSORT 图片选择器测试"], ["Results / 结果", "结果"], ["Participant", "参与者"], ["Asset set", "素材集"], ["Mixed · auto-alternating", "混合 · 自动交替"],
+    ["FLICKSORT IMAGE SELECTION STUDY", "FLICKSORT 图片选择器测试"], ["Results / 结果", "结果"], ["Participant", "参与者"], ["Asset set", "素材集"], ["Mixed · auto-alternating", "混合 · 自动交替"], ["Mixed · grouped alternation", "混合 · 分组交替"],
+    ["Final group complete", "最后一组已完成"], ["All photos are classified. Review this group or submit the chapter.", "所有图片均已分类；你可以检查当前组或提交本章。"],
+    ["Continue when ready. The next group uses Classic.", "准备好后继续；下一组使用 Classic。"], ["Continue when ready. The next group uses FlickSort.", "准备好后继续；下一组使用 FlickSort。"],
+    ["Continue to Classic group", "进入 Classic 组"], ["Continue to FlickSort group", "进入 FlickSort 组"],
     ["总分 / OVERALL SCORE", "总分"], ["Demo preview", "Demo 预览"], ["Provisional demonstration benchmark · T_ref 180s", "暂定演示基准 · T_ref 180 秒"],
     ["准确率 / Accuracy", "准确率"], ["主动用时 / Active time", "主动用时"], ["取消 / Cancels", "取消次数"], ["撤销 / Undo", "撤销次数"], ["导航误触 / Nav miscues", "导航误触"], ["正确到达 / Nav correct", "正确到达"],
     ["Cancels and Undo are shown separately but are not included in the score: gesture cancellation is technique-specific, and Undo can be reasonable error correction. Formal analysis must use time, accuracy and error measures separately—not the overall score alone.", "取消与撤销会单独显示，但不计入总分：手势取消只发生在特定技术中，而撤销可能是合理纠错。正式分析必须分别使用时间、准确率和错误指标，不能只使用总分。"],
@@ -226,6 +232,12 @@
       if ((m = text.match(/^Photo (\d+)$/))) return `照片 ${m[1]}`;
       if ((m = text.match(/^Photo (L[12]-\d+)$/))) return `图片 ${m[1]}`;
       if ((m = text.match(/^PHOTO (L[12]-\d+)$/))) return `图片编号 ${m[1]}`;
+      if ((m = text.match(/^Group (\d+) of (\d+) · (\d+) photos$/))) return `第 ${m[1]}/${m[2]} 组 · ${m[3]} 张图片`;
+      if ((m = text.match(/^Group (\d+) of (\d+) · (Classic|FlickSort)$/))) return `第 ${m[1]}/${m[2]} 组 · ${m[3]}`;
+      if ((m = text.match(/^GROUP (\d+)\/(\d+) · (CLASSIC|FLICKSORT)$/))) return `第 ${m[1]}/${m[2]} 组 · ${m[3] === "CLASSIC" ? "Classic" : "FlickSort"}`;
+      if ((m = text.match(/^(\d+) \/ (\d+) · GROUP (\d+)\/(\d+)$/))) return `${m[1]} / ${m[2]} · 第 ${m[3]}/${m[4]} 组`;
+      if ((m = text.match(/^Group (\d+) complete$/))) return `第 ${m[1]} 组已完成`;
+      if ((m = text.match(/^Group (\d+) unfinished: (.+)$/))) return `第 ${m[1]} 组尚未完成：${m[2]}`;
       if ((m = text.match(/^(\d+) of (\d+) photos classified$/))) return `已分类 ${m[1]} / ${m[2]} 张图片`;
       if ((m = text.match(/^Still unfinished: (.+)$/))) return `尚未完成：${m[1]}`;
       if ((m = text.match(/^(Level 1|Level 2|Demo) unfinished: (.+)$/))) return `${translateString(m[1], "zh")}尚未完成：${m[2]}`;
@@ -260,6 +272,11 @@
       if ((m = text.match(/^照片 (\d+)$/))) return `Photo ${m[1]}`;
       if ((m = text.match(/^图片 (L[12]-\d+)$/))) return `Photo ${m[1]}`;
       if ((m = text.match(/^图片编号 (L[12]-\d+)$/))) return `PHOTO ${m[1]}`;
+      if ((m = text.match(/^第 (\d+)\/(\d+) 组 · (\d+) 张图片$/))) return `Group ${m[1]} of ${m[2]} · ${m[3]} photos`;
+      if ((m = text.match(/^第 (\d+)\/(\d+) 组 · (Classic|FlickSort)$/))) return `Group ${m[1]} of ${m[2]} · ${m[3]}`;
+      if ((m = text.match(/^(\d+) \/ (\d+) · 第 (\d+)\/(\d+) 组$/))) return `${m[1]} / ${m[2]} · GROUP ${m[3]}/${m[4]}`;
+      if ((m = text.match(/^第 (\d+) 组已完成$/))) return `Group ${m[1]} complete`;
+      if ((m = text.match(/^第 (\d+) 组尚未完成：(.+)$/))) return `Group ${m[1]} unfinished: ${m[2]}`;
       if ((m = text.match(/^已分类 (\d+) \/ (\d+) 张图片$/))) return `${m[1]} of ${m[2]} photos classified`;
       if ((m = text.match(/^尚未完成：(.+)$/))) return `Still unfinished: ${m[1]}`;
       if ((m = text.match(/^(关卡 1|关卡 2|Demo)尚未完成：(.+)$/))) return `${translateString(m[1], "en")} unfinished: ${m[2]}`;

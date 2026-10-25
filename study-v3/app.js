@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  const BUILD = "3.0.0";
-  const ASSET_SET = "city-vehicles-v1";
+  const BUILD = "3.1.0";
+  const ASSET_SET = "image-selection-realistic-v2";
   const T_REF_MS = 180000;
   const MIN_GESTURE = 60;
   const LABELS = {
@@ -16,22 +16,26 @@
   const nowIso = () => new Date().toISOString();
 
   const state = {
-    manifest: [], participant: "", technique: "classic", runMode: "demo",
+    manifest: [], participant: "", technique: "mixed_auto_alternating", runMode: "demo",
     phase: "setup", phaseItems: [], trialIndex: 0, currentImageIndex: 0,
     selectedLabel: null, trialStart: 0, trialPausedMs: 0, hiddenAt: null,
     activeMs: 0, lastTimerSync: null, classifications: new Map(), undoStack: [],
     trials: [], events: [], phaseCancelCount: 0, totalCancels: 0, totalUndos: 0,
     accidentalClassifications: 0, navMistouches: 0, activePointer: null,
-    toastTimer: null, completedPhases: new Set(), finished: false
+    toastTimer: null, completedPhases: new Set(), finished: false,
+    randomizationSeed: 0, techniqueAssignments: new Map(), classificationDetails: new Map(),
+    firstSeenAt: new Map(), phaseStart: 0
   };
 
   function logEvent(type, detail = {}) {
     const item = currentItem();
     state.events.push({
       event_timestamp: nowIso(), build_version: BUILD, asset_set: ASSET_SET,
-      participant_id: state.participant, technique: state.technique,
-      run_mode: state.runMode, phase: state.phase, trial_index: state.trialIndex + 1,
-      target_image_id: item?.id || "", displayed_image_id: displayedItem()?.id || "",
+      participant_id: state.participant, technique: currentTechnique(), run_technique: state.technique,
+      run_mode: state.runMode, phase: state.phase,
+      trial_index: ["level1", "level2"].includes(state.phase) ? state.currentImageIndex + 1 : state.trialIndex + 1,
+      target_image_id: ["tutorial", "navigation"].includes(state.phase) ? (item?.id || "") : "",
+      displayed_image_id: displayedItem()?.id || "",
       event_type: type, ...detail
     });
   }
@@ -40,6 +44,38 @@
   function displayedItem() {
     if (!state.phaseItems.length) return null;
     return state.phaseItems[(state.currentImageIndex + state.phaseItems.length) % state.phaseItems.length];
+  }
+
+  function itemKey(item = displayedItem(), phase = state.phase) {
+    return item ? `${phase}:${item.id}` : "";
+  }
+
+  function currentTechnique(item = displayedItem()) {
+    if (!item || state.phase === "navigation" || state.phase === "setup" || state.phase === "results") return state.technique;
+    return state.techniqueAssignments.get(itemKey(item)) || "classic";
+  }
+
+  function classificationFor(item = displayedItem()) {
+    return state.classifications.get(itemKey(item)) || null;
+  }
+
+  function phaseCompletion() {
+    return state.phaseItems.filter((item) => state.classifications.has(itemKey(item))).length;
+  }
+
+  function assignAlternatingTechniques() {
+    if (!["tutorial", "level1", "level2"].includes(state.phase)) return;
+    const phaseOffset = { tutorial: 0, level1: 1, level2: 2 }[state.phase];
+    const assignments = FlickSortScoring.buildAlternatingTechniques(state.phaseItems.length, state.randomizationSeed, phaseOffset);
+    const first = assignments[0];
+    state.phaseItems.forEach((item, index) => {
+      state.techniqueAssignments.set(itemKey(item), assignments[index]);
+    });
+    logEvent("technique_assignment", {
+      randomized_start: first,
+      technique_order_seed: state.randomizationSeed,
+      assignment_order: state.phaseItems.map((item) => `${item.id}:${state.techniqueAssignments.get(itemKey(item))}`).join("|")
+    });
   }
 
   function itemsForLevel(level) { return state.manifest.filter((item) => item.level === level); }
@@ -88,7 +124,14 @@
     if (phase === "level2") state.phaseItems = state.runMode === "demo" ? representativeItems() : itemsForLevel("level2");
     if (phase === "navigation") state.phaseItems = navigationItems(state.runMode === "pilot");
     state.currentImageIndex = 0;
-    beginTrial();
+    state.phaseStart = performance.now();
+    assignAlternatingTechniques();
+    if (["level1", "level2"].includes(phase)) {
+      render();
+      logEvent("phase_start", { image_count: state.phaseItems.length, free_order: 1 });
+    } else {
+      beginTrial();
+    }
     resetTimerTick();
   }
 
@@ -101,7 +144,9 @@
   function beginTrial() {
     state.selectedLabel = null;
     state.undoStack = [];
-    state.currentImageIndex = state.trialIndex;
+    state.currentImageIndex = state.phase === "navigation"
+      ? (state.trialIndex + 1) % state.phaseItems.length
+      : state.trialIndex;
     state.trialStart = performance.now();
     state.trialPausedMs = 0;
     render();
@@ -115,29 +160,43 @@
     const total = state.phaseItems.length;
     const phaseCopy = {
       tutorial: ["TUTORIAL · NOT SCORED", "Learn the controls"],
-      level1: [state.runMode === "demo" ? "DEMO · 4 REPRESENTATIVE TASKS" : "LEVEL 1 · 12 IMAGES", state.runMode === "demo" ? "Vehicle sorting demo" : "City Trip Cleanup"],
-      level2: ["LEVEL 2 · 12 IMAGES", "City Vehicle Sorting"],
-      navigation: ["NAVIGATION ONLY", "Find the named picture"]
+      level1: ["LEVEL 1 · BUS CHECK", "Keep photos with a bus. Reject all others."],
+      level2: [state.runMode === "demo" ? "DEMO · 4 REPRESENTATIVE PHOTOS" : "LEVEL 2 · FOUR-WAY SORT", "Sort every photo by visible vehicles."],
+      navigation: ["NAVIGATION ONLY", "Find the requested photo. Do not classify."]
     }[state.phase];
+    const isChapter = ["level1", "level2"].includes(state.phase);
+    const completed = phaseCompletion();
     $("#phaseKicker").textContent = phaseCopy[0];
     $("#taskTitle").textContent = phaseCopy[1];
-    $("#trialCounter").textContent = `${state.trialIndex + 1} / ${total}`;
-    $("#trialProgress").style.width = `${((state.trialIndex + 1) / total) * 100}%`;
-    $("#photoBadge").textContent = item.id.toUpperCase() + (item.id === target.id ? " · TARGET" : "");
+    $("#trialCounter").textContent = isChapter ? `${completed} / ${total}` : `${state.trialIndex + 1} / ${total}`;
+    $("#trialProgress").style.width = `${((isChapter ? completed : state.trialIndex + 1) / total) * 100}%`;
+    $("#photoBadge").textContent = item.id.toUpperCase() + (state.phase === "navigation" && item.id === target.id ? " · TARGET" : "");
     $("#photoName").textContent = item.title;
-    $("#photoMeta").textContent = `${item.id.toUpperCase()} · ORIGINAL CONTROLLED ILLUSTRATION`;
+    $("#photoMeta").textContent = `${item.id.toUpperCase()} · ORIGINAL CONTROLLED PHOTO`;
     $("#mainPhoto").src = item.file;
     $("#mainPhoto").alt = item.alt;
     const idx = state.currentImageIndex;
     $("#backPhoto1").src = state.phaseItems[(idx + 1) % total].file;
     $("#backPhoto2").src = state.phaseItems[(idx + 2) % total].file;
+    if (!state.firstSeenAt.has(itemKey(item))) state.firstSeenAt.set(itemKey(item), performance.now());
+    state.selectedLabel = classificationFor(item);
     $("#currentLabel").hidden = !state.selectedLabel;
     $("#currentLabel").textContent = state.selectedLabel ? `${LABELS[state.selectedLabel].icon} ${LABELS[state.selectedLabel].en}` : "";
     $$(".classic-controls button").forEach((button) => button.classList.toggle("selected", button.dataset.label === state.selectedLabel));
     $("#undoBtn").disabled = state.undoStack.length === 0;
+    renderTechniqueControls();
     renderRules();
     renderTaskInstruction();
     renderPhaseRail();
+  }
+
+  function renderTechniqueControls() {
+    const navigation = state.phase === "navigation";
+    const technique = currentTechnique();
+    $("#classicControls").hidden = navigation || technique !== "classic";
+    $("#flickLegend").hidden = navigation || technique !== "flicksort";
+    $("#techniqueChip").textContent = navigation ? "NAVIGATION" : technique.toUpperCase();
+    document.documentElement.dataset.technique = navigation ? "navigation" : technique;
   }
 
   function renderRules() {
@@ -164,25 +223,38 @@
   function renderTaskInstruction() {
     const item = currentItem();
     if (state.phase === "navigation") {
-      $("#taskInstruction").textContent = `Go to ${item.id.toUpperCase()} “${item.title}”. Do not classify. / 找到指定图片，不要分类。`;
-      $("#submitHeading").textContent = "Navigation only / 仅导航";
+      $("#taskInstruction").textContent = `Swipe left or right until ${item.id.toUpperCase()} is visible. Do not classify any photo.`;
+      $("#submitHeading").textContent = "Navigation only";
       $("#submitHint").textContent = "Submit when the target picture is visible.";
       $("#submitBtn").innerHTML = "I’m there <span>→</span>";
+      $("#submitBtn").classList.remove("incomplete");
       return;
     }
     if (state.phase === "tutorial") {
-      const tips = state.technique === "flicksort"
-        ? ["Swipe ← next and → previous. Diagonal ↗ means Keep.", "Diagonal ↖ means Edit. Undo can mark an accidental input.", "Diagonal ↙ means Maybe. A short or unclear swipe cancels safely.", "Diagonal ↘ means Reject. Practice shows answer feedback."]
-        : ["Swipe ← next and → previous. Tap Keep for bus only.", "Tap Edit for car only. Undo can mark an accidental input.", "Tap Maybe when both are visible. Gesture cancel is not used in Classic.", "Tap Reject for neither. Practice shows answer feedback."];
+      const tips = currentTechnique() === "flicksort"
+        ? ["FlickSort: swipe diagonally toward the category shown in the rule card.", "FlickSort: ↖ Edit, ↗ Keep, ↙ Maybe, ↘ Reject.", "FlickSort: a short or unclear diagonal swipe cancels safely.", "FlickSort: classify this photo, then press Submit for practice feedback."]
+        : ["Classic: tap one of the four category buttons below the photo.", "Classic: use the rule card, then tap the matching category.", "Classic: Undo can correct an accidental button tap.", "Classic: classify this photo, then press Submit for practice feedback."];
       $("#taskInstruction").textContent = tips[state.trialIndex];
     } else if (state.phase === "level1") {
-      $("#taskInstruction").textContent = "Is any bus visible? Yes → Keep; No → Reject. / 有巴士→保留；没有→拒绝。";
+      $("#taskInstruction").textContent = "For every photo: if any bus is visible, choose Keep. If no bus is visible, choose Reject.";
     } else {
-      $("#taskInstruction").textContent = "Count every visible bus and ordinary passenger car, then use the rule card. / 以所有可见巴士和小汽车判断。";
+      $("#taskInstruction").textContent = "Classify every photo: bus only → Keep; car only → Edit; both → Maybe; neither → Reject.";
     }
-    $("#submitHeading").textContent = state.selectedLabel ? `Selected: ${LABELS[state.selectedLabel].en}` : "Choose one category";
-    $("#submitHint").textContent = state.phase === "tutorial" ? "Practice feedback appears after Submit." : "No correctness feedback is shown during scored trials.";
-    $("#submitBtn").innerHTML = "Submit <span>→</span>";
+    if (state.phase === "tutorial") {
+      $("#submitHeading").textContent = state.selectedLabel ? `Selected: ${LABELS[state.selectedLabel].en}` : "Choose one category";
+      $("#submitHint").textContent = "Practice feedback appears after Submit.";
+      $("#submitBtn").innerHTML = "Submit <span>→</span>";
+      $("#submitBtn").classList.toggle("incomplete", !state.selectedLabel);
+      return;
+    }
+    const total = state.phaseItems.length;
+    const completed = phaseCompletion();
+    const missing = state.phaseItems.filter((photo) => !state.classifications.has(itemKey(photo))).map((photo) => photo.id.toUpperCase());
+    $("#submitHeading").textContent = `${completed} of ${total} photos classified`;
+    $("#submitHint").textContent = missing.length ? `Still unfinished: ${missing.join(", ")}` : "All photos are classified. Review freely or submit this chapter.";
+    $("#submitBtn").innerHTML = "Submit chapter <span>→</span>";
+    $("#submitBtn").classList.toggle("incomplete", missing.length > 0);
+    $("#submitBtn").setAttribute("aria-disabled", missing.length ? "true" : "false");
   }
 
   function renderPhaseRail() {
@@ -212,15 +284,18 @@
       animateFlyout(label);
       return;
     }
-    if (item.id !== currentItem().id) {
-      logEvent("wrong_photo_classification", { attempted_label: label, source, explicit_error_type: "classified_non_target_image", ...gesture });
-      showToast("Return to the TARGET image before classifying");
-      return;
-    }
-    state.undoStack.push({ previous: state.selectedLabel, next: label, imageId: item.id });
+    const key = itemKey(item);
+    const previous = state.classifications.get(key) || null;
+    const previousDetail = state.classificationDetails.get(key) || null;
+    state.undoStack.push({ previous, previousDetail, next: label, imageId: item.id, key });
     state.selectedLabel = label;
-    state.classifications.set(item.id, label);
-    logEvent("classification", { label, source, ...gesture });
+    state.classifications.set(key, label);
+    state.classificationDetails.set(key, {
+      technique: currentTechnique(item),
+      decision_elapsed_ms: Math.round(performance.now() - (state.firstSeenAt.get(key) || state.phaseStart)),
+      classified_at: nowIso(), source
+    });
+    logEvent("classification", { label, source, image_id: item.id, previous_label: previous || "", ...gesture });
     animateFlyout(label);
     render();
   }
@@ -231,9 +306,14 @@
     const reason = $("#undoReason").value;
     state.totalUndos += 1;
     if (reason === "accidental_input") state.accidentalClassifications += 1;
-    state.selectedLabel = action.previous;
-    if (action.previous) state.classifications.set(action.imageId, action.previous);
-    else state.classifications.delete(action.imageId);
+    if (action.previous) {
+      state.classifications.set(action.key, action.previous);
+      state.classificationDetails.set(action.key, action.previousDetail);
+    } else {
+      state.classifications.delete(action.key);
+      state.classificationDetails.delete(action.key);
+    }
+    state.selectedLabel = classificationFor();
     logEvent("undo", { undone_label: action.next, restored_label: action.previous || "", undo_reason: reason, explicit_accidental_classification: reason === "accidental_input" ? 1 : 0 });
     $("#undoReason").value = "unspecified";
     render();
@@ -245,32 +325,51 @@
     const duration = Math.max(0, performance.now() - state.trialStart - state.trialPausedMs);
     if (state.phase === "navigation") {
       const correct = displayedItem().id === target.id;
-      state.trials.push(trialRecord({ final_response: "navigation_only", accuracy: "", content_judgment_error: "", navigation_correct: correct ? 1 : 0, trial_duration_ms: Math.round(duration) }));
+      state.trials.push(trialRecord(target, "navigation_only", { final_response: "navigation_only", accuracy: "", content_judgment_error: "", navigation_correct: correct ? 1 : 0, trial_duration_ms: Math.round(duration) }));
       logEvent("trial_submit", { navigation_correct: correct ? 1 : 0 });
       nextTrial();
       return;
     }
-    if (!state.selectedLabel) return showToast("Choose a category first");
-    if (displayedItem().id !== target.id) return showToast("Return to the TARGET image before submitting");
-    const correct = state.selectedLabel === target.answer;
-    state.trials.push(trialRecord({
-      final_response: state.selectedLabel, accuracy: correct ? 1 : 0,
-      content_judgment_error: correct ? 0 : 1, navigation_correct: "",
-      trial_duration_ms: Math.round(duration)
-    }));
-    logEvent("trial_submit", { final_response: state.selectedLabel, correct_answer: target.answer, accuracy: correct ? 1 : 0, explicit_error_type: correct ? "none" : "content_judgment_error" });
     if (state.phase === "tutorial") {
-      showToast(correct ? "Correct / 正确" : `Practice answer: ${LABELS[target.answer].en}`);
+      const practiceItem = displayedItem();
+      const response = classificationFor(practiceItem);
+      if (!response) return showToast("Choose a category first");
+      const correct = response === practiceItem.answer;
+      state.trials.push(trialRecord(practiceItem, currentTechnique(practiceItem), {
+        final_response: response, accuracy: correct ? 1 : 0,
+        content_judgment_error: correct ? 0 : 1, navigation_correct: "",
+        trial_duration_ms: Math.round(duration), practice_flag: 1
+      }));
+      logEvent("trial_submit", { final_response: response, correct_answer: practiceItem.answer, accuracy: correct ? 1 : 0, explicit_error_type: correct ? "none" : "content_judgment_error" });
+      showToast(correct ? "Correct / 正确" : `Practice answer: ${LABELS[practiceItem.answer].en}`);
       setTimeout(nextTrial, 650);
       return;
     }
-    nextTrial();
+    const missing = state.phaseItems.filter((item) => !state.classifications.has(itemKey(item)));
+    if (missing.length) {
+      const chapter = state.phase === "level1" ? "Level 1" : (state.runMode === "demo" ? "Demo" : "Level 2");
+      const ids = missing.map((item) => item.id.toUpperCase()).join(", ");
+      logEvent("chapter_submit_blocked", { unfinished_image_ids: ids, unfinished_count: missing.length });
+      return showToast(`${chapter} unfinished: ${ids}`, 3600);
+    }
+    state.phaseItems.forEach((item, index) => {
+      const response = state.classifications.get(itemKey(item));
+      const detail = state.classificationDetails.get(itemKey(item)) || {};
+      const correct = response === item.answer;
+      state.trials.push(trialRecord(item, state.techniqueAssignments.get(itemKey(item)), {
+        trial_index: index + 1, final_response: response, accuracy: correct ? 1 : 0,
+        content_judgment_error: correct ? 0 : 1, navigation_correct: "",
+        trial_duration_ms: detail.decision_elapsed_ms || "", classified_at: detail.classified_at || "",
+        classification_source: detail.source || "", practice_flag: 0, free_processing_order: 1
+      }));
+    });
+    logEvent("chapter_submit", { completed_count: state.phaseItems.length, free_processing_order: 1 });
+    advancePhase();
   }
 
-  function trialRecord(extra) {
-    const item = currentItem();
+  function trialRecord(item = currentItem(), technique = currentTechnique(item), extra = {}) {
     return {
-      participant_id: state.participant, technique: state.technique, run_mode: state.runMode,
+      participant_id: state.participant, technique, run_technique: state.technique, run_mode: state.runMode,
       build_version: BUILD, asset_set: ASSET_SET, benchmark_status: "provisional_demonstration_not_pilot_validated",
       t_ref_ms: T_REF_MS, phase: state.phase, trial_index: state.trialIndex + 1,
       target_image_id: item.id, image_title: item.title, contains_bus: item.contains_bus ? 1 : 0,
@@ -278,7 +377,8 @@
       undo_count_total: state.totalUndos, cancel_count_total: state.totalCancels,
       accidental_classification_count_total: state.accidentalClassifications,
       navigation_mistouch_count_total: state.navMistouches,
-      active_operation_time_ms_total: Math.round(state.activeMs), submitted_at: nowIso(), ...extra
+      active_operation_time_ms_total: Math.round(state.activeMs), technique_order_seed: state.randomizationSeed,
+      submitted_at: nowIso(), ...extra
     };
   }
 
@@ -329,13 +429,14 @@
     const result = interpretGesture(dx, dy);
     const meta = { pointer_type: p.type, gesture_dx: Math.round(dx), gesture_dy: Math.round(dy), distance_px: Math.round(result.distance), angle_deg: Math.round(result.angle), duration_ms: Math.round(duration), recognized_action: result.action || "cancel", decision_reason: result.reason };
     if (result.action === "next" || result.action === "previous") return changePhoto(result.action === "next" ? 1 : -1, "swipe", meta);
-    if (state.technique === "flicksort" && LABELS[result.action]) return classify(result.action, "gesture", meta);
-    if (state.technique === "flicksort" && result.distance >= 18) {
+    const technique = currentTechnique();
+    if (technique === "flicksort" && LABELS[result.action]) return classify(result.action, "gesture", meta);
+    if (technique === "flicksort" && result.distance >= 18) {
       state.totalCancels += 1;
       state.phaseCancelCount += 1;
       logEvent("gesture_cancel", { ...meta, explicit_error_type: "trajectory_cancel" });
       showToast("Gesture cancelled / 手势已取消");
-    } else if (state.technique === "classic" && result.distance >= 18) {
+    } else if (technique === "classic" && result.distance >= 18) {
       logEvent("non_horizontal_swipe_ignored", meta);
     }
   }
@@ -366,11 +467,11 @@
     setTimeout(() => ghost.remove(), 430);
   }
 
-  function showToast(message) {
+  function showToast(message, duration = 1500) {
     clearTimeout(state.toastTimer);
     $("#toast").textContent = message;
     $("#toast").classList.add("show");
-    state.toastTimer = setTimeout(() => $("#toast").classList.remove("show"), 1500);
+    state.toastTimer = setTimeout(() => $("#toast").classList.remove("show"), duration);
   }
 
   function clearToast() {
@@ -396,7 +497,7 @@
     $("#navErrorMetric").textContent = state.navMistouches;
     $("#navCorrectMetric").textContent = `${navCorrect} / ${nav.length}`;
     $("#resultParticipant").textContent = state.participant;
-    $("#resultTechnique").textContent = state.technique === "classic" ? "Classic" : "FlickSort";
+    $("#resultTechnique").textContent = "Mixed · auto-alternating";
     $("#resultBuild").textContent = `v${BUILD}`;
     $("#resultTimestamp").textContent = new Date().toLocaleString([], { hour12: false });
     $("#scoreLabel").textContent = state.runMode === "pilot" ? "Pilot overview" : "Demo preview · not comparable";
@@ -427,7 +528,7 @@
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `flicksort_${kind}_${state.participant}_${state.technique}_${Date.now()}.csv`;
+    link.download = `flicksort_${kind}_${state.participant}_mixed_${Date.now()}.csv`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 500);
   }
@@ -436,16 +537,15 @@
     event.preventDefault();
     state.participant = $("#participantId").value.trim().replace(/[^a-zA-Z0-9_-]/g, "-");
     if (!state.participant) return;
-    state.technique = new FormData(event.currentTarget).get("technique");
     state.runMode = new FormData(event.currentTarget).get("runMode");
+    const seed = new Uint32Array(1);
+    crypto.getRandomValues(seed);
+    state.randomizationSeed = seed[0];
     $("#setupScreen").hidden = true;
     $("#studyScreen").hidden = false;
-    $("#sideTechnique").textContent = state.technique.toUpperCase();
+    $("#sideTechnique").textContent = "MIXED · AUTO";
     $("#sideParticipant").textContent = state.participant;
-    $("#classicControls").hidden = state.technique !== "classic";
-    $("#flickLegend").hidden = state.technique !== "flicksort";
-    document.documentElement.dataset.technique = state.technique;
-    logEvent("run_start", { benchmark_status: "provisional_demonstration_not_pilot_validated", t_ref_ms: T_REF_MS });
+    logEvent("run_start", { benchmark_status: "provisional_demonstration_not_pilot_validated", t_ref_ms: T_REF_MS, technique_order_seed: state.randomizationSeed, assignment_method: "random_start_then_alternate_by_photo" });
     startPhase(phaseSequence()[0]);
   }
 

@@ -1,6 +1,82 @@
-/* Deterministic original stimulus generator. No downloaded or third-party images. */
+/* Stimulus manifest/crop metadata generator. No downloaded or third-party images. */
 const fs = require("fs");
 const path = require("path");
+
+function generatePhotorealisticAssets() {
+  const photoRows = [
+    ["l1-01","level1",1,0,"keep","One clearly visible bus; no passenger car."],
+    ["l1-02","level1",0,1,"reject","One clearly visible passenger car; no bus."],
+    ["l1-03","level1",1,0,"keep","One clearly visible bus; no passenger car."],
+    ["l1-04","level1",0,0,"reject","A bicycle and bench; no bus or passenger car."],
+    ["l1-05","level1",1,0,"keep","One clearly visible bus; no passenger car."],
+    ["l1-06","level1",0,1,"reject","One clearly visible passenger car; no bus."],
+    ["l1-07","level1",1,0,"keep","One clearly visible bus; no passenger car."],
+    ["l1-08","level1",0,0,"reject","A bicycle and bench; no bus or passenger car."],
+    ["l1-09","level1",1,0,"keep","One clearly visible bus; no passenger car."],
+    ["l1-10","level1",0,1,"reject","One clearly visible passenger car; no bus."],
+    ["l1-11","level1",1,0,"keep","One clearly visible bus; no passenger car."],
+    ["l1-12","level1",0,0,"reject","A bicycle and kiosk; no bus or passenger car."],
+    ["l2-01","level2",1,0,"keep","Bus only; no passenger car."],
+    ["l2-02","level2",1,0,"keep","Bus only; no passenger car."],
+    ["l2-03","level2",1,0,"keep","Bus only; no passenger car."],
+    ["l2-04","level2",0,1,"edit","Passenger car only; no bus."],
+    ["l2-05","level2",0,1,"edit","Passenger car only; no bus."],
+    ["l2-06","level2",0,1,"edit","Passenger car only; no bus."],
+    ["l2-07","level2",1,1,"maybe","One bus and one passenger car, both clearly visible."],
+    ["l2-08","level2",1,1,"maybe","One bus and one passenger car, both clearly visible."],
+    ["l2-09","level2",1,1,"maybe","One bus and one passenger car, both clearly visible."],
+    ["l2-10","level2",0,0,"reject","A bicycle and street furniture; no bus or passenger car."],
+    ["l2-11","level2",0,0,"reject","A bench and waterfront; no bus or passenger car."],
+    ["l2-12","level2",0,0,"reject","A fountain and pedestrian plaza; no bus or passenger car."]
+  ];
+  const level1Crops = [
+    [0,0,390,313],[405,0,382,313],[802,0,381,313],[1198,0,388,313],
+    [0,327,390,299],[405,327,382,299],[802,327,381,299],[1198,327,388,299],
+    [0,641,390,351],[405,641,382,351],[802,641,381,351],[1198,641,388,351]
+  ];
+  const level2Crops = [
+    [0,0,520,238],[534,0,518,238],[1067,0,519,238],
+    [0,254,520,221],[534,254,518,221],[1067,254,519,221],
+    [0,490,520,215],[534,490,518,215],[1067,490,519,215],
+    [0,720,520,272],[534,720,518,272],[1067,720,519,272]
+  ];
+  const cropWrapper = (id, level, crop) => {
+    const [x,y,w,h] = crop;
+    const sheet = level === "level1" ? "realistic-level1.png" : "realistic-level2.png";
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${w} ${h}" role="img" aria-labelledby="title">\n  <title id="title">Photo ${id.toUpperCase()}</title>\n  <image href="${sheet}" x="0" y="0" width="1586" height="992"/>\n</svg>\n`;
+  };
+  const assetsDir = path.join(__dirname, "assets");
+  fs.mkdirSync(assetsDir, { recursive: true });
+  const manifest = photoRows.map((row, index) => {
+    const [id, level, busFlag, carFlag, answer, reason] = row;
+    const title = `Photo ${id.toUpperCase()}`;
+    const crop = level === "level1" ? level1Crops[index] : level2Crops[index - 12];
+    const item = {
+      id, level, title, file: `assets/${id}.png`, contains_bus: Boolean(busFlag),
+      contains_car: Boolean(carFlag), answer, reason, alt: `${title}: ${reason}`,
+      source: "Independent crop from an original AI-generated photorealistic stimulus sheet created for this repository; no third-party asset.",
+      visual_review_status: "pending_independent_human_review",
+      implementation_review: "agent_visual_review_complete_2026-10-25_contact_sheet_and_all_24_crops_checked_against_labels",
+      agent_visual_review_status: "complete", human_reviewed: false
+    };
+    fs.writeFileSync(path.join(assetsDir, `${id}.svg`), cropWrapper(id, level, crop));
+    return item;
+  });
+  fs.writeFileSync(path.join(__dirname, "image_manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+  const csvHeaders = Object.keys(manifest[0]);
+  const escape = (value) => {
+    const text = String(value);
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+  const csv = [csvHeaders.join(","), ...manifest.map((item) => csvHeaders.map((key) => escape(item[key])).join(","))].join("\r\n");
+  fs.writeFileSync(path.join(__dirname, "image_manifest.csv"), csv + "\r\n");
+  console.log(`Generated ${manifest.length} photorealistic manifest entries, crop wrappers and two manifests.`);
+}
+
+if (!process.argv.includes("--legacy-illustrations")) {
+  generatePhotorealisticAssets();
+  process.exit(0);
+}
 
 const rows = [
   ["l1-01","level1","Harbour Morning",1,0,"keep","A single clearly visible bus; no passenger car."],

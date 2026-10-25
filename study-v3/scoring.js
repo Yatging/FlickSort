@@ -38,7 +38,14 @@
     return { action: null, reason: "ambiguous_angle", distance, angle: Math.atan2(dy, dx) * 180 / Math.PI };
   }
 
-  const api = { clip, computeScore, interpretGesture };
+  function buildAlternatingTechniques(count, seed = 0, phaseOffset = 0) {
+    const first = ((Number(seed) + Number(phaseOffset)) & 1) === 0 ? "classic" : "flicksort";
+    return Array.from({ length: Math.max(0, Number(count) || 0) }, (_, index) =>
+      index % 2 === 0 ? first : (first === "classic" ? "flicksort" : "classic")
+    );
+  }
+
+  const api = { clip, computeScore, interpretGesture, buildAlternatingTechniques };
   root.FlickSortScoring = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : globalThis);

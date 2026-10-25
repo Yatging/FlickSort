@@ -1,27 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
-    <title id="title">Green Avenue Car</title><desc id="desc">Green Avenue Car: Passenger car only; no bus.</desc>
-    <rect width="960" height="600" fill="#f0c6aa"/>
-    <circle cx="314" cy="104" r="47" fill="#fff0a6" opacity=".9"/>
-    <path d="M0 295Q160 245 320 295T640 286T960 278V420H0z" fill="#7ca394" opacity=".65"/>
-    <g stroke="#586b77" stroke-width="5">
-      <rect x="36" y="137" width="188" height="233" fill="#d99c78"/>
-      <rect x="244" y="193" width="198" height="177" fill="#e9bd7c"/>
-      <rect x="465" y="79" width="208" height="291" fill="#df8c72"/>
-      <rect x="698" y="94" width="215" height="276" fill="#edd2a1"/>
-    </g>
-    <g fill="#dff4f1" stroke="#5e7778" stroke-width="3" opacity=".95">
-      <rect x="80" y="170" width="28" height="34" rx="3"/><rect x="130" y="222" width="28" height="34" rx="3"/><rect x="180" y="274" width="28" height="34" rx="3"/><rect x="285" y="170" width="28" height="34" rx="3"/><rect x="340" y="222" width="28" height="34" rx="3"/><rect x="395" y="274" width="28" height="34" rx="3"/><rect x="505" y="170" width="28" height="34" rx="3"/><rect x="560" y="222" width="28" height="34" rx="3"/><rect x="615" y="274" width="28" height="34" rx="3"/><rect x="745" y="170" width="28" height="34" rx="3"/><rect x="805" y="222" width="28" height="34" rx="3"/><rect x="865" y="274" width="28" height="34" rx="3"/>
-    </g>
-    <rect y="370" width="960" height="230" fill="#87908e"/>
-    <rect y="397" width="960" height="6" fill="#e8eadf"/>
-    <path d="M0 513h960" stroke="#f7e8a3" stroke-width="9" stroke-dasharray="80 42"/>
-    <rect y="567" width="960" height="33" fill="#3f514e"/>
-    <g fill="#456d58"><circle cx="66" cy="344" r="45"/><rect x="58" y="342" width="16" height="48" fill="#6a4c38"/><circle cx="897" cy="337" r="53"/><rect x="889" y="338" width="17" height="52" fill="#6a4c38"/></g><g transform="translate(640 446) scale(-1 1)" aria-label="passenger car">
-    <path d="M13 66l19-35c6-11 16-17 30-17h49c13 0 22 5 31 16l24 31 6 8v32H5V78z" fill="#528b9f" stroke="#1f2c2c" stroke-width="5" stroke-linejoin="round"/>
-    <path d="M48 31h61c8 0 13 3 19 10l13 18H35z" fill="#dff4f1"/>
-    <path d="M87 31v28" stroke="#415c62" stroke-width="5"/>
-    <circle cx="43" cy="98" r="20" fill="#1d2728"/><circle cx="43" cy="98" r="8" fill="#b7c3bf"/>
-    <circle cx="137" cy="98" r="20" fill="#1d2728"/><circle cx="137" cy="98" r="8" fill="#b7c3bf"/>
-    <rect x="153" y="70" width="14" height="9" rx="3" fill="#ffe28c"/>
-  </g>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1067 254 519 221" role="img" aria-labelledby="title">
+  <title id="title">Photo L2-06</title>
+  <image href="realistic-level2.png" x="0" y="0" width="1586" height="992"/>
+</svg>

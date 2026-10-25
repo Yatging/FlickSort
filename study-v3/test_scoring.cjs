@@ -1,5 +1,5 @@
 const assert = require("node:assert/strict");
-const { computeScore, interpretGesture } = require("./scoring.js");
+const { computeScore, interpretGesture, buildAlternatingTechniques } = require("./scoring.js");
 
 assert.equal(computeScore({ correct: 24, classificationTotal: 24, activeMs: 180000, tRefMs: 180000, navCorrect: 4, navTotal: 4 }).score, 100);
 assert.equal(computeScore({ correct: 12, classificationTotal: 24, activeMs: 360000, tRefMs: 180000, navCorrect: 2, navTotal: 4 }).score, 40);
@@ -12,4 +12,7 @@ assert.equal(interpretGesture(90, -90).action, "keep");
 assert.equal(interpretGesture(-90, 90).action, "maybe");
 assert.equal(interpretGesture(90, 90).action, "reject");
 assert.equal(interpretGesture(15, 15).action, null);
+assert.deepEqual(buildAlternatingTechniques(4, 0, 0), ["classic", "flicksort", "classic", "flicksort"]);
+assert.deepEqual(buildAlternatingTechniques(4, 1, 0), ["flicksort", "classic", "flicksort", "classic"]);
+assert.deepEqual(buildAlternatingTechniques(3, 8, 1), ["flicksort", "classic", "flicksort"]);
 console.log("Scoring tests passed.");

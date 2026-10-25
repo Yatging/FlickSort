@@ -60,6 +60,7 @@ legend { margin-bottom: 9px; color: #4f5a57; font-size: 12px; font-weight: 750; 
 .primary, .secondary, .text-button { border: 0; border-radius: 11px; }
 .primary { display: inline-flex; align-items: center; justify-content: center; gap: 22px; padding: 13px 19px; color: white; background: var(--ink); font-weight: 800; }
 .primary:hover { background: #2b3835; }
+.primary.incomplete { opacity: .52; }
 .wide { width: 100%; }
 .secondary { padding: 10px 13px; color: var(--ink); border: 1px solid var(--line); background: white; font-weight: 750; }
 .secondary:disabled { opacity: .4; cursor: default; }
@@ -81,6 +82,7 @@ legend { margin-bottom: 9px; color: #4f5a57; font-size: 12px; font-weight: 750; 
 .study-main { min-width: 0; }
 .task-banner { display: grid; grid-template-columns: 1fr auto; gap: 8px 30px; align-items: end; }
 .task-banner h2 { margin: 5px 0 0; font: 500 clamp(28px, 4vw, 43px)/1 Georgia, serif; letter-spacing: -.035em; }
+.technique-chip { display: inline-flex; margin-top: 8px; padding: 4px 8px; color: #fff; border-radius: 999px; background: var(--ink); font-size: 9px; font-weight: 900; letter-spacing: .1em; }
 .task-banner > p { grid-column: 1 / -1; min-height: 19px; color: var(--muted); font-size: 13px; font-weight: 550; letter-spacing: 0; }
 .task-progress { display: grid; gap: 6px; width: 120px; color: var(--muted); text-align: right; font-size: 11px; font-weight: 750; }
 .task-progress div { height: 4px; overflow: hidden; background: #d9d5cc; border-radius: 4px; }
@@ -111,6 +113,7 @@ legend { margin-bottom: 9px; color: #4f5a57; font-size: 12px; font-weight: 750; 
 .corner-target.maybe { --corner: var(--maybe); top: auto; bottom: 9px; }
 .corner-target.reject { --corner: var(--reject); top: auto; right: 10px; bottom: 9px; left: auto; }
 .corner-target.targeted { opacity: 1; border-color: var(--corner); transform: scale(1.09); box-shadow: 0 0 0 1px var(--corner); }
+html[data-technique="classic"] .corner-target, html[data-technique="navigation"] .corner-target { display: none; }
 .photo-badge, .current-label { position: absolute; z-index: 6; top: 53px; left: 41px; padding: 5px 7px; color: white; border-radius: 7px; background: rgba(0,0,0,.48); font-size: 9px; font-weight: 850; letter-spacing: .1em; }
 .current-label { right: 41px; left: auto; }
 .browse-hint { position: absolute; z-index: 6; right: 41px; bottom: 45px; left: 41px; display: flex; justify-content: space-between; color: rgba(255,255,255,.9); font-size: 9px; font-weight: 850; letter-spacing: .1em; text-shadow: 0 1px 4px black; }
@@ -178,7 +181,7 @@ legend { margin-bottom: 9px; color: #4f5a57; font-size: 12px; font-weight: 750; 
   .task-banner h2 { font-size: 29px; }
   .rule-card { margin: 11px 0 8px; }
   .rule-card > div { justify-content: center; padding: 6px 4px; }
-  .rule-card small { display: none; }
+  .rule-card small { display: block; overflow: visible; text-overflow: clip; white-space: normal; }
   .photo-stage { height: 43vh; min-height: 250px; }
   .card-stack, .flyout { inset: 40px 16px 32px; }
   .photo-badge { left: 26px; }
@@ -199,6 +202,7 @@ legend { margin-bottom: 9px; color: #4f5a57; font-size: 12px; font-weight: 750; 
   .task-banner { gap: 4px 15px; padding: 0 3px; }
   .task-banner h2 { font-size: 24px; }
   .task-banner > p { font-size: 11px; }
+  .rule-card { grid-template-columns: repeat(2,1fr); }
   .task-progress { width: 88px; }
   .viewer-panel { border-radius: 18px; }
   .photo-stage { height: 38vh; min-height: 228px; }

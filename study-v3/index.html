@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101514">
-  <title>FlickSort Vehicle Study · V3</title>
+  <title>FlickSort Image Selection Study · V3</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -16,10 +16,10 @@
 
     <section class="screen setup-screen" id="setupScreen">
       <div class="setup-copy">
-        <p class="eyebrow">CITY VEHICLE RECOGNITION STUDY</p>
-        <h1>One picture.<br><em>One clear rule.</em></h1>
-        <p class="lede">A standalone CAPTCHA-style test using original, controlled illustrations. The Classic and FlickSort conditions use exactly the same images, answers, levels and instructions.</p>
-        <div class="scope-note"><strong>No photography terms.</strong> Count every visible bus and ordinary passenger car, even if it is small or partly near an edge.</div>
+        <p class="eyebrow">IMAGE SELECTION INTERACTION STUDY</p>
+        <h1>Sort photos.<br><em>Compare interactions.</em></h1>
+        <p class="lede">This test compares two ways to classify the same controlled photos: Classic buttons and FlickSort gestures. The website assigns them automatically and alternates them by photo.</p>
+        <div class="scope-note"><strong>You do not choose a technique.</strong> Each chapter starts with a randomly selected technique, then alternates Classic and FlickSort. You may process the photos in any order.</div>
       </div>
 
       <form class="setup-card" id="setupForm">
@@ -27,13 +27,7 @@
         <label class="field">Anonymous participant ID
           <input id="participantId" name="participant" autocomplete="off" maxlength="24" placeholder="e.g. P014" required>
         </label>
-        <fieldset>
-          <legend>Technique</legend>
-          <div class="segmented">
-            <label><input type="radio" name="technique" value="classic" checked><span><b>Classic</b><small>Tap four buttons</small></span></label>
-            <label><input type="radio" name="technique" value="flicksort"><span><b>FlickSort</b><small>Diagonal gestures</small></span></label>
-          </div>
-        </fieldset>
+        <div class="benchmark-note"><span>⇄</span><div><b>Automatic mixed-technique run</b><small>Classic and FlickSort alternate; the starting technique is randomized.</small></div></div>
         <fieldset>
           <legend>Run</legend>
           <div class="segmented">
@@ -49,7 +43,7 @@
 
     <section class="screen study-screen" id="studyScreen" hidden>
       <aside class="study-sidebar">
-        <div class="run-meta"><span id="sideTechnique">CLASSIC</span><small id="sideParticipant">P000</small></div>
+        <div class="run-meta"><span id="sideTechnique">MIXED · AUTO</span><small id="sideParticipant">P000</small></div>
         <div class="phase-list" aria-label="Study progress">
           <div data-phase="tutorial"><i>1</i><span>Tutorial<small>Not scored</small></span></div>
           <div data-phase="level1"><i>2</i><span>Level 1<small>Bus or no bus</small></span></div>
@@ -62,9 +56,9 @@
 
       <div class="study-main">
         <section class="task-banner" id="taskBanner">
-          <div><p id="phaseKicker">TUTORIAL · NOT SCORED</p><h2 id="taskTitle">Learn the controls</h2></div>
+          <div><p id="phaseKicker">TUTORIAL · NOT SCORED</p><h2 id="taskTitle">Learn the controls</h2><span class="technique-chip" id="techniqueChip">CLASSIC</span></div>
           <div class="task-progress"><span id="trialCounter">1 / 4</span><div><i id="trialProgress"></i></div></div>
-          <p id="taskInstruction">Follow the short practice steps. Correct answers are shown only here.</p>
+          <p id="taskInstruction">Follow the instruction below. Correct answers are shown only during practice.</p>
         </section>
 
         <section class="rule-card" id="ruleCard" aria-label="Current classification rules">
@@ -93,7 +87,7 @@
           </div>
 
           <div class="photo-meta">
-            <div><h3 id="photoName">Market Street</h3><p id="photoMeta">IMAGE 01 · CONTROLLED ILLUSTRATION</p></div>
+            <div><h3 id="photoName">Photo L1-01</h3><p id="photoMeta">ORIGINAL CONTROLLED PHOTO</p></div>
             <div class="undo-wrap">
               <select id="undoReason" aria-label="Reason for undo">
                 <option value="unspecified">Undo reason…</option>
@@ -115,8 +109,8 @@
           </div>
 
           <div class="submit-row">
-            <div><b id="submitHeading">Choose one category</b><small id="submitHint">Then submit your final answer.</small></div>
-            <button class="primary" id="submitBtn">Submit <span>→</span></button>
+            <div><b id="submitHeading">0 of 12 photos classified</b><small id="submitHint">Finish every photo; you may work in any order.</small></div>
+            <button class="primary" id="submitBtn">Submit chapter <span>→</span></button>
           </div>
         </section>
       </div>
@@ -124,8 +118,8 @@
 
     <section class="screen results-screen" id="resultsScreen" hidden>
       <article class="result-card" id="resultCard">
-        <header><div><p>FLICKSORT VEHICLE STUDY</p><h1>Results / 结果</h1></div><div class="result-build"><span id="resultBuild">v3.0.0</span><small id="resultTimestamp"></small></div></header>
-        <div class="result-identity"><span><small>Participant</small><b id="resultParticipant">—</b></span><span><small>Technique</small><b id="resultTechnique">—</b></span><span><small>Asset set</small><b>city-vehicles-v1</b></span></div>
+        <header><div><p>FLICKSORT IMAGE SELECTION STUDY</p><h1>Results / 结果</h1></div><div class="result-build"><span id="resultBuild">v3.1.0</span><small id="resultTimestamp"></small></div></header>
+        <div class="result-identity"><span><small>Participant</small><b id="resultParticipant">—</b></span><span><small>Technique</small><b id="resultTechnique">—</b></span><span><small>Asset set</small><b>image-selection-realistic-v2</b></span></div>
         <div class="score-hero"><div class="score-ring"><strong id="overallScore">0</strong><span>/ 100</span></div><div><p>总分 / OVERALL SCORE</p><h2 id="scoreLabel">Demo preview</h2><small id="benchmarkLabel">Provisional demonstration benchmark · T_ref 180s</small></div></div>
         <div class="metric-grid">
           <div><span id="accuracyMetric">0%</span><small>准确率 / Accuracy</small></div>
@@ -145,7 +139,7 @@
       </div>
     </section>
   </main>
-  <script src="../language.js?v=3.1.0"></script>
+  <script src="../language.js?v=3.2.0"></script>
   <script src="scoring.js"></script>
   <script src="app.js"></script>
 </body>

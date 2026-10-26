@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101514">
   <title>FlickSort Image Selection Study · V3</title>
+  <!-- 【代码讲解】读取CSS样式文件，不负责业务逻辑。 -->
   <link rel="stylesheet" href="styles.css?v=3.2.1">
 </head>
 <body>
+  <!-- 【代码讲解】网页主体；里面的元素由app.js查找或更新。 -->
   <main class="app-shell" id="appShell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="FlickSort study home"><span>F</span>lickSort <b>V3</b></a>
       <div class="build-chip">BUILD <span id="buildLabel">3.2.1</span></div>
     </header>
 
+    <!-- 【代码讲解】测试开始页：收集匿名编号和运行模式。 -->
     <section class="screen setup-screen" id="setupScreen">
       <div class="setup-copy">
         <p class="eyebrow">IMAGE SELECTION INTERACTION STUDY</p>
@@ -42,6 +45,7 @@
       </form>
     </section>
 
+    <!-- 【代码讲解】进行中的测试页：照片、规则、分类和提交入口。 -->
     <section class="screen study-screen" id="studyScreen" hidden>
       <aside class="study-sidebar">
         <div class="run-meta"><span id="sideTechnique">GROUPED · AUTO</span><small id="sideParticipant">P000</small></div>
@@ -56,6 +60,7 @@
       </aside>
 
       <div class="study-main">
+        <!-- 【代码讲解】显示当前试次的任务说明和编号。 -->
         <section class="task-banner" id="taskBanner">
           <div class="task-heading">
             <p id="phaseKicker">TUTORIAL · NOT SCORED</p>
@@ -70,6 +75,7 @@
           <div class="task-progress"><span id="trialCounter">1 / 4</span><div><i id="trialProgress"></i></div></div>
         </section>
 
+        <!-- 【代码讲解】持续展示本关分类规则，降低任务语言歧义。 -->
         <section class="rule-card" id="ruleCard" aria-label="Current classification rules">
           <div data-rule="keep"><i>✓</i><span><b>Keep</b><small id="ruleKeep">Bus visible</small></span></div>
           <div data-rule="edit"><i>✎</i><span><b>Edit</b><small id="ruleEdit">Car only</small></span></div>
@@ -77,7 +83,9 @@
           <div data-rule="reject"><i>×</i><span><b>Reject</b><small id="ruleReject">Neither</small></span></div>
         </section>
 
+        <!-- 【代码讲解】照片浏览器和触摸区域。 -->
         <section class="viewer-panel">
+          <!-- 【代码讲解】旧版手势操作区域，绑定Pointer Events。 -->
           <div class="photo-stage" id="touchZone">
             <div class="corner-target edit"><span>↖</span><b>Edit</b></div>
             <div class="corner-target keep"><span>↗</span><b>Keep</b></div>
@@ -128,6 +136,7 @@
       </div>
     </section>
 
+    <!-- 【代码讲解】结果页：总分与独立指标，便于截图。 -->
     <section class="screen results-screen" id="resultsScreen" hidden>
       <article class="result-card" id="resultCard">
         <header><div><p>FLICKSORT IMAGE SELECTION STUDY</p><h1>Results / 结果</h1></div><div class="result-build"><span id="resultBuild">v3.1.0</span><small id="resultTimestamp"></small></div></header>
@@ -151,8 +160,11 @@
       </div>
     </section>
   </main>
+  <!-- 【代码讲解】加载交互脚本；V3先加载scoring.js再加载app.js。 -->
   <script src="../language.js?v=3.3.1"></script>
+  <!-- 【代码讲解】加载交互脚本；V3先加载scoring.js再加载app.js。 -->
   <script src="scoring.js?v=3.2.1"></script>
+  <!-- 【代码讲解】加载交互脚本；V3先加载scoring.js再加载app.js。 -->
   <script src="app.js?v=3.2.1"></script>
 </body>
 </html>

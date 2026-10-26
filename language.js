@@ -1,3 +1,4 @@
+// 【代码讲解】旧版独立相册；本文件的参数可能不同于study-v3。
 (function () {
   "use strict";
 
@@ -205,6 +206,7 @@
   if (language !== "zh" && language !== "en") language = navigator.language?.toLowerCase().startsWith("zh") ? "zh" : "en";
   let applying = false;
 
+  // 【代码讲解】dynamic()：把动态任务文字转换成目标语言。
   function dynamic(text, target) {
     if (target === "zh") {
       let m;
@@ -289,6 +291,7 @@
     return text;
   }
 
+  // 【代码讲解】translateString()：翻译一句文字。
   function translateString(value, target = language) {
     if (value == null) return value;
     const text = String(value);
@@ -297,6 +300,7 @@
     return direct ?? dynamic(text, target);
   }
 
+  // 【代码讲解】translateTextNode()：翻译指定文字节点。
   function translateTextNode(node) {
     const raw = node.nodeValue;
     const trimmed = raw.trim();
@@ -305,6 +309,7 @@
     if (translated !== trimmed) node.nodeValue = raw.replace(trimmed, translated);
   }
 
+  // 【代码讲解】translateElement()：翻译元素文字和title/placeholder等属性。
   function translateElement(element) {
     if (!(element instanceof Element) || element.closest("[data-language-switch]")) return;
     for (const attr of ["aria-label", "title", "placeholder", "alt"]) {
@@ -316,6 +321,7 @@
     for (const node of element.childNodes) if (node.nodeType === Node.TEXT_NODE) translateTextNode(node);
   }
 
+  // 【代码讲解】apply()：遍历界面并应用所选语言。
   function apply(root = document.body) {
     if (!root || applying) return;
     applying = true;
@@ -332,6 +338,7 @@
     applying = false;
   }
 
+  // 【代码讲解】setLanguage()：改变页面语言并刷新已显示文字。
   function setLanguage(next) {
     if (next !== "zh" && next !== "en") return;
     language = next;
@@ -340,6 +347,7 @@
     window.dispatchEvent(new CustomEvent("flicksort-languagechange", { detail: { language } }));
   }
 
+  // 【代码讲解】mount()：挂载语言切换按钮。
   function mount() {
     if (document.querySelector("[data-language-switch]")) return;
     const style = document.createElement("style");

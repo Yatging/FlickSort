@@ -9,8 +9,11 @@
 </head>
 <body>
   <header><h1>Stimulus review sheet</h1><p>Asset set: <b>image-selection-realistic-v2</b> · 24 original photorealistic stimuli.</p><p class="warning"><b>Status:</b> the implementation agent checked all generated crops against their labels. Independent human review is still required before formal data collection; this page does not mark that review complete.</p><button onclick="window.print()">Print / Save review sheet</button></header>
+  <!-- 【代码讲解】网页主体；里面的元素由app.js查找或更新。 -->
   <main class="grid" id="grid"></main>
+  <!-- 【代码讲解】加载交互脚本；V3先加载scoring.js再加载app.js。 -->
   <script src="../language.js?v=3.3.1"></script>
+  <!-- 【代码讲解】加载交互脚本；V3先加载scoring.js再加载app.js。 -->
   <script>
     fetch('image_manifest.json').then(r=>r.json()).then(items=>{
       const t=value=>window.FlickSortLanguage?.t(value)||value;

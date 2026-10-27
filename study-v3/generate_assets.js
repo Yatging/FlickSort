@@ -1,9 +1,9 @@
-// 【代码讲解】V3测试系统；以下注释用于理解原有功能，未改变程序语句。
+// V3测试系统；以下注释用于理解原有功能，未改变程序语句。
 /* Stimulus manifest/crop metadata generator. No downloaded or third-party images. */
 const fs = require("fs");
 const path = require("path");
 
-// 【代码讲解】generatePhotorealisticAssets()：根据既定车辆规则生成实验图片素材和清单。
+// generatePhotorealisticAssets()：根据既定车辆规则生成实验图片素材和清单。
 function generatePhotorealisticAssets() {
   const photoRows = [
     ["l1-01","level1",1,0,"keep","One clearly visible bus; no passenger car."],
@@ -116,7 +116,7 @@ const palettes = [
   ["#f0c6aa","#d99c78","#586b77","#ce594b","#528b9f"]
 ];
 
-// 【代码讲解】bus()：绘制巴士图像作为原创车辆素材。
+// bus()：绘制巴士图像作为原创车辆素材。
 function bus(x, y, color, flip = false) {
   const s = flip ? -1 : 1;
   const anchor = flip ? x + 270 : x;
@@ -132,7 +132,7 @@ function bus(x, y, color, flip = false) {
   </g>`;
 }
 
-// 【代码讲解】car()：绘制小汽车图像作为原创车辆素材。
+// car()：绘制小汽车图像作为原创车辆素材。
 function car(x, y, color, flip = false) {
   const s = flip ? -1 : 1;
   const anchor = flip ? x + 175 : x;
@@ -146,14 +146,14 @@ function car(x, y, color, flip = false) {
   </g>`;
 }
 
-// 【代码讲解】bicycle()：绘制自行车作为干扰背景元素。
+// bicycle()：绘制自行车作为干扰背景元素。
 function bicycle(x, y) {
   return `<g transform="translate(${x} ${y})" fill="none" stroke="#263a3b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-label="bicycle">
     <circle cx="25" cy="61" r="23"/><circle cx="112" cy="61" r="23"/><path d="M25 61l34-45 26 45H25l24-31h50M59 16h20M85 61l17-49h18"/>
   </g>`;
 }
 
-// 【代码讲解】scenery()：生成城市背景，供汽车和巴士素材组合。
+// scenery()：生成城市背景，供汽车和巴士素材组合。
 function scenery(index, palette) {
   const [sky, wall, dark] = palette;
   const sunX = 105 + (index * 97) % 720;
@@ -177,7 +177,7 @@ function scenery(index, palette) {
     <g fill="#456d58"><circle cx="66" cy="344" r="45"/><rect x="58" y="342" width="16" height="48" fill="#6a4c38"/><circle cx="897" cy="337" r="53"/><rect x="889" y="338" width="17" height="52" fill="#6a4c38"/></g>`;
 }
 
-// 【代码讲解】svgFor()：把背景和车辆组合成SVG图。
+// svgFor()：把背景和车辆组合成SVG图。
 function svgFor(item, index) {
   const palette = palettes[index % palettes.length];
   const [,,, busColor, carColor] = palette;

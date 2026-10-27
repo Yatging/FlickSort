@@ -1,36 +1,36 @@
-// 【代码讲解】V3测试系统；以下注释用于理解原有功能，未改变程序语句。
+// V3测试系统；以下注释用于理解原有功能，未改变程序语句。
 (function () {
   "use strict";
 
-  // 【代码讲解】程序构建版本号，也会写进导出的实验记录。
+  // 程序构建版本号，也会写进导出的实验记录。
   const BUILD = "3.2.2";
-  // 【代码讲解】测试图素材集版本，方便结果溯源。
+  // 测试图素材集版本，方便结果溯源。
   const ASSET_SET = "image-selection-realistic-v2";
-  // 【代码讲解】速度得分基准时间，目前是演示参数，尚未经过Pilot校准。
+  // 速度得分基准时间，目前是演示参数，尚未经过Pilot校准。
   const T_REF_MS = 180000;
-  // 【代码讲解】一条有效手势的最短距离；短动作被取消。
+  // 一条有效手势的最短距离；短动作被取消。
   const MIN_GESTURE = 60;
-  // 【代码讲解】保存Keep、Edit、Maybe、Reject四个分类的显示文字与图标。
+  // 保存Keep、Edit、Maybe、Reject四个分类的显示文字与图标。
   const LABELS = {
     keep: { en: "Keep", zh: "保留", icon: "✓" },
     edit: { en: "Edit", zh: "编辑", icon: "✎" },
     maybe: { en: "Maybe", zh: "待定", icon: "?" },
     reject: { en: "Reject", zh: "拒绝", icon: "×" }
   };
-  // 【代码讲解】DOM查询简写：只取第一个匹配元素。
+  // DOM查询简写：只取第一个匹配元素。
   const $ = (selector) => document.querySelector(selector);
-  // 【代码讲解】DOM查询简写：把所有匹配元素组成数组。
+  // DOM查询简写：把所有匹配元素组成数组。
   const $$ = (selector) => [...document.querySelectorAll(selector)];
-  // 【代码讲解】ISO时间戳便于研究者追踪事件发生时刻。
+  // ISO时间戳便于研究者追踪事件发生时刻。
   const nowIso = () => new Date().toISOString();
-  // 【代码讲解】generateParticipantId()：生成匿名参与者编号，不使用学生姓名。
+  // generateParticipantId()：生成匿名参与者编号，不使用学生姓名。
   function generateParticipantId() {
     const random = new Uint32Array(1);
     crypto.getRandomValues(random);
     return `P-${random[0].toString(36).toUpperCase().padStart(7, "0")}`;
   }
 
-  // 【代码讲解】核心state包含匿名编号、阶段、照片、分类、Undo、计时及Trial/Event日志。
+  // 核心state包含匿名编号、阶段、照片、分类、Undo、计时及Trial/Event日志。
   const state = {
     manifest: [], participant: "", technique: "mixed_auto_grouped", runMode: "demo",
     phase: "setup", phaseItems: [], trialIndex: 0, currentImageIndex: 0,
@@ -44,7 +44,7 @@
     techniqueBlockCount: 0, techniqueBlockSize: 0
   };
 
-  // 【代码讲解】logEvent()：将单次行为与时间、关卡、参与者、当前技术等信息加入事件日志。
+  // logEvent()：将单次行为与时间、关卡、参与者、当前技术等信息加入事件日志。
   function logEvent(type, detail = {}) {
     const item = currentItem();
     state.events.push({
@@ -61,31 +61,31 @@
     });
   }
 
-  // 【代码讲解】currentItem()：找到当前需要执行的任务对象。
+  // currentItem()：找到当前需要执行的任务对象。
   function currentItem() { return state.phaseItems[state.trialIndex] || null; }
-  // 【代码讲解】displayedItem()：读取当前真正显示的照片；不一定等于目标照片。
+  // displayedItem()：读取当前真正显示的照片；不一定等于目标照片。
   function displayedItem() {
     if (!state.phaseItems.length) return null;
     return state.phaseItems[(state.currentImageIndex + state.phaseItems.length) % state.phaseItems.length];
   }
 
-  // 【代码讲解】itemKey()：为关卡和照片生成独立索引，避免各关分类结果互相覆盖。
+  // itemKey()：为关卡和照片生成独立索引，避免各关分类结果互相覆盖。
   function itemKey(item = displayedItem(), phase = state.phase) {
     return item ? `${phase}:${item.id}` : "";
   }
 
-  // 【代码讲解】currentTechnique()：根据照片所在区块找到当前使用的输入技术。
+  // currentTechnique()：根据照片所在区块找到当前使用的输入技术。
   function currentTechnique(item = displayedItem()) {
     if (!item || state.phase === "navigation" || state.phase === "setup" || state.phase === "results") return state.technique;
     return state.techniqueAssignments.get(itemKey(item)) || "classic";
   }
 
-  // 【代码讲解】classificationFor()：查询当前照片已经选择的分类。
+  // classificationFor()：查询当前照片已经选择的分类。
   function classificationFor(item = displayedItem()) {
     return state.classifications.get(itemKey(item)) || null;
   }
 
-  // 【代码讲解】ensureFirstSeen()：在照片首次真正进入任务界面时，同时保存单调计时值和UTC绝对时间；绝不把performance.now()伪装成日期时间。
+  // ensureFirstSeen()：在照片首次真正进入任务界面时，同时保存单调计时值和UTC绝对时间；绝不把performance.now()伪装成日期时间。
   function ensureFirstSeen(item = displayedItem()) {
     const key = itemKey(item);
     if (!key) return { monotonic: performance.now(), iso: nowIso() };
@@ -98,12 +98,12 @@
     return { monotonic: state.firstSeenAt.get(key), iso: state.firstSeenTime.get(key) };
   }
 
-  // 【代码讲解】phaseCompletion()：统计本关卡照片分类完成情况。
+  // phaseCompletion()：统计本关卡照片分类完成情况。
   function phaseCompletion() {
     return state.phaseItems.filter((item) => state.classifications.has(itemKey(item))).length;
   }
 
-  // 【代码讲解】assignBlockedTechniques()：按随机种子分配两段连续Classic/FlickSort照片区块。
+  // assignBlockedTechniques()：按随机种子分配两段连续Classic/FlickSort照片区块。
   function assignBlockedTechniques(items) {
     if (!["tutorial", "level1", "level2"].includes(state.phase)) return;
     const phaseOffset = { tutorial: 0, level1: 1, level2: 2 }[state.phase];
@@ -128,14 +128,14 @@
     });
   }
 
-  // 【代码讲解】techniqueBlockForItem()：判断一张照片属于第几个技术区块。
+  // techniqueBlockForItem()：判断一张照片属于第几个技术区块。
   function techniqueBlockForItem(item) {
     if (!item || !state.chapterItems.length || !state.techniqueBlockSize) return "";
     const index = state.chapterItems.findIndex((candidate) => candidate.id === item.id);
     return index < 0 ? "" : Math.floor(index / state.techniqueBlockSize);
   }
 
-  // 【代码讲解】activateTechniqueBlock()：切换到指定技术区块并更新可操作照片。
+  // activateTechniqueBlock()：切换到指定技术区块并更新可操作照片。
   function activateTechniqueBlock(index, announce = false) {
     state.techniqueBlockIndex = index;
     const start = index * state.techniqueBlockSize;
@@ -155,35 +155,35 @@
     if (announce) showToast(`Group ${index + 1} of ${state.techniqueBlockCount} · ${technique === "classic" ? "Classic" : "FlickSort"}`, 2400);
   }
 
-  // 【代码讲解】itemsForLevel()：从manifest中选出对应关卡的所有照片。
+  // itemsForLevel()：从manifest中选出对应关卡的所有照片。
   function itemsForLevel(level) { return state.manifest.filter((item) => item.level === level); }
-  // 【代码讲解】balancedLevel2Items()：安排四种巴士/汽车组合的分类样本。
+  // balancedLevel2Items()：安排四种巴士/汽车组合的分类样本。
   function balancedLevel2Items() {
     const ids = ["l2-01", "l2-02", "l2-04", "l2-07", "l2-08", "l2-10", "l2-03", "l2-05", "l2-06", "l2-09", "l2-11", "l2-12"];
     return ids.map((id) => state.manifest.find((item) => item.id === id));
   }
-  // 【代码讲解】representativeItems()：选取课堂快速Demo需要的代表性图片。
+  // representativeItems()：选取课堂快速Demo需要的代表性图片。
   function representativeItems() {
     return ["l2-01", "l2-07", "l2-04", "l2-10"].map((id) => state.manifest.find((item) => item.id === id));
   }
-  // 【代码讲解】tutorialItems()：准备正式测试前的教学任务。
+  // tutorialItems()：准备正式测试前的教学任务。
   function tutorialItems() {
     return ["l2-02", "l2-08", "l2-05", "l2-11"].map((id) => state.manifest.find((item) => item.id === id));
   }
-  // 【代码讲解】navigationItems()：生成指定照片编号的纯导航任务。
+  // navigationItems()：生成指定照片编号的纯导航任务。
   function navigationItems(full) {
     const ids = full ? ["l1-03", "l2-05", "l1-10", "l2-09"] : ["l1-03", "l2-09"];
     return ids.map((id) => state.manifest.find((item) => id === item.id));
   }
 
-  // 【代码讲解】phaseSequence()：决定Demo或完整Pilot模式执行哪些关卡。
+  // phaseSequence()：决定Demo或完整Pilot模式执行哪些关卡。
   function phaseSequence() {
     return state.runMode === "pilot"
       ? ["tutorial", "level1", "level2", "navigation", "results"]
       : ["level2", "navigation", "results"];
   }
 
-  // 【代码讲解】syncActiveTimer()：统计实际操作时间，不把切换应用的暂停全部算进去。
+  // syncActiveTimer()：统计实际操作时间，不把切换应用的暂停全部算进去。
   function syncActiveTimer() {
     if (!["level1", "level2", "navigation"].includes(state.phase) || document.hidden) return;
     const tick = performance.now();
@@ -191,13 +191,13 @@
     state.lastTimerSync = tick;
   }
 
-  // 【代码讲解】resetTimerTick()：重新设置活动计时起点，防止重复累计。
+  // resetTimerTick()：重新设置活动计时起点，防止重复累计。
   function resetTimerTick() {
     state.lastTimerSync = (!["level1", "level2", "navigation"].includes(state.phase) || document.hidden)
       ? null : performance.now();
   }
 
-  // 【代码讲解】startPhase()：初始化新关卡：目标、图片、技术区块和计时。
+  // startPhase()：初始化新关卡：目标、图片、技术区块和计时。
   function startPhase(phase) {
     syncActiveTimer();
     clearToast();
@@ -237,14 +237,14 @@
     resetTimerTick();
   }
 
-  // 【代码讲解】advancePhase()：进入下一关或成绩页。
+  // advancePhase()：进入下一关或成绩页。
   function advancePhase() {
     const seq = phaseSequence();
     const next = seq[seq.indexOf(state.phase) + 1] || "results";
     startPhase(next);
   }
 
-  // 【代码讲解】beginTrial()：开始一条新试次，保存时间与阶段状态。
+  // beginTrial()：开始一条新试次，保存时间与阶段状态。
   function beginTrial() {
     const previousBlock = state.techniqueBlockIndex;
     if (state.phase === "tutorial") state.techniqueBlockIndex = Math.floor(state.trialIndex / state.techniqueBlockSize);
@@ -271,7 +271,7 @@
     logEvent("trial_start", { correct_answer: currentItem()?.answer || "navigation_only" });
   }
 
-  // 【代码讲解】render()：依据state刷新界面显示；数据不是存储在DOM里的文字中。
+  // render()：依据state刷新界面显示；数据不是存储在DOM里的文字中。
   function render() {
     const item = displayedItem();
     if (!item) return;
@@ -326,7 +326,7 @@
     renderPhaseRail();
   }
 
-  // 【代码讲解】renderTechniqueControls()：根据当前技术显示四个按钮或斜向手势交互。
+  // renderTechniqueControls()：根据当前技术显示四个按钮或斜向手势交互。
   function renderTechniqueControls() {
     const navigation = state.phase === "navigation";
     const technique = currentTechnique();
@@ -340,7 +340,7 @@
     document.documentElement.dataset.technique = navigation ? "navigation" : technique;
   }
 
-  // 【代码讲解】renderRules()：在页面中展示巴士、汽车出现与否的分类规则。
+  // renderRules()：在页面中展示巴士、汽车出现与否的分类规则。
   function renderRules() {
     const nav = state.phase === "navigation";
     $("#ruleCard").hidden = nav;
@@ -362,7 +362,7 @@
     $("#classicControls").style.opacity = nav ? ".42" : "1";
   }
 
-  // 【代码讲解】renderTaskInstruction()：更新目标照片、关卡标题及完成要求。
+  // renderTaskInstruction()：更新目标照片、关卡标题及完成要求。
   function renderTaskInstruction() {
     const item = currentItem();
     const navigation = state.phase === "navigation";
@@ -420,7 +420,7 @@
     $("#submitBtn").setAttribute("aria-disabled", missing.length ? "true" : "false");
   }
 
-  // 【代码讲解】renderPhaseRail()：更新测试的关卡列表与进度。
+  // renderPhaseRail()：更新测试的关卡列表与进度。
   function renderPhaseRail() {
     $$(".phase-list > div").forEach((row) => {
       row.classList.toggle("active", row.dataset.phase === state.phase);
@@ -428,7 +428,7 @@
     });
   }
 
-  // 【代码讲解】changePhoto()：左右滑动时更改照片索引并记录导航事件。
+  // changePhoto()：左右滑动时更改照片索引并记录导航事件。
   function changePhoto(delta, source, gesture = {}) {
     const count = state.phaseItems.length;
     if (!count) return;
@@ -446,7 +446,7 @@
     render();
   }
 
-  // 【代码讲解】classify()：将标签写进该照片的分类记录，同时保存可撤销历史。
+  // classify()：将标签写进该照片的分类记录，同时保存可撤销历史。
   function classify(label, source, gesture = {}) {
     syncActiveTimer();
     const item = displayedItem();
@@ -461,10 +461,12 @@
     const firstSeen = ensureFirstSeen(item);
     const previous = state.classifications.get(key) || null;
     const previousDetail = state.classificationDetails.get(key) || null;
+    // 本次有效分类以UTC时间记录；再次改选会更新，Undo则恢复之前的分类及其结束时间。
     const classifiedAt = nowIso();
     state.undoStack.push({ previous, previousDetail, next: label, imageId: item.id, key });
     state.selectedLabel = label;
     state.classifications.set(key, label);
+    // 逐图保存首次显示时间和最终有效分类时间，不把整个区块的Submit当作所有图片的结束时刻。
     state.classificationDetails.set(key, {
       technique: currentTechnique(item),
       decision_elapsed_ms: Math.round(performance.now() - firstSeen.monotonic),
@@ -477,7 +479,7 @@
     render();
   }
 
-  // 【代码讲解】undo()：撤销最近一次分类，更改标签；原照片并未删除。
+  // undo()：撤销最近一次分类，更改标签；原照片并未删除。
   function undo() {
     const action = state.undoStack.pop();
     if (!action) return;
@@ -497,7 +499,7 @@
     render();
   }
 
-  // 【代码讲解】submitTrial()：检查试次是否完成并保存数据，再进入下一个任务或技术区块。
+  // submitTrial()：检查试次是否完成并保存数据，再进入下一个任务或技术区块。
   function submitTrial() {
     syncActiveTimer();
     const target = currentItem();
@@ -533,6 +535,7 @@
       setTimeout(nextTrial, 650);
       return;
     }
+    // 只有本区块每张照片都分类后才能提交；区块内允许自由翻页和修改分类。
     const missing = state.phaseItems.filter((item) => !state.classifications.has(itemKey(item)));
     if (missing.length) {
       const ids = missing.map((item) => item.id.toUpperCase()).join(", ");
@@ -549,6 +552,7 @@
       activateTechniqueBlock(state.techniqueBlockIndex + 1, true);
       return;
     }
+    // 完成整个章节后逐图产生Trial记录；每张图的时间来自自己的首次显示与有效分类事件。
     state.chapterItems.forEach((item, index) => {
       const response = state.classifications.get(itemKey(item));
       const detail = state.classificationDetails.get(itemKey(item)) || {};
@@ -574,7 +578,7 @@
     advancePhase();
   }
 
-  // 【代码讲解】trialRecord()：把任务最终结果整理成可导出的Trials CSV数据行。
+  // trialRecord()：把任务最终结果整理成可导出的Trials CSV数据行。
   function trialRecord(item = currentItem(), technique = currentTechnique(item), extra = {}) {
     const itemBlock = techniqueBlockForItem(item);
     return {
@@ -595,7 +599,7 @@
     };
   }
 
-  // 【代码讲解】nextTrial()：推进到下一条试次，必要时完成当前关卡。
+  // nextTrial()：推进到下一条试次，必要时完成当前关卡。
   function nextTrial() {
     if (state.trialIndex + 1 >= state.phaseItems.length) {
       setTimeout(advancePhase, state.phase === "tutorial" ? 450 : 120);
@@ -605,10 +609,10 @@
     beginTrial();
   }
 
-  // 【代码讲解】V3 app.js直接复用scoring.js中的手势算法，避免两处阈值不一致。
+  // V3 app.js直接复用scoring.js中的手势算法，避免两处阈值不一致。
   const interpretGesture = (dx, dy) => FlickSortScoring.interpretGesture(dx, dy, MIN_GESTURE);
 
-  // 【代码讲解】pointerDown()：手指触碰照片时保存触点ID、起始位置和时间。
+  // pointerDown()：手指触碰照片时保存触点ID、起始位置和时间。
   function pointerDown(event) {
     if (event.button != null && event.button !== 0) return;
     if (state.activePointer) return;
@@ -617,7 +621,7 @@
     $("#touchZone").classList.add("dragging");
   }
 
-  // 【代码讲解】pointerMove()：拖动时计算偏移，更新提示及动画；暂不写入最终分类。
+  // pointerMove()：拖动时计算偏移，更新提示及动画；暂不写入最终分类。
   function pointerMove(event) {
     const p = state.activePointer;
     if (!p || p.id !== event.pointerId) return;
@@ -636,7 +640,7 @@
     }
   }
 
-  // 【代码讲解】pointerUp()：手指松开时识别方向，并决定翻页、分类或取消。
+  // pointerUp()：手指松开时识别方向，并决定翻页、分类或取消。
   function pointerUp(event) {
     const p = state.activePointer;
     if (!p || p.id !== event.pointerId) return;
@@ -645,7 +649,9 @@
     const dx = event.clientX - p.x, dy = event.clientY - p.y;
     const duration = Math.max(1, performance.now() - p.t);
     const result = interpretGesture(dx, dy);
+    // 为每次松手记录设备类型、位移、角度、用时及判定原因，方便后续分析误触和取消。
     const meta = { pointer_type: p.type, gesture_dx: Math.round(dx), gesture_dy: Math.round(dy), distance_px: Math.round(result.distance), angle_deg: Math.round(result.angle), duration_ms: Math.round(duration), recognized_action: result.action || "cancel", decision_reason: result.reason };
+    // 两种模式的有效水平滑动都只翻一张；只有FlickSort允许斜向手势执行分类。
     if (result.action === "next" || result.action === "previous") return changePhoto(result.action === "next" ? 1 : -1, "swipe", meta);
     const technique = currentTechnique();
     if (technique === "flicksort" && LABELS[result.action]) return classify(result.action, "gesture", meta);
@@ -659,7 +665,7 @@
     }
   }
 
-  // 【代码讲解】resetDrag()：清除临时拖拽位移和方向提示。
+  // resetDrag()：清除临时拖拽位移和方向提示。
   function resetDrag() {
     $("#touchZone").classList.remove("dragging");
     $("#gestureCard").style.transform = "";
@@ -667,7 +673,7 @@
     $$(".corner-target").forEach((corner) => corner.classList.remove("targeted"));
   }
 
-  // 【代码讲解】animateFlyout()：播放卡片飞出回弹动画，视觉效果不负责识别输入方向。
+  // animateFlyout()：播放卡片飞出回弹动画，视觉效果不负责识别输入方向。
   function animateFlyout(action) {
     const source = $("#mainPhoto");
     if (!source.src || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -687,7 +693,7 @@
     setTimeout(() => ghost.remove(), 430);
   }
 
-  // 【代码讲解】showToast()：弹出短时文字提示。
+  // showToast()：弹出短时文字提示。
   function showToast(message, duration = 1500) {
     clearTimeout(state.toastTimer);
     $("#toast").textContent = message;
@@ -695,13 +701,13 @@
     state.toastTimer = setTimeout(() => $("#toast").classList.remove("show"), duration);
   }
 
-  // 【代码讲解】clearToast()：清除浮层提示。
+  // clearToast()：清除浮层提示。
   function clearToast() {
     clearTimeout(state.toastTimer);
     $("#toast")?.classList.remove("show");
   }
 
-  // 【代码讲解】showResults()：把成绩、准确率、用时、Undo与Cancel等结果渲染到最终画面。
+  // showResults()：把成绩、准确率、用时、Undo与Cancel等结果渲染到最终画面。
   function showResults() {
     syncActiveTimer();
     state.finished = true;
@@ -711,6 +717,7 @@
     const nav = state.trials.filter((trial) => trial.phase === "navigation");
     const correct = scored.reduce((sum, trial) => sum + Number(trial.accuracy || 0), 0);
     const navCorrect = nav.reduce((sum, trial) => sum + Number(trial.navigation_correct || 0), 0);
+    // 这是Classic与FlickSort混合区块的总体演示分数；正式技术比较必须按Trial中的technique分别分析。
     const result = FlickSortScoring.computeScore({ correct, classificationTotal: scored.length, activeMs: state.activeMs, tRefMs: T_REF_MS, navCorrect, navTotal: nav.length });
     $("#overallScore").textContent = result.score;
     $("#accuracyMetric").textContent = `${Math.round(result.classificationRatio * 100)}%`;
@@ -728,27 +735,27 @@
     logEvent("results_shown", { overall_score: result.score, classification_correct: correct, classification_total: scored.length, navigation_correct: navCorrect, navigation_total: nav.length, active_operation_time_ms: Math.round(state.activeMs) });
   }
 
-  // 【代码讲解】formatTime()：将毫秒转换为可读的时间格式。
+  // formatTime()：将毫秒转换为可读的时间格式。
   function formatTime(ms) {
     const seconds = Math.max(0, ms) / 1000;
     const mins = Math.floor(seconds / 60);
     return `${mins}:${(seconds % 60).toFixed(1).padStart(4, "0")}`;
   }
 
-  // 【代码讲解】csvEscape()：对CSV引号、逗号、换行进行转义，避免数据错列。
+  // csvEscape()：对CSV引号、逗号、换行进行转义，避免数据错列。
   function csvEscape(value) {
     const text = value == null ? "" : String(value);
     return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
   }
 
-  // 【代码讲解】toCsv()：将对象数组转换为CSV表头和数据行。
+  // toCsv()：将对象数组转换为CSV表头和数据行。
   function toCsv(rows) {
     if (!rows.length) return "";
     const headers = [...new Set(rows.flatMap((row) => Object.keys(row)))];
     return [headers.join(","), ...rows.map((row) => headers.map((key) => csvEscape(row[key])).join(","))].join("\r\n");
   }
 
-  // 【代码讲解】downloadCsv()：将Trials或Events日志作为本地CSV下载；GitHub Pages不会自动上传数据。
+  // downloadCsv()：将Trials或Events日志作为本地CSV下载；GitHub Pages不会自动上传数据。
   function downloadCsv(kind) {
     const rows = kind === "trials" ? state.trials : state.events;
     const blob = new Blob(["\uFEFF" + toCsv(rows)], { type: "text/csv;charset=utf-8" });
@@ -760,7 +767,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 500);
   }
 
-  // 【代码讲解】startRun()：读取匿名编号与Demo/Pilot设置，开始本次运行。
+  // startRun()：读取匿名编号与Demo/Pilot设置，开始本次运行。
   function startRun(event) {
     event.preventDefault();
     state.participant = $("#participantId").value.trim().replace(/[^a-zA-Z0-9_-]/g, "-");
@@ -780,11 +787,12 @@
     startPhase(phaseSequence()[0]);
   }
 
-  // 【代码讲解】resetRun()：重载网页并重置本地运行状态。
+  // resetRun()：重载网页并重置本地运行状态。
   function resetRun() { location.reload(); }
 
-  // 【代码讲解】onVisibilityChange()：浏览器切到后台时暂停有效操作计时。
+  // onVisibilityChange()：浏览器切到后台时暂停有效操作计时。
   function onVisibilityChange() {
+    // 网页切到后台后暂停有效操作计时；ISO绝对时间仍独立用于审计时间先后。
     if (document.hidden) {
       syncActiveTimer();
       state.hiddenAt = performance.now();
@@ -798,7 +806,7 @@
     }
   }
 
-  // 【代码讲解】init()：载入素材manifest，绑定按钮和触摸监听器，初始化页面。
+  // init()：载入素材manifest，绑定按钮和触摸监听器，初始化页面。
   async function init() {
     $("#buildLabel").textContent = BUILD;
     $("#participantId").value = generateParticipantId();

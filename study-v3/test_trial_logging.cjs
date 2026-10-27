@@ -1,4 +1,4 @@
-// 【代码讲解】自动回归测试：在轻量浏览器环境中执行真实app.js路径，核对三种Trial日志与CSV。
+// 自动回归测试：在轻量浏览器环境中执行真实app.js路径，核对三种Trial日志与CSV。
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");

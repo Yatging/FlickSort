@@ -1,4 +1,4 @@
-# 【代码讲解】旧版独立相册；本文件的参数可能不同于study-v3。
+# 旧版独立相册；本文件的参数可能不同于study-v3。
 from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 import numpy as np
 import skimage.data as sd
@@ -7,10 +7,10 @@ OUT=Path(__file__).parent
 # Built-in scikit-image demo photos, offline-friendly illustrative study assets.
 root=Path(sd.__file__).parent
 origins=[('Morning ritual',sd.coffee()),('Street in motion',np.array(Image.open(root/'motorcycle_left.png').convert('RGB'))),('Portrait session',sd.astronaut()),('Afternoon companion',sd.chelsea()),('Skyward',sd.rocket()),('City lights',sd.hubble_deep_field()),('Monochrome day',sd.camera()),('Night study',sd.moon())]
-# 【代码讲解】循环处理每张素材，使用相同的生成或缩略图逻辑。
+# 循环处理每张素材，使用相同的生成或缩略图逻辑。
 for g,(scene,arr) in enumerate(origins):
  im=Image.fromarray(arr).convert('RGB')
- # 【代码讲解】循环处理每张素材，使用相同的生成或缩略图逻辑。
+ # 循环处理每张素材，使用相同的生成或缩略图逻辑。
  for variant in range(3):
   iw,ih=im.size
   # burst-like framing variants, all image-based, no remote requests

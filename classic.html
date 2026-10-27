@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#10171b">
   <title>Frame — Classic Photo Gallery · FlickSort Study</title>
-  <!-- 【代码讲解】读取CSS样式文件，不负责业务逻辑。 -->
+  <!-- 读取CSS样式文件，不负责业务逻辑。 -->
   <link rel="stylesheet" href="shared.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
     <p class="muted-foot">Identical pictures, labels, navigation and data capture in both versions.</p>
   </aside>
 
-  <!-- 【代码讲解】网页主体；里面的元素由app.js查找或更新。 -->
+  <!-- 网页主体；里面的元素由app.js查找或更新。 -->
   <main class="phone" id="phoneApp">
     <header class="phone-header"><div class="phone-brand"><div class="phone-brand-icon">F.</div><div><div class="phone-name">FRAME</div><div class="phone-sub">Classic gallery</div></div></div><button class="small-icon" id="helpBtn" aria-label="Show gesture guide" title="Help">?</button></header>
     <section class="task-strip" id="taskStrip"><div class="task-top"><span id="taskKicker">YOUR LIBRARY</span><span id="taskCount">24 photos</span></div><div class="task-main" id="taskTitle">Every shot has a story.</div><div class="task-desc" id="taskDescription">Swipe sideways to browse. Tap a label below to sort.</div></section>
@@ -34,8 +34,8 @@
   <aside class="inspector-panel"><div class="meta-label">EXPERIMENT DASHBOARD</div><h2>Interaction,<br>not interface.</h2><div class="stat-grid"><div><span id="statKeep">0</span><small>Keep</small></div><div><span id="statEdit">0</span><small>Edit</small></div><div><span id="statMaybe">0</span><small>Maybe</small></div><div><span id="statReject">0</span><small>Reject</small></div></div><div class="inspector-rule"></div><div class="meta-label">LIVE EVENT</div><div class="event-readout" id="lastEvent">Waiting for an action…</div><div class="inspector-rule"></div><p>For study runs, assign a participant ID and navigation-demand condition, then export trial and event data.</p><button class="inspector-start" id="desktopTestBtn">Configure a study run →</button><div class="note">Prototype data only. The included images are local sample assets; replace and counterbalance before final participant collection.</div></aside>
 </div>
 <div class="modal-overlay" id="modalOverlay" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-top"><div><div class="meta-label" id="modalEyebrow">FLICKSORT LAB</div><h2 id="modalTitle">Set up a study run</h2></div><button class="modal-close" id="modalClose" aria-label="Close">×</button></div><div id="modalBody"></div></div></div>
-<!-- 【代码讲解】旧版页面仅使用共用app.js手势识别器，不依赖V3的scoring.js。 -->
+<!-- 旧版页面仅使用共用app.js手势识别器，不依赖V3的scoring.js。 -->
 <script defer src="language.js?v=3.3.1"></script>
-<!-- 【代码讲解】旧版页面仅使用共用app.js手势识别器，不依赖V3的scoring.js。 -->
+<!-- 旧版页面仅使用共用app.js手势识别器，不依赖V3的scoring.js。 -->
 <script defer src="app.js"></script>
 </body></html>

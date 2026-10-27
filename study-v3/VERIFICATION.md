@@ -1,8 +1,8 @@
 # FlickSort V3 verification record
 
-Date: 2026-10-25 (Asia/Hong_Kong)
+Date: 2026-10-27 (Asia/Hong_Kong)
 
-Build: `3.2.1`
+Build: `3.2.2`
 Asset set: `image-selection-realistic-v2`
 
 ## Completed checks
@@ -16,12 +16,13 @@ Asset set: `image-selection-realistic-v2`
 - Confirmed each navigation trial starts on a non-target photo, requires browsing to the named ID, and records 2/2 correct arrival in Demo Mode.
 - Verified Build 3.2.1 navigation at a 390×844 viewport in Chinese and English: the target ID appears as a single-line, high-contrast primary callout, and the current photo badge enlarges and changes color when the target is reached.
 - Completed the grouped-technique Demo end to end and confirmed a perfect classification/navigation run reports 4/4 classification, 2/2 navigation, the active-time score component and `Mixed · grouped alternation` on Results.
-- Inspected the Trials/Events CSV formatter and confirmed Build 3.2 writes the group assignment method, group index, group count, group size and free-order-within-group marker in addition to actual technique and randomization seed. The in-app browser did not expose its downloaded file to the system Downloads folder, so a fresh external-browser file inspection remains listed below.
+- Completed Build 3.2.2 Demo in a real headless Chrome session using both Classic controls and FlickSort pointer gestures, reached Results with 4 classification and 2 navigation rows, downloaded the Trials CSV through the normal page button, and inspected all 6 saved rows. The required timing/header fields were present and valid.
 - The prior Build 3.1 baseline completed Full Pilot Mode from tutorial through 24 scored classification trials and four navigation trials, including a deliberate 23/24 result. Build 3.2 received current browser verification for Demo and tutorial group containment, while the score boundary suite remains unchanged and passing.
 - Tested Build 3.2.1 setup, grouped task and navigation screens at a 390×844 browser viewport. The generated participant ID, group status, primary rule, 2×2 rule card, highlighted current-task panel, active controls, group Continue/Submit area and enlarged target ID remained visible without horizontal overflow. The unchanged result card previously passed the same viewport.
 - Loaded all 24 independent PNG stimulus URLs over HTTP with zero missing assets.
 - Visually reviewed both generated source sheets and all 24 browser-rendered crops against their manifest bus/car flags and answer labels. Each target vehicle is distinct and the backgrounds contain no unplanned buses or passenger cars.
 - Ran automated boundary checks for Overall Score, rounding, clipping and all six gesture mappings (next, previous, Edit, Keep, Maybe, Reject), plus short-motion cancellation.
+- Added automated Trial CSV regression coverage for tutorial, formal classification, and navigation paths. Each path asserts non-empty UTC ISO 8601 start/end timestamps, `start <= end`, required CSV columns, and the distinction between a classification's final effective action and the later chapter submission.
 - Verified EN / 中文 switching on the revised results screen, including the image-selection study title and grouped-alternation technique label. The selected language does not change experiment codes or answers.
 - Verified the revised L2 task hierarchy in English and Chinese: the complete classification rule is the primary page heading, the same live instruction is repeated in a highlighted `CURRENT TASK` panel beside the controls, and the photo ID is reduced to secondary metadata.
 
@@ -31,5 +32,5 @@ Asset set: `image-selection-realistic-v2`
 - Independent human stimulus review is not complete. The manifest therefore remains `human_reviewed: false`, and `asset-review.html` is provided to conduct and document that review.
 - Responsive behavior from the prior build was verified in a real browser at a phone-sized viewport; this build was functionally verified in Chromium but still needs final physical-device checks. Test at least one iPhone-class and one Android-class device for pointer behavior, rule-card wrapping, safe-area layout, CSV download and screenshot capture.
 - Demo scores use 4 classification tasks and 2 navigation tasks, so they are labelled as previews and are not comparable with Full Pilot scores.
-- Download and inspect one Build 3.2.1 Trials CSV and Events CSV in an external desktop browser to confirm the technique-block columns in the saved files.
 - Cloud submission is not enabled. The public static GitHub Pages build has no server-side secret or durable database; adding shared storage requires an approved data owner, access control, retention policy and backend configuration.
+

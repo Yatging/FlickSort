@@ -3,7 +3,7 @@
   "use strict";
 
   // 【代码讲解】程序构建版本号，也会写进导出的实验记录。
-  const BUILD = "3.2.1";
+  const BUILD = "3.2.2";
   // 【代码讲解】测试图素材集版本，方便结果溯源。
   const ASSET_SET = "image-selection-realistic-v2";
   // 【代码讲解】速度得分基准时间，目前是演示参数，尚未经过Pilot校准。
@@ -34,13 +34,13 @@
   const state = {
     manifest: [], participant: "", technique: "mixed_auto_grouped", runMode: "demo",
     phase: "setup", phaseItems: [], trialIndex: 0, currentImageIndex: 0,
-    selectedLabel: null, trialStart: 0, trialPausedMs: 0, hiddenAt: null,
+    selectedLabel: null, trialStart: 0, trialStartTime: "", trialPausedMs: 0, hiddenAt: null,
     activeMs: 0, lastTimerSync: null, classifications: new Map(), undoStack: [],
     trials: [], events: [], phaseCancelCount: 0, totalCancels: 0, totalUndos: 0,
     accidentalClassifications: 0, navMistouches: 0, activePointer: null,
     toastTimer: null, completedPhases: new Set(), finished: false,
     randomizationSeed: 0, techniqueAssignments: new Map(), classificationDetails: new Map(),
-    firstSeenAt: new Map(), phaseStart: 0, chapterItems: [], techniqueBlockIndex: 0,
+    firstSeenAt: new Map(), firstSeenTime: new Map(), phaseStart: 0, chapterItems: [], techniqueBlockIndex: 0,
     techniqueBlockCount: 0, techniqueBlockSize: 0
   };
 
@@ -83,6 +83,19 @@
   // 【代码讲解】classificationFor()：查询当前照片已经选择的分类。
   function classificationFor(item = displayedItem()) {
     return state.classifications.get(itemKey(item)) || null;
+  }
+
+  // 【代码讲解】ensureFirstSeen()：在照片首次真正进入任务界面时，同时保存单调计时值和UTC绝对时间；绝不把performance.now()伪装成日期时间。
+  function ensureFirstSeen(item = displayedItem()) {
+    const key = itemKey(item);
+    if (!key) return { monotonic: performance.now(), iso: nowIso() };
+    if (!state.firstSeenAt.has(key)) {
+      const seenAt = performance.now();
+      const seenTime = nowIso();
+      state.firstSeenAt.set(key, seenAt);
+      state.firstSeenTime.set(key, seenTime);
+    }
+    return { monotonic: state.firstSeenAt.get(key), iso: state.firstSeenTime.get(key) };
   }
 
   // 【代码讲解】phaseCompletion()：统计本关卡照片分类完成情况。
@@ -240,6 +253,7 @@
     state.currentImageIndex = state.phase === "navigation"
       ? (state.trialIndex + 1) % state.phaseItems.length
       : state.trialIndex;
+    state.trialStartTime = nowIso();
     state.trialStart = performance.now();
     state.trialPausedMs = 0;
     render();
@@ -300,7 +314,7 @@
       $("#backPhoto1").src = state.phaseItems[(idx + 1) % total].file;
       $("#backPhoto2").src = state.phaseItems[(idx + 2) % total].file;
     }
-    if (!state.firstSeenAt.has(itemKey(item))) state.firstSeenAt.set(itemKey(item), performance.now());
+    ensureFirstSeen(item);
     state.selectedLabel = classificationFor(item);
     $("#currentLabel").hidden = !state.selectedLabel;
     $("#currentLabel").textContent = state.selectedLabel ? `${LABELS[state.selectedLabel].icon} ${LABELS[state.selectedLabel].en}` : "";
@@ -444,15 +458,19 @@
       return;
     }
     const key = itemKey(item);
+    const firstSeen = ensureFirstSeen(item);
     const previous = state.classifications.get(key) || null;
     const previousDetail = state.classificationDetails.get(key) || null;
+    const classifiedAt = nowIso();
     state.undoStack.push({ previous, previousDetail, next: label, imageId: item.id, key });
     state.selectedLabel = label;
     state.classifications.set(key, label);
     state.classificationDetails.set(key, {
       technique: currentTechnique(item),
-      decision_elapsed_ms: Math.round(performance.now() - (state.firstSeenAt.get(key) || state.phaseStart)),
-      classified_at: nowIso(), source
+      decision_elapsed_ms: Math.round(performance.now() - firstSeen.monotonic),
+      trial_start_time: firstSeen.iso,
+      trial_end_time: classifiedAt,
+      classified_at: classifiedAt, source
     });
     logEvent("classification", { label, source, image_id: item.id, previous_label: previous || "", ...gesture });
     animateFlyout(label);
@@ -484,9 +502,14 @@
     syncActiveTimer();
     const target = currentItem();
     const duration = Math.max(0, performance.now() - state.trialStart - state.trialPausedMs);
+    const submittedAt = nowIso();
     if (state.phase === "navigation") {
       const correct = displayedItem().id === target.id;
-      state.trials.push(trialRecord(target, "navigation_only", { final_response: "navigation_only", accuracy: "", content_judgment_error: "", navigation_correct: correct ? 1 : 0, trial_duration_ms: Math.round(duration) }));
+      state.trials.push(trialRecord(target, "navigation_only", {
+        final_response: "navigation_only", accuracy: "", content_judgment_error: "", navigation_correct: correct ? 1 : 0,
+        trial_start_time: state.trialStartTime, trial_end_time: submittedAt,
+        trial_duration_ms: Math.round(duration), submitted_at: submittedAt
+      }));
       logEvent("trial_submit", { navigation_correct: correct ? 1 : 0 });
       nextTrial();
       return;
@@ -496,10 +519,14 @@
       const response = classificationFor(practiceItem);
       if (!response) return showToast("Choose a category first");
       const correct = response === practiceItem.answer;
+      const detail = state.classificationDetails.get(itemKey(practiceItem)) || {};
       state.trials.push(trialRecord(practiceItem, currentTechnique(practiceItem), {
         final_response: response, accuracy: correct ? 1 : 0,
         content_judgment_error: correct ? 0 : 1, navigation_correct: "",
-        trial_duration_ms: Math.round(duration), practice_flag: 1
+        trial_start_time: detail.trial_start_time || state.trialStartTime,
+        trial_end_time: detail.trial_end_time || "", trial_duration_ms: Math.round(duration),
+        classified_at: detail.classified_at || "", classification_source: detail.source || "",
+        practice_flag: 1, submitted_at: submittedAt
       }));
       logEvent("trial_submit", { final_response: response, correct_answer: practiceItem.answer, accuracy: correct ? 1 : 0, explicit_error_type: correct ? "none" : "content_judgment_error" });
       showToast(correct ? "Correct / 正确" : `Practice answer: ${LABELS[practiceItem.answer].en}`);
@@ -530,12 +557,13 @@
       state.trials.push(trialRecord(item, state.techniqueAssignments.get(itemKey(item)), {
         trial_index: index + 1, final_response: response, accuracy: correct ? 1 : 0,
         content_judgment_error: correct ? 0 : 1, navigation_correct: "",
-        trial_duration_ms: detail.decision_elapsed_ms || "", classified_at: detail.classified_at || "",
+        trial_start_time: detail.trial_start_time || "", trial_end_time: detail.trial_end_time || "",
+        trial_duration_ms: detail.decision_elapsed_ms ?? "", classified_at: detail.classified_at || "",
         classification_source: detail.source || "", practice_flag: 0,
         technique_block_index: blockIndex + 1, technique_block_count: state.techniqueBlockCount,
         technique_block_size: Math.min(state.techniqueBlockSize, state.chapterItems.length - blockIndex * state.techniqueBlockSize),
         block_image_index: (index % state.techniqueBlockSize) + 1,
-        free_processing_order_within_block: 1
+        free_processing_order_within_block: 1, submitted_at: submittedAt
       }));
     });
     logEvent("chapter_submit", {
@@ -563,7 +591,7 @@
       technique_block_index: itemBlock === "" ? "" : itemBlock + 1,
       technique_block_count: itemBlock === "" ? "" : state.techniqueBlockCount,
       technique_block_size: itemBlock === "" ? "" : Math.min(state.techniqueBlockSize, state.chapterItems.length - itemBlock * state.techniqueBlockSize),
-      submitted_at: nowIso(), ...extra
+      submitted_at: nowIso(), trial_start_time: "", trial_end_time: "", ...extra
     };
   }
 
@@ -801,3 +829,4 @@
   window.FlickSortStudy = { state, interpretGesture, toCsv, formatTime, BUILD, T_REF_MS };
   init();
 })();
+

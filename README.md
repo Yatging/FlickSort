@@ -18,8 +18,11 @@ Every web page now includes an **EN / 中文** switch. The choice is stored loca
 - Results show accuracy, active operation time, cancels, Undo, navigation miscues, navigation success and a rounded Overall Score. The score uses `70×classification accuracy + 20×clip((2×T_ref−T)/T_ref,0,1) + 10×navigation accuracy`. `T_ref` is currently fixed at **180 seconds** and is explicitly labelled a **provisional demonstration benchmark, not pilot-validated**.
 - Cancels and Undo remain separate and do not change the Overall Score. Gesture cancellation is technique-specific and Undo can be reasonable correction; formal controlled analysis must use time, accuracy and error measures separately.
 - Trial CSV distinguishes final `content_judgment_error` from explicitly logged `gesture_cancel`, `navigation_mistouch`, and user-labelled `accidental_input` Undo events. It does not infer a recognition failure from the final label.
+- V3 Trial CSV includes UTC ISO 8601 `trial_start_time` and `trial_end_time` on tutorial, formal classification, and navigation rows. For a classification image, start means its first display in that phase and end means the classification event that produced the final effective label. Reclassification replaces the end time; Undo restores the previous effective label and its earlier end time, or removes the row-ready classification until a new choice is made. Every attempt remains in Events CSV. `submitted_at` is separately the tutorial/navigation submit or the final chapter submission time and is never substituted for an unknown classification end. For navigation, the trial begins when the target task is shown and ends when the participant submits; therefore its end and submit instants intentionally coincide. The legacy `trial_duration_ms`, `classified_at`, and `submitted_at` fields remain present.
 
 Serve the repository over HTTP and open `http://localhost:8000/study-v3/`. Direct `file://` opening is intentionally rejected because V3 loads its manifest as a separate audited file.
+
+Run `node study-v3/test_scoring.cjs` and `node study-v3/test_trial_logging.cjs` for the scoring/gesture suite and the three-path Trial CSV timing regression suite.
 
 This GitHub Pages deployment intentionally remains local-data-only. A secure shared data store cannot be added to a static public page without selecting and configuring a server-side service, access control, retention policy and authorized data owner. Trials and events therefore remain available as CSV downloads; no participant data are transmitted by this build.
 
@@ -97,3 +100,4 @@ Events include `event_timestamp`, `event_type`, `gesture_dx`, `gesture_dy`, `dis
 - `build_assets.py`: offline photo-generation build script for the demo sample set.
 
 **Research scope:** Buttons vs FlickSort × Low vs High Navigation is a 2×2 within-subjects design. The current program measures this comparison; it does *not* independently evaluate user-specific recognition thresholds, adaptive hints or unaided gesture discoverability. Those require separate controlled conditions and study designs.
+

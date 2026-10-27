@@ -1,0 +1,26 @@
+name: Gesture recognizer regression
+on:
+  push:
+    paths:
+      - app.js
+      - study-v3/scoring.js
+      - study-v3/test_scoring.cjs
+      - .github/workflows/gesture-regression.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-gestures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check app.js
+          node --check study-v3/app.js
+          node --check study-v3/scoring.js
+      - name: Gesture + scoring tests
+        run: node study-v3/test_scoring.cjs

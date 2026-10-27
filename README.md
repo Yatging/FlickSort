@@ -63,6 +63,8 @@ Open `http://<your-computer-local-IP>:8000/classic.html` or `/flicksort.html` on
 
 Drag with a mouse on desktop to simulate a touch swipe. The gallery swipe target uses `pointer` events and is intended for mobile touchscreens. Reject labels a photo; it never deletes an image.
 
+**Unified recognition rules (unvalidated):** Legacy Demo and V3 now share a minimum 60 CSS px displacement, horizontal sectors ≤20° from the nearest horizontal axis, diagonal sectors 30°–60° (45° ±15°), and cancellation elsewhere. These round-number thresholds and 10° dead band are preliminary design choices awaiting human pilot calibration, not exact values established by cited studies. Recognition uses touch start/end dx/dy, not full stroke straightness. Full-path stability checks and 20px edge exclusion are proposed future work, not implemented.
+
 **Initial recognition specification (unvalidated):** displacement ≥ 60 CSS px; horizontal when axis deviation ≤20°; diagonal when 30–60° from horizontal; other directions cancel. At short motion distances the interface previews the candidate without committing it. Recognition is evaluated on release, not on long press. Calibrate these defaults with a pilot study on real phones before collecting formal data.
 
 ## Built-in study configuration

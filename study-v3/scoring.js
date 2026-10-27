@@ -41,10 +41,10 @@
     const absHorizontalAngle = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI;
     // 【代码讲解】若距离不足，返回too_short，避免把轻触错判成分类。
     if (distance < minGesture) return { action: null, reason: "too_short", distance, angle: Math.atan2(dy, dx) * 180 / Math.PI };
-    // 【代码讲解】与水平轴夹角≤22°视为浏览：左滑next、右滑previous。
-    if (absHorizontalAngle <= 22) return { action: dx < 0 ? "next" : "previous", reason: "horizontal", distance, angle: Math.atan2(dy, dx) * 180 / Math.PI };
-    // 【代码讲解】28°至68°属于斜向分类；22°至28°保留取消缓冲区域。
-    if (absHorizontalAngle >= 28 && absHorizontalAngle <= 68) {
+    // 【代码讲解】与水平轴夹角≤20°视为浏览：左滑next、右滑previous；阈值待Pilot验证。
+    if (absHorizontalAngle <= 20) return { action: dx < 0 ? "next" : "previous", reason: "horizontal", distance, angle: Math.atan2(dy, dx) * 180 / Math.PI };
+    // 【代码讲解】30°至60°属于斜向分类；20°至30°是取消缓冲区域；阈值待Pilot验证。
+    if (absHorizontalAngle >= 30 && absHorizontalAngle <= 60) {
       // 【代码讲解】屏幕y轴向下为正：左上Edit，右上Keep，左下Maybe，右下Reject。
       const action = dx < 0 && dy < 0 ? "edit" : dx > 0 && dy < 0 ? "keep" : dx < 0 ? "maybe" : "reject";
       return { action, reason: "diagonal", distance, angle: Math.atan2(dy, dx) * 180 / Math.PI };

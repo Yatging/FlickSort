@@ -30,4 +30,24 @@ assert.deepEqual(buildAlternatingTechniques(3, 8, 1), ["flicksort", "classic", "
 assert.deepEqual(buildBlockedTechniques(12, 0, 0), ["classic", "classic", "classic", "classic", "classic", "classic", "flicksort", "flicksort", "flicksort", "flicksort", "flicksort", "flicksort"]);
 assert.deepEqual(buildBlockedTechniques(4, 1, 0), ["flicksort", "flicksort", "classic", "classic"]);
 assert.deepEqual(buildBlockedTechniques(5, 8, 1), ["flicksort", "flicksort", "flicksort", "classic", "classic"]);
-console.log("Scoring tests passed.");
+// 【边界回归】用相同dx/dy检验旧Demo与V3，避免阈值再次分叉。
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
+const oldText = fs.readFileSync(path.join(__dirname,'..','app.js'),'utf8');
+const legacy = oldText.match(/^function interpretGesture\(dx,dy,minDistance=60\)\{.*\}$/m);
+assert.ok(legacy, 'legacy recognizer not found');
+const oldGesture = vm.runInNewContext(legacy[0] + ';interpretGesture;');
+const vec = (deg, r=100, sx=1, sy=1) => [sx*r*Math.cos(deg*Math.PI/180),sy*r*Math.sin(deg*Math.PI/180)];
+const cases = [[0,'nav'],[19.99,'nav'],[20.01,'cancel'],[25,'cancel'],[29.99,'cancel'],[30.01,'cat'],[45,'cat'],[59.99,'cat'],[60.01,'cancel'],[75,'cancel'],[90,'cancel']];
+for(const [ang,what] of cases)for(const sx of [-1,1])for(const sy of [-1,1]){
+  const [dx,dy]=vec(ang,100,sx,sy);
+  const wanted=what==='nav'?(sx<0?'next':'previous'):what==='cat'?(sy<0?(sx<0?'edit':'keep'):(sx<0?'maybe':'reject')):null;
+  assert.equal(interpretGesture(dx,dy).action,wanted,'V3 angle '+ang+' quadrant '+sx+','+sy);
+  assert.equal(oldGesture(dx,dy).action,wanted,'Demo angle '+ang+' quadrant '+sx+','+sy);
+}
+for(const dx of [-59.99,0,59.99]){assert.equal(interpretGesture(dx,0).action,null);assert.equal(oldGesture(dx,0).action,null);}
+assert.equal(interpretGesture(60,0).action,'previous');
+assert.equal(oldGesture(60,0).action,'previous');
+
+console.log("Scoring and cross-version gesture boundary tests passed.");

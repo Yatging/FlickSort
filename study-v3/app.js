@@ -811,10 +811,22 @@
     }
   }
 
+  // 返回主页时确认离开未结束的测试；确认后跳过浏览器重复的离开提示。
+  let homeNavigationApproved = false;
+  function confirmHomeNavigation(event) {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    if (state.phase === "setup" || state.finished) return;
+    const message = "Leave this test and return to the home page? Any data you have not downloaded will be lost.";
+    const localized = window.FlickSortLanguage?.t(message) || message;
+    if (!window.confirm(localized)) { event.preventDefault(); return; }
+    homeNavigationApproved = true;
+  }
+
   // init()：载入素材manifest，绑定按钮和触摸监听器，初始化页面。
   async function init() {
     $("#buildLabel").textContent = BUILD;
     $("#participantId").value = generateParticipantId();
+    $("[data-return-home]").forEach((link) => link.addEventListener("click", confirmHomeNavigation));
     try {
       const response = await fetch("image_manifest.json", { cache: "no-store" });
       if (!response.ok) throw new Error(`Manifest HTTP ${response.status}`);
@@ -836,7 +848,7 @@
     $("#restartBtn").addEventListener("click", resetRun);
     $("#quitBtn").addEventListener("click", resetRun);
     document.addEventListener("visibilitychange", onVisibilityChange);
-    window.addEventListener("beforeunload", (event) => { if (state.trials.length && !state.finished) { event.preventDefault(); event.returnValue = ""; } });
+    window.addEventListener("beforeunload", (event) => { if (!homeNavigationApproved && state.trials.length && !state.finished) { event.preventDefault(); event.returnValue = ""; } });
   }
 
   window.FlickSortStudy = { state, interpretGesture, toCsv, formatTime, BUILD, T_REF_MS };

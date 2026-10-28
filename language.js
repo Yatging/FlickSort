@@ -4,6 +4,8 @@
 
   const STORAGE_KEY = "flicksort-language";
   const entries = [
+    ["Back to Home", "返回主页"],
+    ["Leave this test and return to the home page? Any data you have not downloaded will be lost.", "是否离开当前测试并返回主页？尚未下载的测试记录将会丢失。"],
     ["FREE PRACTICE · NOT SCORED", "自由练习 · 不计分"],
     ["Try swipes, buttons, browsing and Undo freely. Mistakes will not affect your final score. Choose a category and press Submit to continue.", "这里可以自由尝试滑动、按钮、浏览和撤销，做错也不会影响正式成绩。选好分类后点击“提交”即可继续。"],
     ["Download task-by-task results (CSV)", "下载每道任务的结果（CSV）"],

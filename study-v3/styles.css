@@ -332,3 +332,9 @@ html[data-technique="classic"] .corner-target, html[data-technique="navigation"]
 .tutorial-freedom-note span { font-size:13px; line-height:1.55; }
 .result-download-help { flex-basis:100%; margin:1px auto 0; max-width:620px; color:#5e706b; text-align:center; font-size:12px; line-height:1.55; }
 @media (max-width:460px) { .tutorial-freedom-note:not([hidden]) { margin:8px 0; padding:10px 12px; } .tutorial-freedom-note span { font-size:12px; } .submit-row b { font-size:15px; } .submit-row small { font-size:10px; } .result-actions .primary, .result-actions .secondary { width:100%; } }
+
+/* Visible home navigation throughout V3; narrow screens keep the link ahead of the build chip. */
+.home-return-v3{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:34px;padding:8px 12px;border:1px solid #aebcb4;border-radius:10px;background:rgba(255,255,255,.7);color:#234d41;text-decoration:none;font-size:12px;font-weight:800;white-space:nowrap;transition:background .15s}
+.home-return-v3:hover{background:#e1ebe5}
+.home-return-v3:focus-visible{outline:3px solid #5a957c;outline-offset:3px}
+@media(max-width:380px){.topbar .build-chip{display:none}.home-return-v3{font-size:11px;padding:7px 9px}}

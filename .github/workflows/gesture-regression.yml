@@ -8,6 +8,8 @@ on:
       - language.js
       - study-v3/app.js
       - study-v3/index.html
+      - study-v3/asset-review.html
+      - shared.css
       - study-v3/styles.css
       - study-v3/scoring.js
       - study-v3/test_scoring.cjs
@@ -34,3 +36,4 @@ jobs:
           node study-v3/test_scoring.cjs
           node study-v3/test_trial_logging.cjs
           node tests/showcase_smoke.cjs
+          node tests/home_navigation.cjs

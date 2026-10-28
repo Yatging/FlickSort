@@ -31,3 +31,10 @@
 .direction-cue.keep .cue-arr,.direction-cue.edit .cue-arr,.direction-cue.maybe .cue-arr,.direction-cue.reject .cue-arr{font-size:24px;}
 /* 旧版实时滑动方向箭头、颜色和文字提示。 */
 .direction-cue.keep .cue-label,.direction-cue.edit .cue-label,.direction-cue.maybe .cue-label,.direction-cue.reject .cue-label{font-size:12px;}
+
+/* Both independent demos: prominent, keyboard-accessible project home link. */
+.header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.home-return{display:inline-flex;align-items:center;gap:4px;min-height:33px;padding:7px 10px;border:1px solid #d2dfd9;border-radius:10px;background:#eef5f1;color:#28584a;text-decoration:none;font-size:11px;font-weight:800;white-space:nowrap;transition:background .15s,border-color .15s}
+.home-return:hover{background:#dcebe3;border-color:#9dbeb1}
+.home-return:focus-visible{outline:3px solid #60a38d;outline-offset:3px}
+@media(max-width:370px){.home-return{font-size:10px;padding:6px 7px}.header-actions{gap:5px}.phone-header{padding-left:12px;padding-right:12px}}

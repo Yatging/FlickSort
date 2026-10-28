@@ -184,8 +184,8 @@ html[data-technique="classic"] .corner-target, html[data-technique="navigation"]
 .flick-legend small { grid-column: 1/-1; color: #737d7a; font-size: 9px; font-weight: 500; }
 .submit-row { background: #171d1b; }
 .submit-row > div { display: grid; gap: 2px; }
-.submit-row b { font-size: 12px; }
-.submit-row small { color: #8a9592; font-size: 9px; }
+.submit-row b { font-size: clamp(15px, 1.5vw, 18px); line-height: 1.25; font-weight: 850; color: #fff; }
+.submit-row small { color: #c3d0ca; font-size: 11px; line-height: 1.4; }
 
 /* 测试完成后成绩页的布局。 */
 .results-screen { display: grid; place-content: center; gap: 17px; padding: 26px; }
@@ -325,3 +325,10 @@ html[data-technique="classic"] .corner-target, html[data-technique="navigation"]
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; transition-duration: .001ms !important; }
   .flyout { display: none !important; }
 }
+
+/* Mobile-friendly unscored practice instructions and result download descriptions. */
+.tutorial-freedom-note:not([hidden]) { display:grid; gap:5px; margin:10px 0 12px; padding:12px 16px; border:1px solid #abd0ba; border-left:5px solid #25865d; border-radius:13px; background:#eef8f0; color:#1b4332; }
+.tutorial-freedom-note strong { font-size:13px; font-weight:900; letter-spacing:.04em; }
+.tutorial-freedom-note span { font-size:13px; line-height:1.55; }
+.result-download-help { flex-basis:100%; margin:1px auto 0; max-width:620px; color:#5e706b; text-align:center; font-size:12px; line-height:1.55; }
+@media (max-width:460px) { .tutorial-freedom-note:not([hidden]) { margin:8px 0; padding:10px 12px; } .tutorial-freedom-note span { font-size:12px; } .submit-row b { font-size:15px; } .submit-row small { font-size:10px; } .result-actions .primary, .result-actions .secondary { width:100%; } }

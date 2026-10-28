@@ -4,6 +4,21 @@
 
   const STORAGE_KEY = "flicksort-language";
   const entries = [
+    ["FREE PRACTICE · NOT SCORED", "自由练习 · 不计分"],
+    ["Try swipes, buttons, browsing and Undo freely. Mistakes will not affect your final score. Choose a category and press Submit to continue.", "这里可以自由尝试滑动、按钮、浏览和撤销，做错也不会影响正式成绩。选好分类后点击“提交”即可继续。"],
+    ["Download task-by-task results (CSV)", "下载每道任务的结果（CSV）"],
+    ["Download every interaction (CSV)", "下载每次操作记录（CSV）"],
+    ["Task results = each photo’s answer, correctness and time. Interaction log = every swipe, tap, cancellation and Undo.", "任务结果：每张图片的答案、是否正确和用时。操作记录：每次滑动、点击、取消及撤销。"],
+    ["DEMO SHOWCASE · NO TEST RUN", "自由演示 · 非正式测试"],
+    ["CLASSIC · BUTTONS", "CLASSIC · 按钮分类"],
+    ["FLICKSORT · GESTURES", "FLICKSORT · 手势分类"],
+    ["Browse: ← next / → previous. Choose Keep, Edit, Maybe or Reject with the four visible buttons. You can always Undo.", "浏览：← 下一张／→ 上一张。用四个可见按钮选择保留、编辑、待定或拒绝，也可以撤销。"],
+    ["Browse: ← next / → previous. Classify with ↖ Edit, ↗ Keep, ↙ Maybe, ↘ Reject; release to confirm, and Undo if needed.", "浏览：← 下一张／→ 上一张。用 ↖ 编辑、↗ 保留、↙ 待定、↘ 拒绝分类；松手确认，必要时可撤销。"],
+    ["These two independent pages are free-play showcases. No test setup or participant logging is needed here; the formal study is in V3.", "这两个独立页面仅用于自由体验，无需设置测试或填写参与者编号；正式测试请进入 V3。"],
+    ["Classic: browse freely with horizontal swipes and classify by tapping one of four visible buttons. Undo restores the previous label.", "Classic：左右滑动自由浏览，点击四个可见按钮分类；撤销可恢复上一次标签。"],
+    ["FlickSort: browse horizontally; swipe diagonally for ↖ Edit / ↗ Keep / ↙ Maybe / ↘ Reject. Release to commit; short or unclear swipes cancel.", "FlickSort：左右滑动浏览，对角滑动 ↖ 编辑／↗ 保留／↙ 待定／↘ 拒绝；松手后确认，过短或方向不清则取消。"],
+    ["How to use", "操作说明"],
+    ["24 distinct showcase images", "24 张不同的演示图片"],
     ["The current study uses clear bus and passenger-car recognition tasks to compare Classic controls with FlickSort gestures. Responses stay on your device until you export the CSV files.", "当前研究使用明确的巴士与小汽车识别任务，对比 Classic 控件与 FlickSort 手势。数据会保留在你的设备中，直到你导出 CSV。"],
     ["The current study tests the image-selection interaction using clear object-presence tasks. It compares Classic controls with FlickSort gestures; responses stay on your device until you export the CSV files.", "当前研究通过明确的物体存在判断任务测试图片选择器交互，对比 Classic 控件与 FlickSort 手势；数据会保留在你的设备中，直到你导出 CSV。"],
     ["CURRENT STUDY · 当前正式测试入口", "当前研究 · 正式测试入口"],
@@ -239,6 +254,9 @@
       if ((m = text.match(/^Group (\d+) of (\d+) · (Classic|FlickSort)$/))) return `第 ${m[1]}/${m[2]} 组 · ${m[3]}`;
       if ((m = text.match(/^GROUP (\d+)\/(\d+) · (CLASSIC|FLICKSORT)$/))) return `第 ${m[1]}/${m[2]} 组 · ${m[3] === "CLASSIC" ? "Classic" : "FlickSort"}`;
       if ((m = text.match(/^(\d+) \/ (\d+) · GROUP (\d+)\/(\d+)$/))) return `${m[1]} / ${m[2]} · 第 ${m[3]}/${m[4]} 组`;
+      if ((m = text.match(/^Group (\d+)\/(\d+) · (\d+)\/(\d+) completed$/))) return `第 ${m[1]}/${m[2]} 组 · 已完成 ${m[3]}/${m[4]}`;
+      if ((m = text.match(/^✓ Group (\d+)\/(\d+) completed · (\d+)\/(\d+)$/))) return `✓ 第 ${m[1]}/${m[2]} 组已完成 · ${m[3]}/${m[4]}`;
+      if ((m = text.match(/^PHOTO #(\d+) · SHOWCASE GALLERY$/))) return `照片 #${m[1]} · 演示图库`;
       if ((m = text.match(/^Group (\d+) complete$/))) return `第 ${m[1]} 组已完成`;
       if ((m = text.match(/^Group (\d+) unfinished: (.+)$/))) return `第 ${m[1]} 组尚未完成：${m[2]}`;
       if ((m = text.match(/^(\d+) of (\d+) photos classified$/))) return `已分类 ${m[1]} / ${m[2]} 张图片`;
@@ -278,6 +296,9 @@
       if ((m = text.match(/^第 (\d+)\/(\d+) 组 · (\d+) 张图片$/))) return `Group ${m[1]} of ${m[2]} · ${m[3]} photos`;
       if ((m = text.match(/^第 (\d+)\/(\d+) 组 · (Classic|FlickSort)$/))) return `Group ${m[1]} of ${m[2]} · ${m[3]}`;
       if ((m = text.match(/^(\d+) \/ (\d+) · 第 (\d+)\/(\d+) 组$/))) return `${m[1]} / ${m[2]} · GROUP ${m[3]}/${m[4]}`;
+      if ((m = text.match(/^第 (\d+)\/(\d+) 组 · 已完成 (\d+)\/(\d+)$/))) return `Group ${m[1]}/${m[2]} · ${m[3]}/${m[4]} completed`;
+      if ((m = text.match(/^✓ 第 (\d+)\/(\d+) 组已完成 · (\d+)\/(\d+)$/))) return `✓ Group ${m[1]}/${m[2]} completed · ${m[3]}/${m[4]}`;
+      if ((m = text.match(/^照片 #(\d+) · 演示图库$/))) return `PHOTO #${m[1]} · SHOWCASE GALLERY`;
       if ((m = text.match(/^第 (\d+) 组已完成$/))) return `Group ${m[1]} complete`;
       if ((m = text.match(/^第 (\d+) 组尚未完成：(.+)$/))) return `Group ${m[1]} unfinished: ${m[2]}`;
       if ((m = text.match(/^已分类 (\d+) \/ (\d+) 张图片$/))) return `${m[1]} of ${m[2]} photos classified`;

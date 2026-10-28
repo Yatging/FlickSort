@@ -3,6 +3,12 @@ on:
   push:
     paths:
       - app.js
+      - classic.html
+      - flicksort.html
+      - language.js
+      - study-v3/app.js
+      - study-v3/index.html
+      - study-v3/styles.css
       - study-v3/scoring.js
       - study-v3/test_scoring.cjs
       - .github/workflows/gesture-regression.yml
@@ -22,5 +28,8 @@ jobs:
           node --check app.js
           node --check study-v3/app.js
           node --check study-v3/scoring.js
+          node --check language.js
       - name: Gesture + scoring tests
-        run: node study-v3/test_scoring.cjs
+        run: |
+          node study-v3/test_scoring.cjs
+          node study-v3/test_trial_logging.cjs

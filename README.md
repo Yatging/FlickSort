@@ -28,7 +28,7 @@ This GitHub Pages deployment intentionally remains local-data-only. A secure sha
 
 V3 adds a new route only. The legacy Low/High Navigation Demand prototype and its CSV fields remain available unchanged at `classic.html` and `flicksort.html` for continuity with the planned 2×2 experiment.
 
-**Two mobile-responsive web pages with the same photos, navigation, categories, study prompts and data logger.**
+**Two mobile-responsive free-play showcase pages with the same 24 displayed photos, navigation and categories.** Experiment data collection is available in `study-v3/` only.
 
 - `classic.html` — traditional mobile-gallery browsing + **four classification buttons**.
 - `flicksort.html` — conventional horizontal browsing + **four diagonal classification gestures**, with no long press.

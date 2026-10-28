@@ -3,7 +3,7 @@
   "use strict";
 
   // 程序构建版本号，也会写进导出的实验记录。
-  const BUILD = "3.2.2";
+  const BUILD = "3.3.0";
   // 测试图素材集版本，方便结果溯源。
   const ASSET_SET = "image-selection-realistic-v2";
   // 速度得分基准时间，目前是演示参数，尚未经过Pilot校准。
@@ -284,6 +284,8 @@
       navigation: ["NAVIGATION ONLY", "Find the requested photo. Do not classify."]
     }[state.phase];
     const isChapter = ["level1", "level2"].includes(state.phase);
+    // Tutorial actions remain in practice logs but are excluded from the final score.
+    $("#tutorialFreedomNote").hidden = state.phase !== "tutorial";
     const completed = phaseCompletion();
     const activeBlockIndex = isChapter ? state.techniqueBlockIndex : techniqueBlockForItem(item);
     const activeBlockLength = state.phase === "tutorial" && activeBlockIndex !== ""
@@ -405,9 +407,10 @@
     const nextTechnique = hasNextBlock
       ? state.techniqueAssignments.get(itemKey(state.chapterItems[(state.techniqueBlockIndex + 1) * state.techniqueBlockSize]))
       : "";
+    const groupLabel = `Group ${state.techniqueBlockIndex + 1}/${state.techniqueBlockCount}`;
     $("#submitHeading").textContent = missing.length
-      ? `${completed} of ${total} photos classified`
-      : hasNextBlock ? `Group ${state.techniqueBlockIndex + 1} complete` : "Final group complete";
+      ? `${groupLabel} · ${completed}/${total} completed`
+      : `✓ ${groupLabel} completed · ${total}/${total}`;
     $("#submitHint").textContent = missing.length
       ? `Still unfinished: ${missing.join(", ")}`
       : hasNextBlock

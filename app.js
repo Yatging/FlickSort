@@ -6,8 +6,13 @@
 const MODE=document.documentElement.dataset.mode==='flicksort'?'flicksort':'classic';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const LABELS={keep:{name:'Keep',arrow:'↗',direction:'Up-right'},edit:{name:'Edit',arrow:'↖',direction:'Up-left'},maybe:{name:'Maybe',arrow:'↙',direction:'Down-left'},reject:{name:'Reject',arrow:'↘',direction:'Down-right'}};
+// Alternate subjects instead of showing three consecutive crops of the same shot.
+// The 16 city illustrations are already in V3; the study manifest and answers are untouched.
 const SCENES=['Morning ritual','Street in motion','Portrait session','Afternoon companion','Skyward','City lights','Monochrome day','Night study'];
-const PHOTOS=Array.from({length:24},(_,i)=>({id:i+1,src:`assets/photos/${String(i+1).padStart(2,'0')}.jpg`,thumb:`assets/thumbs/${String(i+1).padStart(2,'0')}.jpg`,scene:SCENES[Math.floor(i/3)],shot:i%3+1}));
+const GALLERY_ORIGINALS=[1,4,7,10,13,16,19,22].map((sourceId,index)=>({src:`assets/photos/${String(sourceId).padStart(2,'0')}.jpg`,thumb:`assets/thumbs/${String(sourceId).padStart(2,'0')}.jpg`,scene:SCENES[index]}));
+const CITY_SHOWCASE_IDS=['l1-01','l1-02','l1-04','l1-06','l2-01','l2-02','l2-03','l2-04','l2-05','l2-06','l2-07','l2-08','l2-09','l2-10','l2-11','l2-12'];
+const CITY_EXAMPLES=CITY_SHOWCASE_IDS.map((assetId,index)=>({src:`study-v3/assets/${assetId}.png`,thumb:`study-v3/assets/${assetId}.png`,scene:`City scene ${String(index+1).padStart(2,'0')}`}));
+const PHOTOS=[...GALLERY_ORIGINALS,...CITY_EXAMPLES].map((p,index)=>({id:index+1,...p,shot:1}));
 const ROUTES={low:[1,2,3,4,5,6,7,8,9,10,11,12],high:[1,4,2,6,3,8,5,10,7,12,9,11]};
 const CATS=['keep','edit','maybe','reject','edit','keep','reject','maybe','keep','reject','maybe','edit'];
 const s={idx:0,categories:Array(24).fill(null),history:[],eventLog:[],trials:[],phase:'demo',pid:'DEMO',demand:'low',order:'G1',repeat:1,taskIndex:0,tasks:[],trialStart:0,trialNav:0,trialUndo:0,trialCancel:0,trialReclass:0,trialWrongPhoto:0,trialFirstAction:null,trialFirstActionTarget:null,trialEvents:0,activePointer:null,lastPreview:null,finished:false};
@@ -28,9 +33,9 @@ function cue(name,sub=''){const el=$('#directionCue');if(!name){el.className='di
 // renderFlickVisuals()：封装本功能相关步骤；调用时按内部语句执行。
 function renderFlickVisuals(){
  if(MODE!=='flicksort')return;
- const setImage=(selector,index)=>{const el=$(selector);if(!el)return;const p=PHOTOS[Math.max(0,Math.min(PHOTOS.length-1,index))];if(!el.src.endsWith('/'+PAD(p.id)+'.jpg'))el.src=p.src;};
+ const setImage=(selector,index)=>{const el=$(selector);if(!el)return;const p=PHOTOS[Math.max(0,Math.min(PHOTOS.length-1,index))];if(el.getAttribute('src')!==p.src)el.src=p.src;};
  setImage('#stackPhoto1',s.idx+1);setImage('#stackPhoto2',s.idx+2);
- $$('#flickFilmstrip .film-thumb').forEach(thumb=>{const raw=s.idx+Number(thumb.dataset.offset),inside=raw>=0&&raw<PHOTOS.length,index=Math.max(0,Math.min(PHOTOS.length-1,raw)),p=PHOTOS[index],img=thumb.querySelector('img');thumb.classList.toggle('is-empty',!inside);if(img&&!img.src.endsWith('/'+PAD(p.id)+'.jpg'))img.src=p.thumb;img.alt=Number(thumb.dataset.offset)===0?`Current photo ${p.id}`:`Photo ${p.id}`;});
+ $$('#flickFilmstrip .film-thumb').forEach(thumb=>{const raw=s.idx+Number(thumb.dataset.offset),inside=raw>=0&&raw<PHOTOS.length,index=Math.max(0,Math.min(PHOTOS.length-1,raw)),p=PHOTOS[index],img=thumb.querySelector('img');thumb.classList.toggle('is-empty',!inside);if(img&&img.getAttribute('src')!==p.thumb)img.src=p.thumb;img.alt=Number(thumb.dataset.offset)===0?`Current photo ${p.id}`:`Photo ${p.id}`;});
 }
 // clearFlickTargets()：封装本功能相关步骤；调用时按内部语句执行。
 function clearFlickTargets(){if(MODE!=='flicksort')return;$$('.corner-album').forEach(el=>el.classList.remove('is-targeted'));}
@@ -58,7 +63,7 @@ function releaseFlickGesture(action,dx,dy){
 }
 // render()：依据state刷新界面显示；数据不是存储在DOM里的文字中。
 function render(){
- const p=PHOTOS[s.idx],photo=$('#mainPhoto');if(!photo.src.endsWith('/'+PAD(p.id)+'.jpg'))photo.src=p.src;photo.alt='Sample photo '+p.id+': '+p.scene;$('#photoCounter').textContent=PAD(p.id)+' / 24';$('#photoTitle').textContent=p.scene;$('#photoId').textContent=`PHOTO #${PAD(p.id)} · SHOT ${p.shot}/3`;$('#timelineFill').style.width=((s.idx+1)/24*100)+'%';const tag=$('#currentTag');tag.hidden=!s.categories[s.idx];tag.className='current-tag '+(s.categories[s.idx]||'');tag.textContent=s.categories[s.idx]?LABELS[s.categories[s.idx]].name:'';$('#undoBtn').disabled=s.history.length===0;const n=s.categories.filter(Boolean).length;$('#classificationSummary').textContent=n+' / 24 SORTED';Object.keys(LABELS).forEach(k=>{const e=$('#stat'+k[0].toUpperCase()+k.slice(1));if(e)e.textContent=s.categories.filter(x=>x===k).length;});$$('.label-btn').forEach(b=>b.classList.toggle('is-current',s.categories[s.idx]===b.dataset.label));renderFlickVisuals();
+ const p=PHOTOS[s.idx],photo=$('#mainPhoto');if(photo.getAttribute('src')!==p.src)photo.src=p.src;photo.alt='Sample photo '+p.id+': '+p.scene;$('#photoCounter').textContent=PAD(p.id)+' / 24';$('#photoTitle').textContent=p.scene;$('#photoId').textContent=`PHOTO #${PAD(p.id)} · SHOWCASE GALLERY`;$('#timelineFill').style.width=((s.idx+1)/24*100)+'%';const tag=$('#currentTag');tag.hidden=!s.categories[s.idx];tag.className='current-tag '+(s.categories[s.idx]||'');tag.textContent=s.categories[s.idx]?LABELS[s.categories[s.idx]].name:'';$('#undoBtn').disabled=s.history.length===0;const n=s.categories.filter(Boolean).length;$('#classificationSummary').textContent=n+' / 24 SORTED';Object.keys(LABELS).forEach(k=>{const e=$('#stat'+k[0].toUpperCase()+k.slice(1));if(e)e.textContent=s.categories.filter(x=>x===k).length;});$$('.label-btn').forEach(b=>b.classList.toggle('is-current',s.categories[s.idx]===b.dataset.label));renderFlickVisuals();
 }
 // changePhoto()：左右滑动时更改照片索引并记录导航事件。
 function changePhoto(n,source='swipe',meta={}){const prev=s.idx;const target=Math.max(0,Math.min(23,prev+n));if(prev===target){showToast('End of gallery');ev('navigation_edge',{source,from:prev+1,to:target+1,...meta});return false;}s.idx=target;if(s.phase==='practice'||s.phase==='main')s.trialNav++;ev('navigate',{source,from:prev+1,to:target+1,direction:n>0?'next':'previous',...meta});render();return true;}
@@ -70,7 +75,7 @@ function undo(){const prev=s.history.pop();if(!prev){showToast('Nothing to undo'
 // classifyCounts()：封装本功能相关步骤；调用时按内部语句执行。
 function classifyCounts(){return Object.keys(LABELS).map(k=>({k,n:s.categories.filter(x=>x===k).length}));}
 // taskText()：封装本功能相关步骤；调用时按内部语句执行。
-function taskText(){if(s.phase==='demo'){ $('#taskKicker').textContent='YOUR LIBRARY';$('#taskCount').textContent='24 photos';$('#taskTitle').textContent='Every shot has a story.';$('#taskDescription').textContent=MODE==='classic'?'Swipe sideways to browse. Tap a label below to sort.':'Browse sideways. Swipe diagonally to sort.';$('#studyCta').hidden=true;$('#studyBtn').querySelector('span:last-child').textContent='Start test';return;}
+function taskText(){if(s.phase==='demo'){ $('#taskKicker').textContent='DEMO SHOWCASE · NO TEST RUN';$('#taskCount').textContent='24 distinct showcase images';$('#taskTitle').textContent=MODE==='classic'?'CLASSIC · BUTTONS':'FLICKSORT · GESTURES';$('#taskDescription').textContent=MODE==='classic'?'Browse: ← next / → previous. Choose Keep, Edit, Maybe or Reject with the four visible buttons. You can always Undo.':'Browse: ← next / → previous. Classify with ↖ Edit, ↗ Keep, ↙ Maybe, ↘ Reject; release to confirm, and Undo if needed.';$('#studyCta').hidden=true;$('#studyBtn').querySelector('span:last-child').textContent='Start test';return;}
 if(s.phase==='finished'){ $('#taskKicker').textContent='STUDY FINISHED';$('#taskCount').textContent=s.trials.length+' trials';$('#taskTitle').textContent='Thanks for testing.';$('#taskDescription').textContent='Your data is ready to export.';$('#studyCta').hidden=true;$('#studyBtn').querySelector('span:last-child').textContent='New test';return;}
 const t=s.tasks[s.taskIndex];if(!t)return;$('#taskKicker').textContent=s.phase==='practice'?'PRACTICE · NOT SCORED':'STUDY · '+s.pid;$('#taskCount').textContent=(s.taskIndex+1)+' / '+s.tasks.length;$('#taskTitle').textContent='Find Photo #'+PAD(t.photo)+' · '+(t.probe?'Navigate only':LABELS[t.category].name);$('#taskDescription').textContent=t.probe?'Reach the target photo WITHOUT classifying any photo.':'Use '+(MODE==='classic'?'a button':'a diagonal swipe')+' to mark '+LABELS[t.category].name+'.';$('#studyCta').hidden=false;$('#studyActionTitle').textContent=t.probe?'Finish navigation probe':'Finish this trial';$('#studyActionSub').textContent=t.probe?'Submit at target photo':'Use Submit after choosing a category';$('#studyBtn').querySelector('span:last-child').textContent='Testing…';}
 // resetTrial()：封装本功能相关步骤；调用时按内部语句执行。
@@ -119,7 +124,8 @@ if(r.distance>=18){if(s.phase==='main'||s.phase==='practice')s.trialCancel++;ev(
 function onPointerCancel(e){if(s.activePointer?.id===e.pointerId){s.activePointer=null;cue(null);resetFlickCard(true);ev('pointer_cancel');}}
 $$('.label-btn').forEach(b=>b.onclick=()=>classify(b.dataset.label,'button'));
 $('#touchZone').addEventListener('pointerdown',onPointerDown);$('#touchZone').addEventListener('pointermove',onPointerMove);$('#touchZone').addEventListener('pointerup',onPointerUp);$('#touchZone').addEventListener('pointercancel',onPointerCancel);
-$('#undoBtn').onclick=undo;$('#helpBtn').onclick=openHelp;$('#gridBtn').onclick=openGrid;$('#studyBtn').onclick=modalSetup;$('#desktopTestBtn').onclick=modalSetup;$('#saveBtn').onclick=openExport;$('#submitTrial').onclick=submitTrial;$('#modalClose').onclick=closeModal;$('#modalOverlay').addEventListener('click',e=>{if(e.target.id==='modalOverlay')closeModal();});
+$('#undoBtn').onclick=undo;$('#helpBtn').onclick=openHelp;$('#gridBtn').onclick=openGrid;// No public test setup in the two standalone showcases. The footer shortcut opens help instead.
+$('#saveBtn').onclick=openHelp;$('#submitTrial').onclick=submitTrial;$('#modalClose').onclick=closeModal;$('#modalOverlay').addEventListener('click',e=>{if(e.target.id==='modalOverlay')closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(s.phase!=='demo'||!$('#modalOverlay').hidden)return;if(e.key==='ArrowLeft'){e.preventDefault();changePhoto(1,'keyboard');}else if(e.key==='ArrowRight'){e.preventDefault();changePhoto(-1,'keyboard');}});
 window.addEventListener('beforeunload',e=>{if(s.trials.length&&!s.finished){e.preventDefault();e.returnValue='';}});
 $('#mainPhoto').addEventListener('error',()=>{showToast('Photo file unavailable');});

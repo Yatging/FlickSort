@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#101514">
   <title>FlickSort Image Selection Study · V3</title>
   <!-- 读取CSS样式文件，不负责业务逻辑。 -->
-  <link rel="stylesheet" href="styles.css?v=3.2.1">
+  <link rel="stylesheet" href="styles.css?v=3.3.0">
 </head>
 <body>
   <!-- 网页主体；里面的元素由app.js查找或更新。 -->
   <main class="app-shell" id="appShell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="FlickSort study home"><span>F</span>lickSort <b>V3</b></a>
-      <div class="build-chip">BUILD <span id="buildLabel">3.2.2</span></div>
+      <div class="build-chip">BUILD <span id="buildLabel">3.3.0</span></div>
     </header>
 
     <!-- 测试开始页：收集匿名编号和运行模式。 -->
@@ -74,6 +74,7 @@
           </div>
           <div class="task-progress"><span id="trialCounter">1 / 4</span><div><i id="trialProgress"></i></div></div>
         </section>
+        <p class="tutorial-freedom-note" id="tutorialFreedomNote" role="note" hidden><strong>FREE PRACTICE · NOT SCORED</strong><span>Try swipes, buttons, browsing and Undo freely. Mistakes will not affect your final score. Choose a category and press Submit to continue.</span></p>
 
         <!-- 持续展示本关分类规则，降低任务语言歧义。 -->
         <section class="rule-card" id="ruleCard" aria-label="Current classification rules">
@@ -154,18 +155,19 @@
         <p class="fairness-note">Cancels and Undo are shown separately but are not included in the score: gesture cancellation is technique-specific, and Undo can be reasonable error correction. Formal analysis must use time, accuracy and error measures separately—not the overall score alone.</p>
       </article>
       <div class="result-actions">
-        <button class="primary" id="downloadTrials">Download trials CSV</button>
-        <button class="secondary" id="downloadEvents">Download events CSV</button>
+        <button class="primary" id="downloadTrials">Download task-by-task results (CSV)</button>
+        <button class="secondary" id="downloadEvents">Download every interaction (CSV)</button>
+        <p class="result-download-help">Task results = each photo’s answer, correctness and time. Interaction log = every swipe, tap, cancellation and Undo.</p>
         <button class="text-button" id="restartBtn">Start another run</button>
       </div>
     </section>
   </main>
   <!-- 加载交互脚本；V3先加载scoring.js再加载app.js。 -->
-  <script src="../language.js?v=3.3.1"></script>
+  <script src="../language.js?v=3.3.0"></script>
   <!-- 加载交互脚本；V3先加载scoring.js再加载app.js。 -->
   <script src="scoring.js?v=3.2.2"></script>
   <!-- 加载交互脚本；V3先加载scoring.js再加载app.js。 -->
-  <script src="app.js?v=3.2.2"></script>
+  <script src="app.js?v=3.3.0"></script>
 </body>
 </html>
 

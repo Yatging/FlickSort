@@ -826,7 +826,7 @@
   async function init() {
     $("#buildLabel").textContent = BUILD;
     $("#participantId").value = generateParticipantId();
-    $("[data-return-home]").forEach((link) => link.addEventListener("click", confirmHomeNavigation));
+    $$("[data-return-home]").forEach((link) => link.addEventListener("click", confirmHomeNavigation));
     try {
       const response = await fetch("image_manifest.json", { cache: "no-store" });
       if (!response.ok) throw new Error(`Manifest HTTP ${response.status}`);

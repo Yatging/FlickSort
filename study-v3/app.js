@@ -3,7 +3,7 @@
   "use strict";
 
   // 程序构建版本号，也会写进导出的实验记录。
-  const BUILD = "3.3.0";
+  const BUILD = "3.3.1";
   // 测试图素材集版本，方便结果溯源。
   const ASSET_SET = "image-selection-realistic-v2";
   // 速度得分基准时间，目前是演示参数，尚未经过Pilot校准。
@@ -725,8 +725,10 @@
     $("#overallScore").textContent = result.score;
     $("#accuracyMetric").textContent = `${Math.round(result.classificationRatio * 100)}%`;
     $("#timeMetric").textContent = formatTime(state.activeMs);
-    $("#cancelMetric").textContent = state.totalCancels;
-    $("#undoMetric").textContent = state.totalUndos;
+    // Tutorial events remain in the audit log but never contribute to the displayed formal results.
+    const formalEvents = state.events.filter((event) => event.phase !== "tutorial");
+    $("#cancelMetric").textContent = formalEvents.filter((event) => event.event_type === "gesture_cancel").length;
+    $("#undoMetric").textContent = formalEvents.filter((event) => event.event_type === "undo").length;
     $("#navErrorMetric").textContent = state.navMistouches;
     $("#navCorrectMetric").textContent = `${navCorrect} / ${nav.length}`;
     $("#resultParticipant").textContent = state.participant;

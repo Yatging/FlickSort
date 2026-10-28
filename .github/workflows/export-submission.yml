@@ -1,0 +1,81 @@
+name: Export FlickSort source for SM2291 submission
+on:
+  push:
+    paths:
+      - .github/workflows/export-submission.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tracked project source and binary assets
+        uses: actions/checkout@v4
+      - name: Build self-contained source ZIP
+        run: |
+          python3 - <<'PY'
+          import subprocess, zipfile, pathlib, os
+          files=subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
+          files=[f for f in files if f and not f.startswith('.git/') and f != 'site_payload.txt' and not f.endswith('.pyc')]
+          required=['index.html','classic.html','flicksort.html','app.js','shared.css','flicksort.css','language.js','README.md','study-v3/index.html','study-v3/app.js','study-v3/scoring.js','study-v3/image_manifest.json','study-v3/styles.css','study-v3/test_scoring.cjs','study-v3/test_trial_logging.cjs']
+          for item in required:
+              assert item in files, f'Missing essential source: {item}'
+          assert len([f for f in files if f.startswith('study-v3/assets/') and f.endswith('.png')]) >= 24, 'Missing study images'
+          assert len([f for f in files if f.startswith('assets/photos/') and f.endswith('.jpg')]) >= 24, 'Missing demo photos'
+          sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          notes=f'''# FlickSort — SM2291 Team Assignment source package
+          GitHub revision: {sha}
+          Official site: https://yatging.github.io/FlickSort/
+          Classic standalone demonstration: https://yatging.github.io/FlickSort/classic.html
+          FlickSort standalone demonstration: https://yatging.github.io/FlickSort/flicksort.html
+          Two-condition study prototype: https://yatging.github.io/FlickSort/study-v3/
+          
+          ## Local running
+          Extract the archive, open a terminal in the FlickSort folder, then run:
+          python -m http.server 8000
+          Open http://localhost:8000/ . Python 3 is the only requirement for the server.
+          The HTML/CSS/JavaScript frontend has no node_modules or runtime npm install.
+          Do not open study-v3/index.html as file:// (the JSON manifest is fetched over HTTP).
+          
+          ## Implemented
+          Both Classic buttons and FlickSort diagonal gestures; horizontal browsing; short-distance
+          and angular cancellation; Undo; two study techniques with randomized starting order;
+          Demo/Pilot and tutorial; chapter progression; scoring; CSV trial and event logs including
+          participant ID, condition/technique, trial index, UTC trial start/end, outcome/accuracy.
+          Valid gesture: >=60 CSS px, horizontal <=20 degrees, diagonal 30-60 degrees;
+          remaining sectors cancel. The thresholds are design assumptions, not pilot-validated.
+          
+          ## Not yet proven / planned
+          Pilot-validated thresholds/benchmark; full physical-device coverage; independent human
+          visual review of the stimuli; full-path straightness detection; OS-edge exclusion;
+          formal controlled experiment and statistical outcome analysis.
+          The Overall Score's 70/20/10 weighting is a provisional demo measure.
+          
+          ## Assessment materials
+          This is the **source-only archive**. The Written Report, separate AI Usage Reflection,
+          and 2–3 minute video or verified video URL must be provided in the team's final submission.
+          '''
+          notes='\n'.join(line.strip() for line in notes.splitlines()).strip()+'\n'
+          with zipfile.ZipFile('FlickSort_Source.zip','w',compression=zipfile.ZIP_DEFLATED,compresslevel=7) as z:
+              for f in files:
+                  p=pathlib.Path(f)
+                  if not p.is_file(): raise FileNotFoundError(f)
+                  z.write(p,'FlickSort/'+f)
+              z.writestr('FlickSort/SUBMISSION_README.md',notes)
+              z.writestr('FlickSort/SOURCE_COMMIT.txt',sha+'\n')
+          with zipfile.ZipFile('FlickSort_Source.zip') as z:
+              corrupt=z.testzip()
+              assert corrupt is None, corrupt
+              assert len(z.namelist()) >= 100
+          print('Tracked project files:',len(files))
+          print('Git revision:',sha)
+          print('Source ZIP bytes:',os.stat('FlickSort_Source.zip').st_size)
+          PY
+      - name: Upload source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: FlickSort-submission-source
+          path: FlickSort_Source.zip
+          if-no-files-found: error
+          retention-days: 7

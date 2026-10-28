@@ -18,7 +18,8 @@
     ["Classic: browse freely with horizontal swipes and classify by tapping one of four visible buttons. Undo restores the previous label.", "Classic：左右滑动自由浏览，点击四个可见按钮分类；撤销可恢复上一次标签。"],
     ["FlickSort: browse horizontally; swipe diagonally for ↖ Edit / ↗ Keep / ↙ Maybe / ↘ Reject. Release to commit; short or unclear swipes cancel.", "FlickSort：左右滑动浏览，对角滑动 ↖ 编辑／↗ 保留／↙ 待定／↘ 拒绝；松手后确认，过短或方向不清则取消。"],
     ["How to use", "操作说明"],
-    ["24 distinct showcase images", "24 张不同的演示图片"],
+    ["32 varied showcase images", "32 张不同主题的演示图片"],
+    ["Both showcases share the same 32 varied images and four category labels. Try any action freely.", "两个演示页面共用32张不同主题图片和四种分类标签，可以自由尝试各种操作。"],
     ["The current study uses clear bus and passenger-car recognition tasks to compare Classic controls with FlickSort gestures. Responses stay on your device until you export the CSV files.", "当前研究使用明确的巴士与小汽车识别任务，对比 Classic 控件与 FlickSort 手势。数据会保留在你的设备中，直到你导出 CSV。"],
     ["The current study tests the image-selection interaction using clear object-presence tasks. It compares Classic controls with FlickSort gestures; responses stay on your device until you export the CSV files.", "当前研究通过明确的物体存在判断任务测试图片选择器交互，对比 Classic 控件与 FlickSort 手势；数据会保留在你的设备中，直到你导出 CSV。"],
     ["CURRENT STUDY · 当前正式测试入口", "当前研究 · 正式测试入口"],
@@ -227,7 +228,7 @@
       let m;
       if ((m = text.match(/^(\d+) photos$/))) return `${m[1]} 张照片`;
       if ((m = text.match(/^(\d+) trials$/))) return `${m[1]} 个试次`;
-      if ((m = text.match(/^(\d+) \/ 24 SORTED$/))) return `${m[1]} / 24 已分类`;
+      if ((m = text.match(/^(\d+) \/ (\d+) SORTED$/))) return `${m[1]} / ${m[2]} 已分类`;
       if ((m = text.match(/^PHOTO #(\d+) · SHOT (\d+)\/3$/))) return `照片 #${m[1]} · 第 ${m[2]}/3 张`;
       if ((m = text.match(/^STUDY · (.+)$/))) return `测试 · ${m[1]}`;
       if ((m = text.match(/^Find Photo #(\d+) · (.+)$/))) return `找到照片 #${m[1]} · ${translateString(m[2], "zh")}`;
@@ -270,7 +271,7 @@
       let m;
       if ((m = text.match(/^(\d+) 张照片$/))) return `${m[1]} photos`;
       if ((m = text.match(/^(\d+) 个试次$/))) return `${m[1]} trials`;
-      if ((m = text.match(/^(\d+) \/ 24 已分类$/))) return `${m[1]} / 24 SORTED`;
+      if ((m = text.match(/^(\d+) \/ (\d+) 已分类$/))) return `${m[1]} / ${m[2]} SORTED`;
       if ((m = text.match(/^照片 #(\d+) · 第 (\d+)\/3 张$/))) return `PHOTO #${m[1]} · SHOT ${m[2]}/3`;
       if ((m = text.match(/^测试 · (.+)$/))) return `STUDY · ${m[1]}`;
       if ((m = text.match(/^找到照片 #(\d+) · (.+)$/))) return `Find Photo #${m[1]} · ${translateString(m[2], "en")}`;

@@ -33,3 +33,4 @@ jobs:
         run: |
           node study-v3/test_scoring.cjs
           node study-v3/test_trial_logging.cjs
+          node tests/showcase_smoke.cjs

@@ -1,0 +1,5 @@
+project_id = "flicksort-experiment"
+[functions.ingest]
+verify_jwt = false
+# This endpoint uses a single-use enrollment code followed by a per-session capability.
+# It does not grant anonymous database access. Admins use Supabase Auth + RLS.

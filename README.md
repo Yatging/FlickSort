@@ -1,4 +1,41 @@
-# FlickSort · Mobile Photo Culling Prototypes
+# FlickSort V4 · 2×2 Within-Subjects Experiment
+
+新版入口：`/experiment/`；独立管理员入口：`/admin/`。旧版 Classic、FlickSort、V3 保留在原路径。当前交付为本地可运行 Test 版本，Supabase Schema 和接口代码已提供，真实云端尚未配置/验收，不能直接开始真实招募。
+
+## 本地启动（Windows）
+
+1. 完整解压 `FlickSort`，进入含本 README 的文件夹。在文件夹地址栏输入 `powershell` 并回车。
+2. 运行 `py -m http.server 8000 --bind 127.0.0.1`。如果系统使用 `python` 命令，则运行 `python -m http.server 8000 --bind 127.0.0.1`。需 Python 3；网页本身无需 Node 或安装依赖。
+3. 浏览器进入 `http://localhost:8000/experiment/`。两个 Demo 分别为 `/classic.html` 和 `/flicksort.html`；旧测试为 `/study-v3/`。实验页使用模块、JSON、IndexedDB 和 Service Worker，必须通过 HTTP/HTTPS 打开，不能直接双击。
+4. 本地云端为空时只保存 IndexedDB，顶部显示待同步；仍能完成任务、暂停、退出恢复、下载 Trials/Events CSV。首次联网打开后缓存资源，以便离线恢复。不要清理浏览器数据；同一浏览器同一时间只允许一个实验标签。
+5. 关闭服务：在该终端按 Ctrl+C。手机访问需研究员在可信局域网启动服务器；正式部署请使用 HTTPS。实体手机完整验收待完成。
+
+## 实验配置与资料
+
+- A Classic/Low、B Classic/High、C FlickSort/Low、D FlickSort/High。
+- 2 Blocks × 4条件 × 6 Trials = 48；每条件合计12。8次 Practice 只记录 Events，不进入正式 Trials。
+- Balanced Latin Square 行由一次性招募码指定；研究员等量发放四种码。本地未配置云端时随机选行。Low 顺序目标，High 非顺序目标；两技术匹配同套图片、同一分类规则。
+- `experiment/config.js` 只填公开 URL/key；Pilot可选每条件4/8/12。不要把 service-role key、密码或招募码写入公开仓库。
+- [部署与安全验收](docs/EXPERIMENT_DEPLOYMENT.md)、[管理员说明](docs/ADMIN_GUIDE.md)、[Week 9 实验流程](docs/EXPERIMENT_PROTOCOL.md)、[测试结果](docs/TEST_REPORT.md)。
+- Schema：`supabase/migrations/202610300001_experiment.sql`；服务端：`supabase/functions/ingest/index.ts`。
+
+## 开发测试
+
+需要 Node 24+（服务端验证器测试使用内置 TypeScript 类型剥离）。
+
+```text
+node --test tests/experiment.test.mjs tests/ingest.test.mjs
+node study-v3/test_scoring.cjs
+node study-v3/test_trial_logging.cjs
+node tests/home_navigation.cjs
+node tests/showcase_smoke.cjs
+```
+
+完整浏览器回归：安装 Playwright，设置 NODE_PATH 如有需要；`tests/experiment-browser.cjs` 默认使用 Windows Edge（其他系统请调整 executablePath），运行 `node tests/experiment-browser.cjs`。该测试使用隔离浏览器 profile，产生的仅为 Test 数据，云端采用明确标识的 Mock，不连接真实数据库。
+
+---
+
+# 原版文档（Team Assignment 1 留档）
 
 ## Standalone image-selection interaction study (V3)
 

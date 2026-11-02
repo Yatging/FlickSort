@@ -12,6 +12,8 @@
 
 再次在真实云端创建完整 Test 会话并在清理前执行数据库权限检查：在 PostgreSQL 事务中模拟普通 authenticated 非管理员的 JWT 身份，sessions、trials、events、questionnaires、sync_status 均返回零条；管理侧查询同一会话有48条 Trials，其中 B / Block 2 正好6条。此操作验证数据库 RLS，但不是使用真实非管理员登录令牌的 HTTP 端到端测试。Test 会话和招募码在 finally 中已删除。按条件/Block 的实际后台导出与实体手机仍待验证。
 
+进一步对真实数据库进行只读策略检查：七张表均启用 RLS，anon 角色均无表级 SELECT。五张实验数据表的 SELECT 策略均要求 is_admin()；sessions 的 DELETE 策略同样要求 is_admin()。真实非管理员账号的 HTTP 验证仍待完成，不能仅根据策略检查推断端到端已通过。
+
 测试针对独立开发分支，基线为 GitHub 稳定提交 b2f3822。自动化产生的是隔离 Test 数据，没有真实参与者或实验效果结论。上方记录的真实云端初步测试已删除测试数据。
 
 ## 已通过

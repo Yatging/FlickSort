@@ -1,5 +1,5 @@
-import {VERSION,LATIN,schedule,answerFor,startPosition,canStartNext,csv,TRIAL_FIELDS,EVENT_FIELDS} from './core.mjs';
-import {Store,Sync} from './storage.mjs';
+import {VERSION,LATIN,schedule,answerFor,startPosition,canStartNext,csv,TRIAL_FIELDS,EVENT_FIELDS} from './core.mjs?v=4.0.1';
+import {Store,Sync} from './storage.mjs?v=4.0.1';
 const $=s=>document.querySelector(s), app=$('#app'), cfg=window.EXPERIMENT_CONFIG;
 const db=await new Store().open(); let state=await db.get(); let pending=Promise.resolve(), fatal=false;
 if(navigator.locks){const exclusive=await new Promise(resolve=>navigator.locks.request('flicksort-v4-active',{ifAvailable:true},lock=>{resolve(!!lock);return lock?new Promise(()=>{}):undefined;}));if(!exclusive){app.textContent='此浏览器已有实验标签页，请关闭其他实验标签后重试。';throw Error('Another experiment tab owns the session');}}

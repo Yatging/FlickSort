@@ -1,20 +1,21 @@
 # FlickSort V4 · 2×2 Within-Subjects Experiment
 
-新版入口：`/experiment/`；独立管理员入口：`/admin/`。旧版 Classic、FlickSort、V3 保留在原路径。当前为 Test 版本，已连接 Supabase 测试项目，完整云端及安全验收仍未完成，不能直接开始真实招募。
+新版入口：`/experiment/`；独立管理员入口：`/admin/`。旧版 Classic、FlickSort、V3 保留在原路径。公开公测无需邀请码；公测记录标为 `pilot`，不计入 `real` 正式实验。正式招募仍关闭。
 
 ## 本地启动（Windows）
 
 1. 完整解压 `FlickSort`，进入含本 README 的文件夹。在文件夹地址栏输入 `powershell` 并回车。
 2. 运行 `py -m http.server 8000 --bind 127.0.0.1`。如果系统使用 `python` 命令，则运行 `python -m http.server 8000 --bind 127.0.0.1`。需 Python 3；网页本身无需 Node 或安装依赖。
 3. 浏览器进入 `http://localhost:8000/experiment/`。两个 Demo 分别为 `/classic.html` 和 `/flicksort.html`；旧测试为 `/study-v3/`。实验页使用模块、JSON、IndexedDB 和 Service Worker，必须通过 HTTP/HTTPS 打开，不能直接双击。
-4. 已配置的云端测试需要一次性招募码；联网时自动同步，离线时保存 IndexedDB 并待恢复后重试。仍可暂停、退出恢复、下载 Trials/Events CSV。首次联网打开后缓存资源，以便离线恢复。不要清理浏览器数据；同一浏览器同一时间只允许一个实验标签。
+4. 公开公测无需邀请码。联网时自动同步，离线时保存 IndexedDB 并待恢复后重试。仍可暂停、退出恢复、下载 Trials/Events CSV。首次联网打开后缓存资源，以便离线恢复。不要清理浏览器数据；同一浏览器同一时间只允许一个实验标签。
 5. 关闭服务：在该终端按 Ctrl+C。手机访问需研究员在可信局域网启动服务器；正式部署请使用 HTTPS。实体手机完整验收待完成。
 
 ## 实验配置与资料
 
 - A Classic/Low、B Classic/High、C FlickSort/Low、D FlickSort/High。
 - 2 Blocks × 4条件 × 6 Trials = 48；每条件合计12。8次 Practice 只记录 Events，不进入正式 Trials。
-- Balanced Latin Square 行由一次性招募码指定；研究员等量发放四种码。本地未配置云端时随机选行。Low 顺序目标，High 非顺序目标；两技术匹配同套图片、同一分类规则。
+- Balanced Latin Square 的四行随机分配；公测样本较少时各行人数不保证完全相等，分析前需核查顺序分布。Low 顺序目标，High 非顺序目标；两技术匹配同套图片、同一分类规则。
+- 为限制公测滥用，服务器每天（UTC）最多新建120个公测会话；已创建的会话不受该名额限制。配额是全局限制，不是逐 IP 防护，恶意请求可能耗尽名额；达到上限时本机排队保留，需次日重试上传。
 - `experiment/config.js` 只填公开 URL/key；Pilot可选每条件4/8/12。不要把 service-role key、密码或招募码写入公开仓库。
 - 同一设备可在结果页选择“开始下一位参与者”；只有数据全部同步且云端确认完成后才允许清除本地副本。该入口与低导航起点已通过隔离浏览器回归，实体手机仍需检查。
 - [部署与安全验收](docs/EXPERIMENT_DEPLOYMENT.md)、[管理员说明](docs/ADMIN_GUIDE.md)、[Week 9 实验流程](docs/EXPERIMENT_PROTOCOL.md)、[测试结果](docs/TEST_REPORT.md)。

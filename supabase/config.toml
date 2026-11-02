@@ -1,5 +1,8 @@
 project_id = "flicksort-experiment"
 [functions.ingest]
 verify_jwt = false
-# This endpoint uses a single-use enrollment code followed by a per-session capability.
-# It does not grant anonymous database access. Admins use Supabase Auth + RLS.
+# Legacy endpoint: single-use enrollment code and per-session capability.
+[functions.ingest-public]
+verify_jwt = false
+# Public pilot endpoint: bounded global admission/request quotas and per-session capability.
+# Neither endpoint grants anonymous database reads. Admins use Supabase Auth + RLS.

@@ -2,7 +2,7 @@
 
 访问单独的 `/admin/`，使用已加入 `admin_users` 的 Supabase Auth 管理员登录。参与者从 `/experiment/` 进入，无需账户。请勿公开管理员密码，也不要在参与者设备登录后台。
 
-首页显示全库人数、完成 Session、Trials 和 Events 数；默认仅筛选真实数据。可切换 Test / Demo / 全部，并按匿名 ID、起止日期、条件、Block 筛选。日期以数据库 UTC 日期为准。
+首页显示全库人数、完成 Session、Trials 和 Events 数；默认筛选公开公测（pilot）。可切换真实实验 / Test / Demo / 全部，并按匿名 ID、起止日期、条件、Block 筛选。日期以数据库 UTC 日期为准；公测与正式实验不得混合分析。
 
 刷新会重新读取所有分页；分布区显示 Classic/FlickSort × Low/High 的数量、准确率、平均有效耗时。只做基础描述，不能用来宣称统计显著性。
 

@@ -1,4 +1,4 @@
-export const VERSION = '4.0.1';
+export const VERSION = '4.1.0-public-pilot';
 export const CONDITIONS = { A: ['classic','low'], B: ['classic','high'], C: ['flicksort','low'], D: ['flicksort','high'] };
 export const LATIN = [['A','B','D','C'],['B','C','A','D'],['C','D','B','A'],['D','A','C','B']];
 export const TRIAL_FIELDS = ['id','session_id','version','mode','phase','condition','technique','demand','block','trial','target','answer','response','accuracy','started_at','ended_at','elapsed_ms','paused_ms','corrections','navigation_count'];

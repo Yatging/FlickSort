@@ -2,7 +2,7 @@ import { LATIN, VERSION, validateTrial, TRIAL_FIELDS, EVENT_FIELDS, QUESTION_FIE
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 export function validate(body:any) {
  const s=body.session;
- if(!s||!UUID.test(s.id)||s.version!==VERSION||!['real','test','demo'].includes(s.mode)||!Number.isInteger(s.latin_row)||!LATIN[s.latin_row]||JSON.stringify(s.condition_order)!==JSON.stringify(LATIN[s.latin_row])||![4,8,12].includes(s.trials_per_condition)||!['active','partial','completed'].includes(s.status)||!Number.isFinite(Date.parse(s.started_at))||s.consent_version!=='2026-10-30'||!/^[a-f0-9]{64}$/.test(body.token))throw Error('Invalid session');
+ if(!s||!UUID.test(s.id)||s.version!==VERSION||!['real','test','demo','pilot'].includes(s.mode)||!Number.isInteger(s.latin_row)||!LATIN[s.latin_row]||JSON.stringify(s.condition_order)!==JSON.stringify(LATIN[s.latin_row])||![4,8,12].includes(s.trials_per_condition)||!['active','partial','completed'].includes(s.status)||!Number.isFinite(Date.parse(s.started_at))||s.consent_version!=='2026-10-30'||!/^[a-f0-9]{64}$/.test(body.token))throw Error('Invalid session');
  if(s.status==='completed'&&!Number.isFinite(Date.parse(s.ended_at)))throw Error('Missing end time');
  if(body.withdraw===true)return;
  if(!Array.isArray(body.records)||body.records.length>50)throw Error('Batch limit');

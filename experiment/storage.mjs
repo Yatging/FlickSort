@@ -22,7 +22,9 @@ export class Sync {
       // Include an empty final check so a completion/status update is acknowledged too.
       for(let i=0;i<Math.max(1,pending.length);i+=50) {
         const batch=pending.slice(i,i+50);
-        const response=await fetch(this.config.supabaseUrl+'/functions/v1/ingest',{method:'POST',headers:{'Content-Type':'application/json','apikey':this.config.publishableKey},body:JSON.stringify({session:state.session,token:state.token,enrollment:state.enrollment,records:batch.map(({synced,...r})=>r)}),signal:AbortSignal.timeout(15000)});
+        const endpoint=state.session.version==='4.0.1'?'ingest':'ingest-public';
+        const response=await fetch(this.config.supabaseUrl+'/functions/v1/'+endpoint,{method:'POST',headers:{'Content-Type':'application/json','apikey':this.config.publishableKey},body:JSON.stringify({session:state.session,token:state.token,enrollment:state.enrollment,records:batch.map(({synced,...r})=>r)}),signal:AbortSignal.timeout(15000)});
+        if(response.status===429)throw Error('公测访问量或今日名额已达上限，请保留本页和 CSV，稍后或次日联网重试');
         if(!response.ok)throw Error(`上传失败 HTTP ${response.status}`);
         const data=await response.json(); if(!Array.isArray(data.ack))throw Error('Missing acknowledgements');
         for(const record of batch)if(data.ack.includes(record.id))await this.store.put({...record,synced:true});

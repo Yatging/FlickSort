@@ -1,0 +1,6 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {validate} from '../supabase/functions/ingest/index.ts';import {VERSION,LATIN} from '../experiment/core.mjs';
+const id='c8c28a0b-9dd4-4e78-aea6-000000000001';
+const session={id,version:VERSION,mode:'test',latin_row:0,condition_order:LATIN[0],trials_per_condition:12,started_at:new Date().toISOString(),status:'active',consent_version:'2026-10-30'};
+const body={session,token:'a'.repeat(64),records:[{id:'c8c28a0b-9dd4-4e78-aea6-000000000002',session_id:id,version:VERSION,mode:'test',kind:'events',phase:'formal',condition:null,block:null,trial:null,type:'consent',at:new Date().toISOString(),details:{accepted:true}}]};
+test('Ingest accepts bounded anonymous records, rejects bad credential shape and cross-session writes',()=>{validate(body);assert.throws(()=>validate({...body,token:'bad'}));assert.throws(()=>validate({...body,records:[{...body.records[0],session_id:'other'}]}));});
+test('Ingest rejects extra fields, practice trial rows, invalid events and oversized batches',()=>{for(const change of [{name:'private identity'},{type:'arbitrary'},{details:{email:'secret'}},{phase:'unknown'}])assert.throws(()=>validate({...body,records:[{...body.records[0],...change}]}));assert.throws(()=>validate({...body,records:Array(51).fill(body.records[0])}));});

@@ -4,7 +4,7 @@
 
 课程签署同意书模板应由团队按课件另行准备并独立保存；网页记录匿名电子同意，不记录签名或姓名。不要把签署身份与数据表关联。前测包含手机经验、惯用手、年龄范围（可不回答）、手势经验、照片整理频率共5题。后测包含3个自编量表、偏好和开放反馈；不是完整 SUS/NASA-TLX，不得以标准量表分数报告。
 
-A=Classic/Low，B=Classic/High，C=FlickSort/Low，D=FlickSort/High。Balanced Latin Square：ABDC、BCAD、CDBA、DACB，每个位置与有向相邻对在四行中平衡。云端招募码前缀指定行，研究员等量发码；本地测试随机一行。
+A=Classic/Low，B=Classic/High，C=FlickSort/Low，D=FlickSort/High。Balanced Latin Square：ABDC、BCAD、CDBA、DACB，每个位置与有向相邻对在四行中平衡。公开公测随机分配一行，不保证四行实际人数完全相等；研究员须在分析前检查各行样本数。正式实验尚未开放。
 
 2 Blocks，各24 Trials（每条件6），合计每条件12、48正式试次。两个 Block 使用相同行序以测量重复练习，跨Block休息边界不属于 Latin Square 邻接平衡。每条件总共使用相同的12张 l2 图片；High 的目标为2,4,6,8,10,12,1,3,5,7,9,11，而 Low 为1–12。两种技术在同一导航需求下目标序列完全匹配。Level 1 不参与此正式计划。高导航需求包含额外搜索距离，所有条件均用完全相同的巴士/汽车四类判断。
 

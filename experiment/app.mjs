@@ -1,7 +1,7 @@
-import {VERSION,LATIN,schedule,answerFor,startPosition,canStartNext,csv,TRIAL_FIELDS,EVENT_FIELDS} from './core.mjs?v=4.0.1';
-import {Store,Sync} from './storage.mjs?v=4.0.1';
+import {VERSION,LATIN,schedule,answerFor,startPosition,canStartNext,csv,TRIAL_FIELDS,EVENT_FIELDS} from './core.mjs?v=4.1.0';
+import {Store,Sync} from './storage.mjs?v=4.1.0';
 const $=s=>document.querySelector(s), app=$('#app'), cfg=window.EXPERIMENT_CONFIG;
-if($('#environment'))$('#environment').textContent=cfg.mode==='real'?'正式实验':'测试模式 · 请勿用于正式招募';
+if($('#environment'))$('#environment').textContent=cfg.mode==='real'?'正式实验':'公开公测 · 数据不计入正式实验';
 const db=await new Store().open(); let state=await db.get(); let pending=Promise.resolve(), fatal=false;
 if(navigator.locks){const exclusive=await new Promise(resolve=>navigator.locks.request('flicksort-v4-active',{ifAvailable:true},lock=>{resolve(!!lock);return lock?new Promise(()=>{}):undefined;}));if(!exclusive){app.textContent='此浏览器已有实验标签页，请关闭其他实验标签后重试。';throw Error('Another experiment tab owns the session');}}
 const sync=new Sync(db,cfg,s=>$('#sync').textContent=s);
@@ -9,16 +9,15 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catc
 const uuid=()=>crypto.randomUUID(), now=()=>new Date().toISOString();
 function fail(e){fatal=true;$('#error').textContent='保存失败，请立即下载 CSV 并联系研究员。'+e.message;}
 function serial(fn){pending=pending.then(fn).catch(fail);return pending;}
-function common(){return {session_id:state.session.id,version:VERSION,mode:state.session.mode};}
+function common(){return {session_id:state.session.id,version:state.session.version,mode:state.session.mode};}
 function event(type,details={}){return {id:uuid(),kind:'events',...common(),phase:state.phase==='practice'?'practice':'formal',condition:current()?.condition||null,block:current()?.block||null,trial:current()?.trial||null,type,at:now(),details};}
-async function save(records=[]){if(!state.enrollment&&$('#enrollment')){state.enrollment=$('#enrollment').value.trim();if(cfg.supabaseUrl){if(!/^[0-3]:[a-f0-9-]{36}$/i.test(state.enrollment))throw Error('请输入研究员提供的一次性招募码');const row=Number(state.enrollment[0]);state.session.latin_row=row;state.session.condition_order=LATIN[row];state.plan=schedule(row,cfg.trialsPerCondition);}}await db.commit(records,state);sync.flush();}
+async function save(records=[]){await db.commit(records,state);sync.flush();}
 function current(){return state?.phase==='practice'?state.practice[state.practiceIndex]:state?.plan?.[state.index];}
 function shell(title,body,buttons=''){app.innerHTML=`<h1>${title}</h1>${body}<div>${buttons}</div>`;}
 function btn(id,text){return `<button class="primary" id="${id}">${text}</button>`;}
 function transition(phase){return serial(async()=>{state.phase=phase;await save();render();});}
 app.addEventListener('click',e=>{
  const button=e.target.closest('button');if(!button)return;
- if(button.id==='consent'&&cfg.supabaseUrl&&!/^[0-3]:[a-f0-9-]{36}$/i.test($('#enrollment')?.value.trim()||'')){e.stopImmediatePropagation();$('#error').textContent='请输入研究员提供的一次性招募码。';return;}
  if(state&&['practice','task'].includes(state.phase))serial(()=>save([event('click',{target:button.id||button.dataset.answer||'button'})]));
 },true);
 function form(phase){
@@ -28,7 +27,6 @@ function form(phase){
   $('#next').onclick=()=>serial(async()=>{const answers=Object.fromEntries([...app.querySelectorAll('select')].map(x=>[x.id,x.value]));if(Object.values(answers).some(v=>!v))return alert('请完成所有问题；也可以安全退出实验。');if(phase==='post')answers.feedback=$('#feedback').value;const record={id:uuid(),kind:'questionnaires',...common(),phase,at:now(),answers};state.phase=phase==='pre'?'instructions':'debrief';await save([record]);render();});
 }
 function render(){
- if(!state&&cfg.supabaseUrl)queueMicrotask(()=>{if(!$('#enrollment')&&$('#consent'))$('#consent').insertAdjacentHTML('beforebegin','<label>研究员提供的一次性招募码<input id="enrollment" autocomplete="off" placeholder="0:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label>');});
  if(!state){shell('参与者知情同意',`<p>本研究比较照片分类的按钮与斜向手势，以及顺序和非顺序导航。预计约20–30分钟，实际时长将在 Pilot 后确认。可能出现轻微疲劳，可随时暂停或退出。</p><p>仅记录随机 Session ID、操作、任务时间、答案和问卷，不收集姓名或邮箱。数据先保存于本机浏览器；配置云端后会自动传到研究团队的 Supabase 数据库，仅授权管理员可读取。默认保留 ${cfg.retentionDays} 天，研究员负责按政策删除。${cfg.contact}</p><p>退出可保留已完成数据，也可使用撤回按钮删除已上传数据和本机记录。关闭窗口不会主动撤回；请在同一浏览器恢复。清理浏览器数据将移除本地待上传队列及撤回凭证。</p><p>${cfg.supabaseUrl?'云端已配置；同步结果将在顶部显示。':'当前为本地测试环境，尚未连接云端；不能用于正式招募。'}</p><label><input id="agree" type="checkbox">我已阅读并自愿参与</label>`,btn('consent','同意并开始'));
  $('#consent').onclick=()=>serial(async()=>{if(!$('#agree').checked)return;if(cfg.mode==='real'&&!cfg.supabaseUrl)throw Error('正式实验尚未配置云端');const row=crypto.getRandomValues(new Uint32Array(1))[0]%4;const token=Array.from(crypto.getRandomValues(new Uint8Array(32)),x=>x.toString(16).padStart(2,'0')).join('');state={session:{id:uuid(),version:VERSION,mode:cfg.mode,latin_row:row,condition_order:LATIN[row],trials_per_condition:cfg.trialsPerCondition,started_at:now(),status:'active',consent_version:'2026-10-30'},token,phase:'pre',index:0,plan:schedule(row,cfg.trialsPerCondition),practiceIndex:0,practice:LATIN[row].flatMap(c=>[1,2].map((n)=>({condition:c,technique:c==='A'||c==='B'?'classic':'flicksort',demand:c==='A'||c==='C'?'low':'high',block:0,trial:n,target:`l2-${n===1?'01':'10'}`})))};await save([event('consent',{accepted:true})]);render();});return;}
  $('#pause').disabled=!['task','practice'].includes(state.phase);
@@ -59,7 +57,7 @@ async function renderTask(){
  $('#submit').onclick=()=>serial(async()=>{if(state.task!==t||!t.response||t.position!==Number(spec.target.slice(-2))||fatal||t.pause_at)return;const ended_at=now();const trial={id:uuid(),kind:'trials',...common(),phase:state.phase==='practice'?'practice':'formal',...spec,answer:answerFor(spec.target),response:t.response,accuracy:Number(t.response===answerFor(spec.target)),started_at:t.started_at,ended_at,elapsed_ms:Date.parse(ended_at)-Date.parse(t.started_at)-t.paused_ms,paused_ms:t.paused_ms,corrections:t.corrections,navigation_count:t.navigation_count};const records=[event('submit',{response:t.response})];if(state.phase==='practice'){state.practiceIndex++;if(state.practiceIndex===state.practice.length)state.phase='task';}else{records.push(trial);state.index++;if(state.index===state.plan.length)state.phase='post';else if(state.plan[state.index].block!==spec.block)state.phase='break';}state.task=null;await save(records);render();});
 }
 function togglePause(){return serial(async()=>{if(!state?.task)return;const t=state.task;if(t.pause_at){t.paused_ms+=Date.now()-t.pause_at;t.pause_at=null;await save([event('resume')]);}else{t.pause_at=Date.now();await save([event('pause')]);}render();});}
-async function withdraw(){if(!confirm('确认永久撤回并删除本次实验数据？'))return;await pending;if(cfg.supabaseUrl){try{const r=await fetch(cfg.supabaseUrl+'/functions/v1/ingest',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey},body:JSON.stringify({session:state.session,token:state.token,withdraw:true})});if(!r.ok)throw Error('删除请求失败');}catch(e){$('#error').textContent='尚未完成云端撤回，请联网重试；本地凭证已保留。'+e.message;return;}}await db.clear();state=null;render();}
+async function withdraw(){if(!confirm('确认永久撤回并删除本次实验数据？'))return;await pending;if(cfg.supabaseUrl){try{const endpoint=state.session.version==='4.0.1'?'ingest':'ingest-public';const r=await fetch(cfg.supabaseUrl+'/functions/v1/'+endpoint,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey},body:JSON.stringify({session:state.session,token:state.token,withdraw:true})});if(!r.ok)throw Error('删除请求失败');}catch(e){$('#error').textContent='尚未完成云端撤回，请联网重试；本地凭证已保留。'+e.message;return;}}await db.clear();state=null;render();}
 async function download(kind,fields){await pending;const rows=(await db.all()).filter(r=>r.kind===kind);const url=URL.createObjectURL(new Blob([csv(rows,fields)],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`FlickSort_${state?.session?.id||'local'}_${kind}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 $('#retry').onclick=()=>sync.flush();$('#trials').onclick=()=>download('trials',TRIAL_FIELDS);$('#events').onclick=()=>download('events',EVENT_FIELDS);$('#pause').onclick=togglePause;
 $('#exit').onclick=()=>serial(async()=>{if(!state||!confirm('退出并保留本次进度？'))return;if(state.task&&!state.task.pause_at)state.task.pause_at=Date.now();state.returnPhase=state.phase;state.phase='exited';state.session.status='partial';await save([event('safe_exit')]);render();});

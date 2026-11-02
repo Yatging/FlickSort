@@ -1,52 +1,32 @@
-# FlickSort V4 部署与验收
+# FlickSort 公开公测部署与安全说明
 
-本分支增加 `/experiment/` 与 `/admin/`，主页增加开发版入口并标出V3留档；Classic、FlickSort、V3 与图片不变。当前 config 是本地 Test 模式，Supabase 接口已部署且真实招募关闭；完整验收前不应开始真实招募。
+## 当前配置
 
-## 最少必要操作
+- `/experiment/` 为公开公测入口，无需邀请码、不需注册；`/admin/` 为独立管理员后台。
+- 公测版本 `4.1.0-public-pilot`、数据库 `mode=pilot`，与正式实验 `real`、开发测试 `test`、演示 `demo` 分离。正式实验保持关闭。
+- 旧版 `4.0.1` 继续使用原 `ingest` 接口和旧邀请码，以便正在进行的旧会话继续同步；不要禁用它直至确认没有待同步会话。
+- 新 `ingest-public` 接口调用服务端数据库函数，验证会话凭证、字段、范围、计时、分类和幂等。公开界面不能读取数据库，管理员通过 Auth 与 RLS 访问。
+- 每日 UTC 最多新建120个公测会话，每分钟全局最多1200次有效请求，每个会话最多3000条事件。原每会话每分钟120请求及256KB请求上限继续适用。达到容量时未同步记录保留在设备并提示重试。
+- 这些是全局容量控制，不是按 IP 的独立防护，也没有 CAPTCHA；恶意用户可能耗尽公测名额。扩大公测前应增加服务端验证或可信限流服务并评估成本。
+- Latin Square 四种顺序随机分配而非强制等量；分析前检查实际各行数量，公测结果不得混入正式研究。
 
-1. 在自己的 Supabase 账户创建项目，选择合适的数据区域。保管数据库密码。将 `supabase/migrations/202610300001_experiment.sql` 在 SQL Editor 完整执行（或使用 Supabase CLI `supabase db push`）。先在开发项目执行，不要覆盖其他数据库。
-2. 在 Authentication 创建管理员账户并确认邮箱。关闭公开注册，在 SQL Editor 执行 `insert into public.admin_users(user_id) values ('实际管理员 auth.users UUID');`。普通 Auth 账户没有数据权限。建议启用管理员 MFA；当前后台采用邮箱密码登录，访问令牌只在内存保存，过期后重新登录。
-3. 使用 CLI 登录、link 项目；配置服务端环境：`supabase secrets set ALLOWED_ORIGINS=https://yatging.github.io,http://localhost:8000 ALLOW_REAL=false`，然后 `supabase functions deploy ingest`。`SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY` 使用 Supabase Edge 内置服务端环境，绝不可复制到网页。`verify_jwt=false` 仅用于此接收接口，其授权由一次性招募码与 Session 凭证完成；不是开放数据库读取。
-4. 在 `experiment/config.js` 填项目 URL 与公开 publishable/anon key，更新联系说明和保存期限。默认90天期限由数据库执行，若改配置，须同步修改 migration 中期限。保留 `mode:'test'` 完成验收后才改 `real`，并把服务端 `ALLOW_REAL` 改为 true。真实实验固定 `trialsPerCondition:12`；Pilot 可改4或8并更改实验版本，勿在已有 Session 中改变配置。
-5. 生成一次性招募码，按四行各相同人数发放，从而平衡 Latin Square。下面查询一次生成4个码，只保存哈希到数据库；研究员把输出码安全地给参与者，不放进公开仓库。
+## 重建部署
 
-```sql
-with codes as (
- select row::text || ':' || gen_random_uuid()::text as code
- from generate_series(0,3) row
-), inserted as (
- insert into public.enrollment_codes(code_hash)
- select encode(extensions.digest(code,'sha256'),'hex') from codes returning code_hash
-)
-select code from codes;
-```
-
-6. 部署到独立开发站点或审核后发布 GitHub Pages。通过自己设置的实际地址运行下面的真实云端验收。当前分支不自动合并 main、不改变已提交网站。GitHub Pages 是公开静态资源，后台安全性来自 Auth/RLS；隐藏 URL 不提供权限保护。
-7. 当前测试项目已配置每日删除过期数据的任务；如重建项目需重新配置。Supabase Cron（先启用 pg_cron）可运行：
+1. 创建 Supabase 项目，在 SQL Editor 依次执行 `supabase/migrations/202610300001_experiment.sql` 和 `supabase/migrations/202611020002_public_pilot.sql`。每个迁移仅执行一次；现有项目无需重复执行。
+2. 创建 Auth 管理员并将其 UUID 加入 `public.admin_users`；普通用户不应加入。关闭公开注册并按团队政策启用管理员账户保护。
+3. 设置服务端环境：`ALLOWED_ORIGINS=https://yatging.github.io,http://localhost:8000`、`ALLOW_REAL=false`、`ALLOW_PUBLIC_PILOT=true`。部署 `ingest` 和 `ingest-public` Edge Functions。`SUPABASE_SERVICE_ROLE_KEY` 仅在服务端使用，绝不能放进网页、仓库或日志。
+4. 在 `experiment/config.js` 填写项目 URL 和公开 publishable key，保留 `mode:'pilot'`。联系说明和保存期限由研究团队核实。正式实验需要单独验收、确定伦理流程后另行开放。
+5. 每日计划任务 `flicksort-retention` 执行 `public.purge_expired_experiments()`；当前项目已启用，重建项目需启用 `pg_cron` 并重新安排：
 
 ```sql
 select cron.schedule('flicksort-retention','0 3 * * *',
- $$select public.purge_expired_experiments();$$);
+  $$select public.purge_expired_experiments();$$);
 ```
 
-关闭项目级自动备份前须遵循团队政策；应用删除不会立即清除 Supabase 历史备份，应在同意书/研究政策中说明备份保留时间。
+正常会话自创建起保留90天；到期后级联删除。保留期、研究撤回机制及备份副本处理应由团队和课程要求确认。应用内删除不会立即移除数据库历史备份。
 
-## 云端真实验收（尚待执行）
+## 运行与验收
 
-- 用新招募码走完整 Test Session；核对 sessions 完成状态、48 Trials、2问卷、Events 与两份 CSV 字段及值一致。
-- 浏览器断网执行数个任务、刷新/关闭后恢复；联网重试后确认 ID 不变、无重复。模拟服务端已保存但响应丢失后重试。
-- 不带 JWT 直接查询每张表必须被拒绝；普通 Auth 用户查询返回空集，删除无效；另一个 Session 的 token 上传必须失败。
-- 管理员登录累计读取、各筛选、全部/筛选导出、删除 Session 并检查级联数据删除。不要用 service role 模拟管理员，这会绕过 RLS。
-- 尝试复用招募码、篡改评分/目标/条件、同 ID 不同内容、超大正文和高频请求，均应被拒绝。
-- 检查完整状态必须拥有48个唯一正式试次与前后问卷；Practice 只在 Events 中出现，不进入 Trials。
-- 在真实 iPhone/Android 复测60px和30°–60°手势、Undo、暂停、切后台、刷新和下载；做独立图片内容核验和计时 Pilot。
+先运行根 README 的自动测试。在隔离 Test/Pilot 会话中确认48条 Trials、2份问卷、断网恢复、CSV与云端逐行一致、匿名 REST 无法读取数据；再由管理员测试筛选、导出和删除。需要测试真实普通登录用户的 HTTP 权限、iPhone/Android、素材标签和 Pilot 实际耗时。不得将模拟数据描述为真实参与者结果。
 
-## 数据及安全设计
-
-`sessions` 为匿名 Session；`trials/events/questionnaires` 保存有唯一 UUID 的原始 record JSON，Trials 的条件/Block/Trial 有额外索引及唯一约束；`sync_status` 记录服务器已确认数量和最后接收时间。数据库 JSON 与 CSV 使用相同字段定义（core.mjs）。Practice 不生成正式 Trial 行。
-
-Edge 限制256KB请求、每批50条、每条16KB，校验版本、字段、评分、时间与分配计划。数据库事务验证 Session 能力凭证哈希，处理一次性招募码、幂等写入、ID内容冲突、正式试次重复、每分钟120次与每 Session 20000条限额。来源 allowlist 只是一层限制，不代替授权；一次性招募码控制创建滥用。
-
-IndexedDB 原子保存进度和新记录；只有服务器显式确认 ID 后才标记 synced，失败保留队列。每15秒、恢复联网、结束时重试。网络层模拟验证已实现，但不等于真实 Supabase 验收。未上传的数据管理员无法查看；后台以最后同步时间/部分完成/数量不符提示可见异常，不能凭空知道离线设备错误。安全退出保留进度；撤回需凭本机 Session token，管理员也可按 Session 删除。
-
-已关闭页面不能在所有浏览器保证后台继续上传；下次打开相同浏览器会继续。浏览器清理/卸载会丢本地缓存，CSV 备份仍应保留。页面已联网缓存后支持离线恢复；首次访问仍需网络。本机不要同时开多个实验标签。
+关闭公测可将服务端 `ALLOW_PUBLIC_PILOT` 设为 false。用户可能已有未同步数据，关闭前应通知参与者导出 CSV，并为已开始会话制定完成或补传安排。浏览器离线队列只保存在本设备；清理浏览器数据、卸载或设备故障会丢失尚未同步的记录。

@@ -16,6 +16,7 @@
 - 2 Blocks × 4条件 × 6 Trials = 48；每条件合计12。8次 Practice 只记录 Events，不进入正式 Trials。
 - Balanced Latin Square 行由一次性招募码指定；研究员等量发放四种码。本地未配置云端时随机选行。Low 顺序目标，High 非顺序目标；两技术匹配同套图片、同一分类规则。
 - `experiment/config.js` 只填公开 URL/key；Pilot可选每条件4/8/12。不要把 service-role key、密码或招募码写入公开仓库。
+- 同一设备可在结果页选择“开始下一位参与者”；只有数据全部同步且云端确认完成后才允许清除本地副本。该入口与低导航起点的最新修改尚需浏览器和实体手机回归。
 - [部署与安全验收](docs/EXPERIMENT_DEPLOYMENT.md)、[管理员说明](docs/ADMIN_GUIDE.md)、[Week 9 实验流程](docs/EXPERIMENT_PROTOCOL.md)、[测试结果](docs/TEST_REPORT.md)。
 - Schema：`supabase/migrations/202610300001_experiment.sql`；服务端：`supabase/functions/ingest/index.ts`。
 

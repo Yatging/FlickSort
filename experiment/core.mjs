@@ -5,6 +5,14 @@ export const TRIAL_FIELDS = ['id','session_id','version','mode','phase','conditi
 export const EVENT_FIELDS = ['id','session_id','version','mode','phase','condition','block','trial','type','at','details'];
 export const QUESTION_FIELDS = ['id','session_id','version','mode','phase','at','answers'];
 export function answerFor(id) { return ['keep','edit','maybe','reject'][Math.floor((Number(id.slice(-2))-1)/3)]; }
+export function startPosition(target, demand) {
+  const n=Number(target.slice(-2));
+  if(!/^l2-(0[1-9]|1[0-2])$/.test(target)||!['low','high'].includes(demand))throw Error('Invalid target or demand');
+  return demand==='low'?Math.max(1,n-1):((n+4)%12)+1;
+}
+export function canStartNext(config, records, syncStatus) {
+  return Boolean(config.supabaseUrl)&&records.length>0&&records.every(r=>r.synced)&&syncStatus==='已同步';
+}
 export function schedule(row=0, perCondition=12) {
   if (!Number.isInteger(row)||row<0||row>3||![4,8,12].includes(perCondition)) throw Error('Invalid experiment configuration');
   const result=[]; const half=perCondition/2;

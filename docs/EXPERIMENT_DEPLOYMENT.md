@@ -22,7 +22,7 @@ select code from codes;
 ```
 
 6. 部署到独立开发站点或审核后发布 GitHub Pages。通过自己设置的实际地址运行下面的真实云端验收。当前分支不自动合并 main、不改变已提交网站。GitHub Pages 是公开静态资源，后台安全性来自 Auth/RLS；隐藏 URL 不提供权限保护。
-7. 配置每日删除过期数据的任务。Supabase Cron（先启用 pg_cron）可运行：
+7. 当前测试项目已配置每日删除过期数据的任务；如重建项目需重新配置。Supabase Cron（先启用 pg_cron）可运行：
 
 ```sql
 select cron.schedule('flicksort-retention','0 3 * * *',

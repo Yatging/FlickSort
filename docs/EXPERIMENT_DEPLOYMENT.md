@@ -1,6 +1,6 @@
 # FlickSort V4 部署与验收
 
-本分支增加 `/experiment/` 与 `/admin/`，主页增加开发版入口并标出V3留档；Classic、FlickSort、V3 与图片不变。当前 config 是本地 Test 模式，未部署 Supabase；不应开始真实招募。
+本分支增加 `/experiment/` 与 `/admin/`，主页增加开发版入口并标出V3留档；Classic、FlickSort、V3 与图片不变。当前 config 是本地 Test 模式，Supabase 接口已部署且真实招募关闭；完整验收前不应开始真实招募。
 
 ## 最少必要操作
 

@@ -1,7 +1,7 @@
 // Public deployment settings only. Never put service-role credentials here.
 window.EXPERIMENT_CONFIG = {
-  supabaseUrl: '',
-  publishableKey: '',
+  supabaseUrl: 'https://ofjaclyzhxdjilpmqeyt.supabase.co',
+  publishableKey: 'sb_publishable_iTNmrfFRy1wo_W03gb44TA_NNn7sbD_',
   mode: 'test', // Use 'real' only after deployment acceptance checks.
   trialsPerCondition: 12,
   retentionDays: 90,

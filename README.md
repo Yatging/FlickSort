@@ -1,13 +1,13 @@
 # FlickSort V4 · 2×2 Within-Subjects Experiment
 
-新版入口：`/experiment/`；独立管理员入口：`/admin/`。旧版 Classic、FlickSort、V3 保留在原路径。当前交付为本地可运行 Test 版本，Supabase Schema 和接口代码已提供，真实云端尚未配置/验收，不能直接开始真实招募。
+新版入口：`/experiment/`；独立管理员入口：`/admin/`。旧版 Classic、FlickSort、V3 保留在原路径。当前为 Test 版本，已连接 Supabase 测试项目，完整云端及安全验收仍未完成，不能直接开始真实招募。
 
 ## 本地启动（Windows）
 
 1. 完整解压 `FlickSort`，进入含本 README 的文件夹。在文件夹地址栏输入 `powershell` 并回车。
 2. 运行 `py -m http.server 8000 --bind 127.0.0.1`。如果系统使用 `python` 命令，则运行 `python -m http.server 8000 --bind 127.0.0.1`。需 Python 3；网页本身无需 Node 或安装依赖。
 3. 浏览器进入 `http://localhost:8000/experiment/`。两个 Demo 分别为 `/classic.html` 和 `/flicksort.html`；旧测试为 `/study-v3/`。实验页使用模块、JSON、IndexedDB 和 Service Worker，必须通过 HTTP/HTTPS 打开，不能直接双击。
-4. 本地云端为空时只保存 IndexedDB，顶部显示待同步；仍能完成任务、暂停、退出恢复、下载 Trials/Events CSV。首次联网打开后缓存资源，以便离线恢复。不要清理浏览器数据；同一浏览器同一时间只允许一个实验标签。
+4. 已配置的云端测试需要一次性招募码；联网时自动同步，离线时保存 IndexedDB 并待恢复后重试。仍可暂停、退出恢复、下载 Trials/Events CSV。首次联网打开后缓存资源，以便离线恢复。不要清理浏览器数据；同一浏览器同一时间只允许一个实验标签。
 5. 关闭服务：在该终端按 Ctrl+C。手机访问需研究员在可信局域网启动服务器；正式部署请使用 HTTPS。实体手机完整验收待完成。
 
 ## 实验配置与资料

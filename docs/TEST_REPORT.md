@@ -8,6 +8,8 @@
 
 后续检查：未登录身份使用公开 key 直接读取 sessions、trials、events、questionnaires、sync_status、admin_users、enrollment_codes 七张表全部被拒绝（HTTP 401）。独立浏览器使用虚构数据和模拟登录，B 条件、Block 2 的筛选及 Trials/问卷 CSV 下载通过；此测试并非真实云端管理员导出。真实管理员筛选、数据与 CSV 逐行对照、普通已登录非管理员权限、实体手机操作仍待验证。
 
+随后用户通过真实管理员后台导出 Test 会话的 Trials、Events 与 questionnaires 三份 CSV。按记录 ID 与云端逐条核对所有导出列：48 条 Trials、614 条 Events、2 条问卷全部一致，无重复 ID。该 Test 会话及一次性招募码随后按用户同意删除，并确认级联记录均为零。真实后台按条件/Block 筛选后导出、普通已登录非管理员权限与实体手机操作仍待验证。
+
 测试针对独立开发分支，基线为 GitHub 稳定提交 b2f3822。自动化产生的是隔离 Test 数据，没有真实参与者或实验效果结论。上方记录的真实云端初步测试已删除测试数据。
 
 ## 已通过

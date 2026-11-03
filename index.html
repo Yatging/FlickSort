@@ -1,84 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#10171b">
-  <title>FlickSort — HCI Interaction Study</title>
-  <style>
-    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#edf4f8;background:#10171b}
-    *{box-sizing:border-box}
-    body{margin:0;padding:clamp(20px,6vw,72px);background:radial-gradient(circle at 82% 8%,rgba(118,208,181,.1),transparent 30%),#10171b}
-    .wrap{max-width:980px;margin:auto}
-    .eyebrow,.section-label{color:#9aaab2;letter-spacing:.13em;font-size:12px;font-weight:750}
-    .logo{font-size:clamp(60px,12vw,108px);letter-spacing:-.08em;font-weight:750;line-height:1.1;margin:26px 0}
-    h1 span{color:#76d0b5}
-    .lead{color:#b2c0c8;line-height:1.7;max-width:730px;font-size:17px}
-    .primary-card{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;margin-top:42px;padding:clamp(25px,4vw,42px);color:inherit;text-decoration:none;border:1px solid #76d0b5;border-radius:24px;background:linear-gradient(135deg,#21332f,#192522);box-shadow:0 24px 70px rgba(0,0,0,.22);transition:transform .2s,border-color .2s}
-    .primary-card:hover{transform:translateY(-4px);border-color:#b0f2dd}
-    .primary-card h2{margin:9px 0 10px;font-size:clamp(30px,5vw,46px);letter-spacing:-.035em}
-    .primary-card p{max-width:660px;margin:0;color:#bdcbc7;line-height:1.65}
-    .badge{display:inline-flex;padding:6px 9px;color:#10211c;border-radius:7px;background:#76d0b5;font-size:10px;font-weight:850;letter-spacing:.12em}
-    .start{display:grid;width:70px;height:70px;place-items:center;color:#10211c;border-radius:50%;background:#8be1c5;font-size:28px}
-    .demo-section{margin-top:44px;padding-top:27px;border-top:1px solid #324249}
-    .demo-heading{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:16px}
-    .demo-heading h2{margin:5px 0 0;font-size:24px}
-    .demo-heading p{max-width:520px;margin:0;color:#8fa0aa;font-size:13px;line-height:1.5;text-align:right}
-    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .card{color:inherit;text-decoration:none;border:1px solid #334147;padding:22px;border-radius:17px;background:#182125;transition:transform .2s,border-color .2s}
-    .card:hover{transform:translateY(-3px);border-color:#6f8d86}
-    .tag{font-size:10px;letter-spacing:.14em;color:#93a49e;font-weight:800}
-    .card h3{font-size:23px;margin:10px 0}
-    .card p{color:#9baea7;line-height:1.55;font-size:14px}
-    .arrow{font-size:15px;color:#7bd3b7;font-weight:750}
-    footer{border-top:1px solid #324249;margin-top:42px;padding-top:20px;color:#8fa0aa;font-size:13px}
-    a{color:inherit}footer a{color:#8de0c7}
-    @media(max-width:640px){.primary-card{grid-template-columns:1fr}.start{width:52px;height:52px}.demo-heading{display:block}.demo-heading p{text-align:left;margin-top:8px}.cards{grid-template-columns:1fr}}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="eyebrow">CITYUHK · SM2291 · HCI CONTROLLED EXPERIMENT</div>
-    <h1 class="logo">Flick<span>Sort.</span></h1>
-    <p class="lead">Explore the FlickSort interaction and the V4 experiment platform. V4 is currently in test mode: records are stored locally and synchronized to the configured cloud service. The original demonstrations and V3 remain available below.</p>
-
-    <a class="primary-card" href="experiment/">
-      <div><span class="badge">V4 · 公开公测</span><h2>开始体验实验流程</h2><p>无需邀请码。Classic / FlickSort × Low / High Navigation Demand，含练习、2 Blocks、48 Trials、暂停与本地导出。公测数据与正式实验分开。</p></div>
-      <span class="start" aria-hidden="true">→</span>
-    </a>
-    <a class="card" style="display:block;margin-top:20px" href="study-v3/">
-      <div>
-        <span class="badge">V3 · 已提交版本留档</span>
-        <h2>Start the image-selection study</h2>
-        <p>Run the short Demo or the complete Pilot. Each chapter randomly starts with Classic or FlickSort, completes one photo group, then switches to the other technique.</p>
-      </div>
-      <span class="start" aria-hidden="true">→</span>
-    </a>
-
-    <section class="demo-section" aria-labelledby="demoTitle">
-      <div class="demo-heading">
-        <div><div class="section-label">LEGACY INTERFACE SHOWCASE</div><h2 id="demoTitle">Original demos</h2></div>
-        <p>These two pages are retained only to demonstrate the earlier interface. Do not use them for the current study or new participant data.</p>
-      </div>
-      <div class="cards">
-        <a class="card" href="classic.html">
-          <div class="tag">DEMO ONLY · ORIGINAL CONTROL</div>
-          <h3>Classic gallery</h3>
-          <p>Earlier gallery prototype with four visible classification buttons.</p>
-          <div class="arrow">Open display demo →</div>
-        </a>
-        <a class="card" href="flicksort.html">
-          <div class="tag">DEMO ONLY · ORIGINAL INTERACTION</div>
-          <h3>FlickSort gestures</h3>
-          <p>Earlier gesture prototype retained to show the original interaction and animation.</p>
-          <div class="arrow">Open display demo →</div>
-        </a>
-      </div>
-    </section>
-
-    <footer>FlickSort V3 · Research / Pilot Testing · <a href="https://github.com/Yatging/FlickSort">Source on GitHub</a> · Use anonymous participant IDs only.</footer>
-  </div>
-  <!-- 加载交互脚本；V3先加载scoring.js再加载app.js。 -->
-  <script src="language.js?v=3.3.1"></script>
-</body>
-</html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f2f1ed">
+<title>FlickSort — Interaction Study</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#182326;background:#f2f1ed}*{box-sizing:border-box}body{margin:0;padding:clamp(20px,5vw,64px) 20px 40px;background:radial-gradient(circle at 85% 5%,#e4eee8,transparent 34%),#f2f1ed}a{color:inherit}.wrap{max-width:960px;margin:auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:center}.eyebrow,.section-label,.tag{font-size:11px;letter-spacing:.12em;font-weight:800;color:#637e73}.lang{display:flex;background:#fff;border:1px solid #dce7df;border-radius:999px;padding:3px}.lang button{border:0;border-radius:999px;background:transparent;padding:8px 12px;color:#4f6f62;font-weight:700;cursor:pointer}.lang button[aria-pressed=true]{background:#315b52;color:#fff}.logo{font-size:clamp(54px,10vw,92px);letter-spacing:-.07em;line-height:1;margin:42px 0 16px}.logo span{color:#518c78}.lead{max-width:670px;color:#61786f;line-height:1.7;font-size:17px;margin:0}section{margin-top:44px}.heading{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:17px}.heading h2{font-size:26px;letter-spacing:-.03em;margin:7px 0 0}.heading p{color:#71877c;max-width:430px;margin:0;line-height:1.6;font-size:14px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card,.study{display:block;text-decoration:none;background:#fff;border:1px solid #dce7df;border-radius:20px;padding:24px;transition:transform .18s,border-color .18s;box-shadow:0 12px 35px #315b520d}.card:hover,.study:hover{transform:translateY(-3px);border-color:#82ae9a}.card h3{font-size:23px;margin:12px 0}.card p,.study p{font-size:14px;line-height:1.65;color:#627a6f}.arrow{display:inline-block;margin-top:8px;font-size:14px;color:#315b52;font-weight:750}.study{background:#e8f1eb;display:flex;justify-content:space-between;align-items:center;gap:22px}.study h3{font-size:28px;margin:12px 0 8px}.badge{display:inline-block;border-radius:999px;background:#d4e8db;padding:7px 11px;color:#315b52;font-size:11px;font-weight:800}.go{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#315b52;color:#fff;font-size:24px}.note{font-size:13px;line-height:1.6;color:#5c7469}footer{border-top:1px solid #d8e2dc;margin-top:48px;padding-top:20px;color:#71877c;font-size:13px}footer a{color:#315b52}a:focus-visible,button:focus-visible{outline:3px solid #86b7a5;outline-offset:3px}@media(max-width:600px){.cards{grid-template-columns:1fr}.heading{display:block}.heading p{margin-top:8px}.study{align-items:flex-start}.logo{margin-top:36px}.eyebrow{font-size:10px}}
+</style></head>
+<body><main class="wrap">
+<div class="top"><div class="eyebrow">CITYUHK · SM2291 · HCI</div><div class="lang" role="group" aria-label="Language / 语言"><button type="button" data-lang="zh">中文</button><button type="button" data-lang="en">EN</button></div></div>
+<h1 class="logo">Flick<span>Sort.</span></h1>
+<p class="lead" data-zh="探索两种照片分类方式，然后体验 FlickSort V4 实验流程。" data-en="Explore two ways to sort photos, then try the FlickSort V4 experiment.">探索两种照片分类方式，然后体验 FlickSort V4 实验流程。</p>
+<section aria-labelledby="demoTitle"><div class="heading"><div><div class="section-label" data-zh="自由体验 · 不记录实验数据" data-en="FREE PLAY · NO STUDY DATA">自由体验 · 不记录实验数据</div><h2 id="demoTitle" data-zh="先体验 Demo" data-en="Explore the demos">先体验 Demo</h2></div><p data-zh="两个 Demo 使用相同的照片和分类标签，可自由浏览、分类和撤销。" data-en="Both demos use the same photos and labels. Browse, classify and undo freely.">两个 Demo 使用相同的照片和分类标签，可自由浏览、分类和撤销。</p></div>
+<div class="cards"><a class="card" href="classic.html"><div class="tag" data-zh="01 · 点击分类" data-en="01 · TAP TO CLASSIFY">01 · 点击分类</div><h3>Classic</h3><p data-zh="使用四个可见按钮，给照片选择分类。" data-en="Choose a category for each photo using four visible buttons.">使用四个可见按钮，给照片选择分类。</p><span class="arrow" data-zh="打开 Classic Demo →" data-en="Open Classic demo →">打开 Classic Demo →</span></a><a class="card" href="flicksort.html"><div class="tag" data-zh="02 · 对角滑动分类" data-en="02 · SWIPE TO CLASSIFY">02 · 对角滑动分类</div><h3>FlickSort</h3><p data-zh="向四个对角方向滑动，为照片选择分类。" data-en="Swipe toward one of four diagonal directions to classify a photo.">向四个对角方向滑动，为照片选择分类。</p><span class="arrow" data-zh="打开 FlickSort Demo →" data-en="Open FlickSort demo →">打开 FlickSort Demo →</span></a></div></section>
+<section aria-labelledby="studyTitle"><div class="heading"><div><div class="section-label" data-zh="实验平台 · V4" data-en="EXPERIMENT PLATFORM · V4">实验平台 · V4</div><h2 id="studyTitle" data-zh="再参加测试" data-en="Try the study">再参加测试</h2></div></div>
+<a class="study" href="experiment/"><div><span class="badge" data-zh="当前版本 · 公开公测" data-en="CURRENT VERSION · PUBLIC PILOT">当前版本 · 公开公测</span><h3 data-zh="进入 V4 实验" data-en="Enter the V4 experiment">进入 V4 实验</h3><p data-zh="无需邀请码。比较按钮和手势，以及顺序浏览和非顺序查找。包含练习、两个 Block 和 48 次正式任务。" data-en="No invitation code needed. Compare buttons and gestures, and sequential browsing and non-sequential search. Includes practice, two blocks and 48 scored trials.">无需邀请码。比较按钮和手势，以及顺序浏览和非顺序查找。包含练习、两个 Block 和 48 次正式任务。</p><span class="arrow" data-zh="开始公测 →" data-en="Start the public pilot →">开始公测 →</span></div><span class="go" aria-hidden="true">→</span></a>
+<p class="note" data-zh="当前收集的是公测数据，与正式研究数据分开；实验流程支持中文和英文。" data-en="The platform currently collects public pilot data separately from formal research data; the experiment is available in Chinese and English.">当前收集的是公测数据，与正式研究数据分开；实验流程目前为中文。</p></section>
+<footer><span data-zh="FlickSort V4 · SM2291 人机互动" data-en="FlickSort V4 · SM2291 Human–Computer Interaction">FlickSort V4 · SM2291 人机互动</span> · <a href="https://github.com/Yatging/FlickSort" data-zh="GitHub 源码" data-en="Source on GitHub">GitHub 源码</a></footer>
+</main><script>
+(()=>{const key='flicksort-language';let lang;try{lang=localStorage.getItem(key)}catch(_){}if(!['zh','en'].includes(lang))lang=navigator.language?.toLowerCase().startsWith('zh')?'zh':'en';function set(next){lang=next;document.documentElement.lang=lang==='zh'?'zh-Hans':'en';document.querySelectorAll('[data-zh][data-en]').forEach(el=>el.textContent=el.dataset[lang]);document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));try{localStorage.setItem(key,lang)}catch(_){}}document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>set(b.dataset.lang)));set(lang)})();
+</script></body></html>

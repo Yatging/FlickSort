@@ -28,3 +28,24 @@
   .task-screen .task-actions { position: sticky; bottom: 0; z-index: 5; background: #192831; padding: 1px 0 max(8px, env(safe-area-inset-bottom)); box-shadow: 0 -5px 10px #192831; }
   .task-screen .task-actions p { margin: 5px 0; font-size: 14px; }
 }
+
+/* Demo-inspired light surfaces and green accents. */
+:root{background:#f2f1ed;color:#182326;color-scheme:light}
+header,aside{background:#fff;border-bottom:1px solid #e0e9e3}
+header span{color:#315b52}
+a{color:#315b52}
+main{background:#fff;border-color:#dce7df;box-shadow:0 12px 40px #315b5212}
+button,input,select,textarea{background:#f7faf8;color:#243f35;border-color:#cbdcd2}
+button.primary{background:#315b52;color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #86b7a5;outline-offset:2px}
+.muted,.task-screen .task-prompt span{color:#637e73}
+.progress{color:#315b52}
+#preview{color:#fff}
+#notice{color:#825c1d}
+#error{color:#a23d34}
+td,th{border-color:#cbdcd2}
+.questionnaire label{font-weight:650;color:#315b52}
+.questionnaire select,.questionnaire textarea{display:block;width:100%;margin:7px 0 0;font-weight:400}
+.questionnaire .form-actions{display:flex;gap:10px;margin-top:24px}
+.questionnaire .form-actions button{flex:1;margin:0;min-height:48px}
+@media(max-width:600px){.task-screen .task-actions{background:#fff;box-shadow:0 -5px 10px #fff}}

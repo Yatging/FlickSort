@@ -1,1 +1,30 @@
 :root{font-family:system-ui,sans-serif;background:#101b23;color:#edf4f7;color-scheme:dark}*{box-sizing:border-box}body{margin:0}header,aside{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:18px;background:#1c2b34}header span{margin-left:auto;font-size:13px;color:#9ee1c6}a{color:#a7e5d1}main{max-width:820px;margin:28px auto;padding:24px;border:1px solid #3d555e;border-radius:20px;background:#192831}h1{font-size:28px}p,li{line-height:1.7}button,input,select,textarea{font:inherit;padding:12px;border-radius:9px;border:1px solid #65818c;margin:5px;background:#263d49;color:white}button{cursor:pointer}button:disabled{opacity:.45}button.primary{background:#9de3c6;color:#0e2520;font-weight:700}label{display:block;margin:15px 0}input[type=checkbox]{width:22px;height:22px}img{display:block;width:100%;height:min(45vh,360px);object-fit:contain;touch-action:none;background:#0b141b;border-radius:15px;user-select:none}#card{position:relative;overflow:hidden}#preview{position:absolute;inset:12px auto auto 12px;background:#132c2be6;padding:9px;border-radius:7px;pointer-events:none}#notice{min-height:30px;color:#ffd88b}.muted{color:#bed0da}.progress{font-weight:700;color:#9ee1c6}#error{color:#ffb5b5;padding:12px}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid #53636e;padding:8px;text-align:left}section{overflow:auto}textarea{width:100%}@media(max-width:600px){main{margin:10px;padding:16px}header{padding:12px}button{padding:12px 9px}aside{gap:4px}h1{font-size:23px}}
+
+/* Compact, touch-friendly task layout inspired by the demo. */
+.task-screen .task-prompt { margin: 8px 0; }
+.task-screen .task-prompt span { color: #bed0da; font-size: .88em; }
+.task-screen #notice:empty { display: none; }
+.task-screen #notice:not(:empty) { margin: 6px 0; min-height: 0; }
+.task-screen .task-nav, .task-screen #choices, .task-screen .task-action-buttons { display: flex; gap: 8px; }
+.task-screen .task-nav button, .task-screen #choices button { flex: 1; margin: 0; }
+.task-screen .task-nav { margin-top: 10px; }
+.task-screen #choices { margin-top: 8px; }
+.task-screen #choices p { margin: 3px 0; }
+.task-screen .task-actions p { margin: 8px 0; }
+.task-screen .task-action-buttons button { margin: 0; }
+.task-screen #submit { flex: 1; }
+@media (max-width: 600px) {
+  header { gap: 5px 10px; font-size: 12px; }
+  header span { margin-left: 0; }
+  main.task-screen { margin: 6px; padding: 10px 12px 0; }
+  .task-screen h1 { font-size: 17px; margin: 2px 0 4px; }
+  .task-screen .progress { font-size: 13px; margin: 0; line-height: 1.3; }
+  .task-screen .task-prompt { font-size: 13px; line-height: 1.35; margin: 5px 0; }
+  .task-screen #photo { height: clamp(130px, 25dvh, 240px); }
+  .task-screen #preview { inset: 7px auto auto 7px; padding: 5px 8px; }
+  .task-screen .task-nav { margin-top: 7px; }
+  .task-screen #choices { margin-top: 6px; }
+  .task-screen #choices button, .task-screen .task-nav button, .task-screen .task-action-buttons button { min-height: 44px; padding: 8px 4px; font-size: 14px; }
+  .task-screen .task-actions { position: sticky; bottom: 0; z-index: 5; background: #192831; padding: 1px 0 max(8px, env(safe-area-inset-bottom)); box-shadow: 0 -5px 10px #192831; }
+  .task-screen .task-actions p { margin: 5px 0; font-size: 14px; }
+}

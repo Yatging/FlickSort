@@ -52,3 +52,49 @@ td,th{border-color:#cbdcd2}
 .study-language{display:inline-flex;align-items:center;border:1px solid #cbdcd2;border-radius:999px;background:#fff;padding:3px;gap:2px}
 .study-language button{margin:0;border:0;border-radius:999px;padding:6px 10px;background:transparent;font-size:12px;color:#315b52}
 .study-language button[aria-pressed=true]{background:#315b52;color:#fff}
+
+/* Trial screen: visual language and directional cues from the FlickSort demo. */
+.task-screen { --keep:#24845c; --edit:#a96e22; --maybe:#4977b0; --reject:#bc594d; }
+.task-screen .progress { color:#71867b; font-size:14px; letter-spacing:.01em; }
+.task-screen .task-prompt { background:#edf4ef; border:1px solid #d9e8de; border-radius:14px; padding:10px; margin:10px 0; }
+.task-screen .task-prompt p { margin:0 0 8px; color:#24493d; font-size:17px; line-height:1.2; font-weight:700; }
+.rule-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
+.rule-card { min-width:0; background:#fff; border:1px solid #e2ece5; border-radius:9px; padding:6px 4px; text-align:center; }
+.rule-card strong,.rule-card>span { display:block; white-space:nowrap; }
+.rule-card strong { font-size:12px; line-height:1.25; }
+.rule-card>span { color:#425b4f!important; font-size:11px!important; font-weight:650; margin-top:2px; }
+.rule-icon { display:inline-grid; place-items:center; width:18px; height:18px; margin-right:3px; border-radius:50%; font-size:12px!important; color:inherit!important; background:currentColor; }
+.rule-card .rule-icon { background:transparent; border:1px solid currentColor; }
+.rule-keep strong,.choice-keep {color:var(--keep)}.rule-edit strong,.choice-edit {color:var(--edit)}.rule-maybe strong,.choice-maybe {color:var(--maybe)}.rule-reject strong,.choice-reject {color:var(--reject)}
+.task-screen #card { background:radial-gradient(circle at 50% 40%,#34372f,#111310 80%); border-radius:20px; padding:26px 0; }
+.task-screen #photo { border-radius:4px; background:#111310; }
+.task-screen #preview { z-index:2; inset:5px auto auto 50%; transform:translateX(-50%); padding:3px 10px; font-size:11px; border-radius:999px; background:#24332c; }
+.stage-corner { position:absolute; z-index:2; pointer-events:none; font-size:11px; font-weight:750; line-height:1; }
+.stage-corner span { font-size:16px; vertical-align:-1px; }
+.corner-edit {top:5px;left:9px;color:#e7b466}.corner-keep {top:5px;right:9px;color:#8ec9a5}.corner-maybe {bottom:5px;left:9px;color:#8bafe4}.corner-reject {bottom:5px;right:9px;color:#e58d84}
+.task-screen #choices { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; }
+.task-screen #choices .choice { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:12px; font-weight:750; padding:5px; border-color:#e0e9e3; background:#f7faf8; }
+.task-screen #choices .choice[aria-pressed=true] { border-color:currentColor; background:#eef6f1; box-shadow:inset 0 0 0 1px currentColor; }
+.choice-icon { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; background:#eaf2ec; font-size:17px; }
+.gesture-choices { border:1px dashed #ccdcd1; border-radius:12px; background:#f8fbf8; padding:5px; }
+.gesture-legend { display:flex; align-items:center; justify-content:center; gap:4px; font-size:12px; font-weight:750; }
+.gesture-arrow { font-size:24px; line-height:1; }
+.task-screen .task-actions { border-top:1px solid #e6eee8; }
+@media(max-width:600px) {
+  .task-screen .task-prompt { padding:7px; margin:6px 0; }
+  .task-screen .task-prompt p { font-size:15px; margin:0 0 5px; }
+  .rule-card { padding:4px 2px; }
+  .rule-card strong { font-size:11px; }
+  .rule-card>span { font-size:10px!important; }
+  .rule-icon { width:15px; height:15px; font-size:10px!important; margin-right:2px; }
+  .task-screen #card { padding:21px 0; border-radius:15px; }
+  .task-screen #photo { height:clamp(115px,21dvh,210px); }
+  .task-screen #preview { inset:3px auto auto 50%; padding:2px 8px; font-size:10px; }
+  .stage-corner { font-size:10px; }.stage-corner span {font-size:14px}
+  .corner-edit,.corner-keep {top:3px}.corner-maybe,.corner-reject {bottom:3px}
+  .task-screen #choices .choice { min-height:44px; }
+  .choice-icon { width:20px; height:20px; font-size:14px; }
+  .gesture-legend {font-size:11px}.gesture-arrow {font-size:21px}
+}
+/* Keep the decision rules readable on phones. */
+@media(max-width:600px){.rule-card strong{font-size:12px}.rule-card>span{font-size:12px!important}.rule-icon{width:16px;height:16px;font-size:11px!important}}

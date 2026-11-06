@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-mode="classic">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#10171b">
+  <title>Frame — Classic Photo Gallery · FlickSort Study</title>
+  <!-- 读取CSS样式文件，不负责业务逻辑。 -->
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="workspace">
+  <aside class="project-panel">
+    <span class="brand-mark">F<span>·</span>S</span>
+    <div class="meta-label">SM2291 / HCI RESEARCH</div>
+    <h1>Same gallery.<br><em>Different interaction.</em></h1>
+    <p>These two independent pages are free-play showcases. No test setup or participant logging is needed here; the V4 public pilot is available from the home page.</p>
+    <div class="version-switch"><a class="active" href="classic.html">01 &nbsp; Classic buttons <span>↗</span></a><a href="flicksort.html">02 &nbsp; FlickSort gestures <span>↗</span></a></div>
+    <div class="instruction-card"><div class="meta-label">DEMO SHOWCASE · NO TEST RUN</div><h3>Classic: four visible buttons</h3><p>Classic: browse freely with horizontal swipes and classify by tapping one of four visible buttons. Undo restores the previous label.</p><div class="compact-key"><span>← Next</span><span>→ Previous</span><span>Tap to tag</span></div></div>
+    <p class="muted-foot">Both showcases share the same 32 varied images and four category labels. Try any action freely.</p>
+  </aside>
+
+  <!-- 网页主体；里面的元素由app.js查找或更新。 -->
+  <main class="phone" id="phoneApp">
+    <header class="phone-header"><div class="phone-brand"><div class="phone-brand-icon">F.</div><div><div class="phone-name">FRAME</div><div class="phone-sub">Classic gallery</div></div></div><div class="header-actions"><a class="home-return" href="./" aria-label="Back to Home">← <span>Back to Home</span></a><button class="small-icon" id="helpBtn" aria-label="Show gesture guide" title="Help">?</button></div></header>
+    <section class="task-strip" id="taskStrip"><div class="task-top"><span id="taskKicker">DEMO SHOWCASE · NO TEST RUN</span><span id="taskCount">32 varied showcase images</span></div><div class="task-main" id="taskTitle">Every shot has a story.</div><div class="task-desc" id="taskDescription">Swipe sideways to browse. Tap a label below to sort.</div></section>
+    <section class="stage-wrap"><div class="photo-stage" id="touchZone" aria-label="Photo viewer; swipe left to next photo, right to previous"><img id="mainPhoto" draggable="false" src="assets/photos/01.jpg" alt="Sample photograph"><div class="corner-fade"></div><div class="photo-counter" id="photoCounter">01 / 32</div><div class="current-tag" id="currentTag" hidden></div><div class="direction-cue" id="directionCue" aria-live="polite"></div><div class="toast" id="toast" role="status" aria-live="polite"></div><div class="swipe-guide" id="swipeGuide"><span>← NEXT</span><span>PREVIOUS →</span></div></div>
+      <div class="photo-detail"><div><div class="photo-title" id="photoTitle">Morning ritual</div><div class="photo-id" id="photoId">PHOTO #01 · SHOWCASE GALLERY</div></div><div class="detail-action"><button class="ghost-mini" id="undoBtn" title="Undo last classification" disabled>↶ &nbsp;Undo</button></div></div>
+      <div class="timeline"><div class="timeline-fill" id="timelineFill"></div></div>
+    </section>
+    <section class="action-zone"><div class="action-head"><span>CLASSIFY PHOTO</span><span id="classificationSummary">0 / 32 SORTED</span></div><div class="classic-actions"><button type="button" data-label="keep" class="label-btn keep"><span class="label-icon">✓</span><span>Keep</span></button><button type="button" data-label="edit" class="label-btn edit"><span class="label-icon">✎</span><span>Edit</span></button><button type="button" data-label="maybe" class="label-btn maybe"><span class="label-icon">?</span><span>Maybe</span></button><button type="button" data-label="reject" class="label-btn reject"><span class="label-icon">×</span><span>Reject</span></button></div></section>
+    
+    <footer class="phone-footer"><button id="gridBtn" class="footer-button"><span class="footer-icon">▦</span><span>All photos</span></button><button id="saveBtn" class="footer-button"><span class="footer-icon">?</span><span>How to use</span></button></footer>
+  </main>
+
+  <aside class="inspector-panel"><div class="meta-label">LIVE DEMO · FREE PLAY</div><h2>Try the<br>interaction.</h2><div class="stat-grid"><div><span id="statKeep">0</span><small>Keep</small></div><div><span id="statEdit">0</span><small>Edit</small></div><div><span id="statMaybe">0</span><small>Maybe</small></div><div><span id="statReject">0</span><small>Reject</small></div></div><div class="inspector-rule"></div><div class="meta-label">LIVE EVENT</div><div class="event-readout" id="lastEvent">Waiting for an action…</div><div class="inspector-rule"></div><p>Classify any photo, browse around, and use Undo to compare the two input methods.</p><div class="note">Showcase only. The V4 public pilot and CSV downloads are available from the home page.</div></aside>
+</div>
+<div class="modal-overlay" id="modalOverlay" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-top"><div><div class="meta-label" id="modalEyebrow">FLICKSORT LAB</div><h2 id="modalTitle">Gallery help</h2></div><button class="modal-close" id="modalClose" aria-label="Close">×</button></div><div id="modalBody"></div></div></div>
+<!-- 旧版页面仅使用共用app.js手势识别器，不依赖V3的scoring.js。 -->
+<script defer src="language.js?v=4.1.1"></script>
+<!-- 旧版页面仅使用共用app.js手势识别器，不依赖V3的scoring.js。 -->
+<script defer src="app.js?v=3.3.2"></script>
+</body></html>

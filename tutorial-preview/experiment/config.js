@@ -1,0 +1,1 @@
+window.EXPERIMENT_CONFIG={supabaseUrl:'',publishableKey:'',mode:'test',trialsPerCondition:12,retentionDays:90,contact:'仅供界面测试，请勿提交个人资料。'};

@@ -98,3 +98,6 @@ td,th{border-color:#cbdcd2}
 }
 /* Keep the decision rules readable on phones. */
 @media(max-width:600px){.rule-card strong{font-size:12px}.rule-card>span{font-size:12px!important}.rule-icon{width:16px;height:16px;font-size:11px!important}}
+.independent-rules{font-size:13px!important;line-height:1.5!important;font-weight:500!important;color:#314b40!important;margin:6px 0 0!important}
+.tutorial-screen .tutorial-instruction{font-weight:700;background:#edf4ef;padding:14px;border-radius:12px}.tutorial-count{color:#637e73}.tutorial-stage{position:relative}.tutorial-stage img{height:min(32vh,260px)}.tutorial-overlay{position:absolute;inset:0;background:#20282066;pointer-events:none;border-radius:15px}.tutorial-controls{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}.tutorial-controls button:not(:disabled){background:#315b52;color:#fff;font-weight:700}.tutorial-controls button:disabled{opacity:.35}
+.tutorial-screen{background:#e3e6e3}.tutorial-screen .tutorial-instruction{background:#fff2c8;color:#473a18;border:2px solid #d19c30}.tutorial-screen button:not(:disabled),.tutorial-highlight{outline:3px solid #d19c30;outline-offset:2px}.tutorial-screen button:disabled{opacity:.45}.tutorial-screen .task-actions{background:#e3e6e3;box-shadow:0 -5px 10px #e3e6e3}

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101514">
+  <title>FlickSort Image Selection Study · V3</title>
+  <!-- 读取CSS样式文件，不负责业务逻辑。 -->
+  <link rel="stylesheet" href="styles.css?v=3.3.2">
+</head>
+<body>
+  <!-- 网页主体；里面的元素由app.js查找或更新。 -->
+  <main class="app-shell" id="appShell">
+    <header class="topbar">
+      <a class="brand" href="../" data-return-home aria-label="FlickSort study home"><span>F</span>lickSort <b>V3</b></a>
+      <a class="home-return-v3" id="homeLink" data-return-home href="../" aria-label="Back to Home">← <span>Back to Home</span></a>
+      <div class="build-chip">BUILD <span id="buildLabel">3.3.1</span></div>
+    </header>
+
+    <!-- 测试开始页：收集匿名编号和运行模式。 -->
+    <section class="screen setup-screen" id="setupScreen">
+      <div class="setup-copy">
+        <p class="eyebrow">IMAGE SELECTION INTERACTION STUDY</p>
+        <h1>Sort photos.<br><em>Compare interactions.</em></h1>
+        <p class="lede">This test compares two ways to classify the same controlled photos: Classic buttons and FlickSort gestures. Each technique is used for a complete group of photos before the interface switches.</p>
+        <div class="scope-note"><strong>You do not choose a technique.</strong> Each chapter randomly starts with Classic or FlickSort. Finish the current photo group, then continue with the other technique. Photos may be processed in any order within the current group.</div>
+      </div>
+
+      <form class="setup-card" id="setupForm">
+        <div class="card-head"><span>NEW STUDY RUN</span><small>Local data only</small></div>
+        <label class="field">Anonymous participant ID
+          <input id="participantId" name="participant" autocomplete="off" maxlength="24" placeholder="Generated automatically">
+          <small class="field-hint">Generated automatically; you may edit it.</small>
+        </label>
+        <div class="benchmark-note"><span>⇄</span><div><b>Automatic grouped-technique run</b><small>Finish one Classic or FlickSort photo group before switching; the starting technique is randomized.</small></div></div>
+        <fieldset>
+          <legend>Run</legend>
+          <div class="segmented">
+            <label><input type="radio" name="runMode" value="demo" checked><span><b>Demo</b><small>4 tasks + 2 navigation</small></span></label>
+            <label><input type="radio" name="runMode" value="pilot"><span><b>Full pilot</b><small>Tutorial + 24 + 4 navigation</small></span></label>
+          </div>
+        </fieldset>
+        <div class="benchmark-note"><span>⏱</span><div><b>T_ref = 180 seconds</b><small>Provisional demonstration benchmark; not pilot-validated.</small></div></div>
+        <button class="primary wide" type="submit">Start <span>→</span></button>
+        <p class="privacy">Responses stay in this browser until you download the CSV files.</p>
+      </form>
+    </section>
+
+    <!-- 进行中的测试页：照片、规则、分类和提交入口。 -->
+    <section class="screen study-screen" id="studyScreen" hidden>
+      <aside class="study-sidebar">
+        <div class="run-meta"><span id="sideTechnique">GROUPED · AUTO</span><small id="sideParticipant">P000</small></div>
+        <div class="phase-list" aria-label="Study progress">
+          <div data-phase="tutorial"><i>1</i><span>Tutorial<small>Not scored</small></span></div>
+          <div data-phase="level1"><i>2</i><span>Level 1<small>Bus or no bus</small></span></div>
+          <div data-phase="level2"><i>3</i><span>Level 2<small>Vehicle sorting</small></span></div>
+          <div data-phase="navigation"><i>4</i><span>Navigation<small>No classification</small></span></div>
+          <div data-phase="results"><i>5</i><span>Results<small>Screenshot + CSV</small></span></div>
+        </div>
+        <button class="text-button" id="quitBtn">End this local run</button>
+      </aside>
+
+      <div class="study-main">
+        <!-- 显示当前试次的任务说明和编号。 -->
+        <section class="task-banner" id="taskBanner">
+          <div class="task-heading">
+            <p id="phaseKicker">TUTORIAL · NOT SCORED</p>
+            <h2 id="taskInstruction">Follow the instruction below. Correct answers are shown only during practice.</h2>
+            <div class="navigation-target" id="navigationTarget" hidden>
+              <span>TARGET PHOTO</span>
+              <strong id="navigationTargetId">L1-03</strong>
+              <small>Swipe until this photo ID is visible</small>
+            </div>
+            <div class="task-context"><span id="taskTitle">Learn the controls</span><span class="technique-chip" id="techniqueChip">CLASSIC</span></div>
+          </div>
+          <div class="task-progress"><span id="trialCounter">1 / 4</span><div><i id="trialProgress"></i></div></div>
+        </section>
+        <p class="tutorial-freedom-note" id="tutorialFreedomNote" role="note" hidden><strong>FREE PRACTICE · NOT SCORED</strong><span>Try swipes, buttons, browsing and Undo freely. Mistakes will not affect your final score. Choose a category and press Submit to continue.</span></p>
+
+        <!-- 持续展示本关分类规则，降低任务语言歧义。 -->
+        <section class="rule-card" id="ruleCard" aria-label="Current classification rules">
+          <div data-rule="keep"><i>✓</i><span><b>Keep</b><small id="ruleKeep">Bus visible</small></span></div>
+          <div data-rule="edit"><i>✎</i><span><b>Edit</b><small id="ruleEdit">Car only</small></span></div>
+          <div data-rule="maybe"><i>?</i><span><b>Maybe</b><small id="ruleMaybe">Bus + car</small></span></div>
+          <div data-rule="reject"><i>×</i><span><b>Reject</b><small id="ruleReject">Neither</small></span></div>
+        </section>
+
+        <!-- 照片浏览器和触摸区域。 -->
+        <section class="viewer-panel">
+          <!-- 旧版手势操作区域，绑定Pointer Events。 -->
+          <div class="photo-stage" id="touchZone">
+            <div class="corner-target edit"><span>↖</span><b>Edit</b></div>
+            <div class="corner-target keep"><span>↗</span><b>Keep</b></div>
+            <div class="corner-target maybe"><span>↙</span><b>Maybe</b></div>
+            <div class="corner-target reject"><span>↘</span><b>Reject</b></div>
+            <div class="card-stack" id="photoDeck">
+              <div class="photo-card back-two"><img id="backPhoto2" alt=""></div>
+              <div class="photo-card back-one"><img id="backPhoto1" alt=""></div>
+              <div class="photo-card active-card" id="gestureCard"><img id="mainPhoto" draggable="false" alt="Controlled vehicle scene"></div>
+            </div>
+            <div class="photo-badge" id="photoBadge">L1-01</div>
+            <div class="current-label" id="currentLabel" hidden></div>
+            <div class="gesture-preview" id="gesturePreview" aria-live="polite"></div>
+            <div class="toast" id="toast" role="status" aria-live="polite"></div>
+            <div class="browse-hint"><span>← NEXT</span><span>PREVIOUS →</span></div>
+          </div>
+
+          <div class="photo-meta">
+            <div class="task-reminder" role="note" aria-live="polite">
+              <div class="task-reminder-head"><span>CURRENT TASK</span><small id="photoMeta">PHOTO L1-01</small></div>
+              <strong id="photoTaskPrompt">Follow the instruction above.</strong>
+            </div>
+            <div class="undo-wrap">
+              <select id="undoReason" aria-label="Reason for undo">
+                <option value="unspecified">Undo reason…</option>
+                <option value="content_rethink">Content rethink</option>
+                <option value="accidental_input">Accidental input</option>
+              </select>
+              <button id="undoBtn" class="secondary" disabled>↶ Undo</button>
+            </div>
+          </div>
+
+          <div class="controls-row">
+            <div class="classic-controls" id="classicControls">
+              <button data-label="edit" class="edit"><span>✎</span>Edit</button>
+              <button data-label="keep" class="keep"><span>✓</span>Keep</button>
+              <button data-label="maybe" class="maybe"><span>?</span>Maybe</button>
+              <button data-label="reject" class="reject"><span>×</span>Reject</button>
+            </div>
+            <div class="flick-legend" id="flickLegend" hidden><span>↖ Edit</span><span>↗ Keep</span><span>↙ Maybe</span><span>↘ Reject</span><small>Release after a diagonal swipe · no long press</small></div>
+          </div>
+
+          <div class="submit-row">
+            <div><b id="submitHeading">0 of 12 photos classified</b><small id="submitHint">Finish every photo; you may work in any order.</small></div>
+            <button class="primary" id="submitBtn">Submit chapter <span>→</span></button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- 结果页：总分与独立指标，便于截图。 -->
+    <section class="screen results-screen" id="resultsScreen" hidden>
+      <article class="result-card" id="resultCard">
+        <header><div><p>FLICKSORT IMAGE SELECTION STUDY</p><h1>Results / 结果</h1></div><div class="result-build"><span id="resultBuild">v3.1.0</span><small id="resultTimestamp"></small></div></header>
+        <div class="result-identity"><span><small>Participant</small><b id="resultParticipant">—</b></span><span><small>Technique</small><b id="resultTechnique">—</b></span><span><small>Asset set</small><b>image-selection-realistic-v2</b></span></div>
+        <div class="score-hero"><div class="score-ring"><strong id="overallScore">0</strong><span>/ 100</span></div><div><p>总分 / OVERALL SCORE</p><h2 id="scoreLabel">Demo preview</h2><small id="benchmarkLabel">Provisional demonstration benchmark · T_ref 180s</small></div></div>
+        <div class="metric-grid">
+          <div><span id="accuracyMetric">0%</span><small>准确率 / Accuracy</small></div>
+          <div><span id="timeMetric">0:00.0</span><small>主动用时 / Active time</small></div>
+          <div><span id="cancelMetric">0</span><small>取消 / Cancels</small></div>
+          <div><span id="undoMetric">0</span><small>撤销 / Undo</small></div>
+          <div><span id="navErrorMetric">0</span><small>导航误触 / Nav miscues</small></div>
+          <div><span id="navCorrectMetric">0 / 4</span><small>正确到达 / Nav correct</small></div>
+        </div>
+        <div class="score-formula" id="formulaText">70 × classification accuracy + 20 × time factor + 10 × navigation accuracy</div>
+        <p class="fairness-note">Cancels and Undo are shown separately but are not included in the score: gesture cancellation is technique-specific, and Undo can be reasonable error correction. Formal analysis must use time, accuracy and error measures separately—not the overall score alone.</p>
+      </article>
+      <div class="result-actions">
+        <button class="primary" id="downloadTrials">Download task-by-task results (CSV)</button>
+        <button class="secondary" id="downloadEvents">Download every interaction (CSV)</button>
+        <p class="result-download-help">Task results = each photo’s answer, correctness and time. Interaction log = every swipe, tap, cancellation and Undo.</p>
+        <button class="text-button" id="restartBtn">Start another run</button>
+      </div>
+    </section>
+  </main>
+  <!-- 加载交互脚本；V3先加载scoring.js再加载app.js。 -->
+  <script src="../language.js?v=3.3.2"></script>
+  <!-- 加载交互脚本；V3先加载scoring.js再加载app.js。 -->
+  <script src="scoring.js?v=3.2.2"></script>
+  <!-- 加载交互脚本；V3先加载scoring.js再加载app.js。 -->
+  <script src="app.js?v=3.3.3"></script>
+</body>
+</html>
+

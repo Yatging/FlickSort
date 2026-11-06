@@ -1,0 +1,134 @@
+// 独立演示图库；方向识别与V3统一，正式实验仅在study-v3。
+/* FlickSort teaching/research prototypes: shared controller, matched behavior in both variants.
+   This is a pilot prototype. No real device albums, analytics services, or servers are accessed. */
+(()=>{
+'use strict';
+const MODE=document.documentElement.dataset.mode==='flicksort'?'flicksort':'classic';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const LABELS={keep:{name:'Keep',arrow:'↗',direction:'Up-right'},edit:{name:'Edit',arrow:'↖',direction:'Up-left'},maybe:{name:'Maybe',arrow:'↙',direction:'Down-left'},reject:{name:'Reject',arrow:'↘',direction:'Down-right'}};
+// Alternate subjects instead of showing three consecutive crops of the same shot.
+// The 16 city illustrations are already in V3; the study manifest and answers are untouched.
+const SCENES=['Morning ritual','Street in motion','Portrait session','Afternoon companion','Skyward','City lights','Monochrome day','Night study'];
+const GALLERY_ORIGINALS=[1,4,7,10,13,16,19,22].map((sourceId,index)=>({src:`assets/photos/${String(sourceId).padStart(2,'0')}.jpg`,thumb:`assets/thumbs/${String(sourceId).padStart(2,'0')}.jpg`,scene:SCENES[index]}));
+const CITY_SHOWCASE_IDS=Array.from({length:24},(_,i)=>`l${Math.floor(i/12)+1}-${String(i%12+1).padStart(2,'0')}`);
+const CITY_EXAMPLES=CITY_SHOWCASE_IDS.map((assetId,index)=>({src:`study-v3/assets/${assetId}.png`,thumb:`study-v3/assets/${assetId}.png`,scene:`City scene ${String(index+1).padStart(2,'0')}`}));
+// 每4张穿插一张原图库照片和三张不同场景，便于课堂比较。
+const PHOTOS=GALLERY_ORIGINALS.flatMap((photo,i)=>[photo,...CITY_EXAMPLES.slice(i*3,i*3+3)]).map((p,index)=>({id:index+1,...p,shot:1}));
+const ROUTES={low:[1,2,3,4,5,6,7,8,9,10,11,12],high:[1,4,2,6,3,8,5,10,7,12,9,11]};
+const CATS=['keep','edit','maybe','reject','edit','keep','reject','maybe','keep','reject','maybe','edit'];
+const s={idx:0,categories:Array(PHOTOS.length).fill(null),history:[],eventLog:[],trials:[],phase:'demo',pid:'DEMO',demand:'low',order:'G1',repeat:1,taskIndex:0,tasks:[],trialStart:0,trialNav:0,trialUndo:0,trialCancel:0,trialReclass:0,trialWrongPhoto:0,trialFirstAction:null,trialFirstActionTarget:null,trialEvents:0,activePointer:null,lastPreview:null,finished:false};
+let toastTimer=0;const PAD=n=>String(n).padStart(2,'0');const iso=()=>new Date().toISOString();const time=()=>performance.now();
+const REDUCE_MOTION=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches||false;
+// csvEscape()：对CSV引号、逗号、换行进行转义，避免数据错列。
+function csvEscape(v){const z=v==null?'':String(v);return /[",\n\r]/.test(z)?'"'+z.replace(/"/g,'""')+'"':z;}
+// csvDownload()：旧版下载试次和操作日志的辅助函数。
+function csvDownload(filename,items,columns){if(!items.length){showToast('No study data yet');return;}const header=columns||[...new Set(items.flatMap(i=>Object.keys(i)))];const text=[header.join(','),...items.map(a=>header.map(k=>csvEscape(a[k])).join(','))].join('\r\n');download(filename,'text/csv;charset=utf-8',text);}
+// download()：封装本功能相关步骤；调用时按内部语句执行。
+function download(filename,type,text){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
+// ev()：旧版记录单次行为的事件函数。
+function ev(kind,more={}){const v={participant_id:s.pid,technique:MODE,condition_1:MODE,condition_2:s.demand,phase:s.phase,block_no:1,trial_no:s.taskIndex+1,event_no:s.eventLog.length+1,event_timestamp:iso(),event_timestamp_ms:Math.round(time()),photo_id:PHOTOS[s.idx].id,event_type:kind,...more};s.eventLog.push(v);$('#lastEvent').textContent=kind.replace(/_/g,' ')+' · '+(more.recognized_action||more.category||('Photo '+PAD(PHOTOS[s.idx].id)));}
+// showToast()：弹出短时文字提示。
+function showToast(text){const el=$('#toast');el.textContent=text;el.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),1350);}
+// cue()：旧版更新滑动方向的颜色/文字提示。
+function cue(name,sub=''){const el=$('#directionCue');if(!name){el.className='direction-cue';el.innerHTML='';return;}const map=LABELS[name],isNav=name==='next'||name==='previous',symbol=isNav?(name==='next'?'←':'→'):(map?.arrow||'·'),caption=isNav?(name==='next'?'Next photo':'Previous photo'):(map?.name||'No action');el.className='direction-cue active '+(map?name:isNav?'navigate':'cancel');el.innerHTML=`<span class="cue-arr">${symbol}</span><span class="cue-label">${caption}</span><span class="cue-sub">${sub|| (isNav?'Browse':name==='cancel'?'Release to cancel':'Release to classify')}</span>`;}
+// renderFlickVisuals()：封装本功能相关步骤；调用时按内部语句执行。
+function renderFlickVisuals(){
+ if(MODE!=='flicksort')return;
+ const setImage=(selector,index)=>{const el=$(selector);if(!el)return;const p=PHOTOS[Math.max(0,Math.min(PHOTOS.length-1,index))];if(el.getAttribute('src')!==p.src)el.src=p.src;};
+ setImage('#stackPhoto1',s.idx+1);setImage('#stackPhoto2',s.idx+2);
+ $$('#flickFilmstrip .film-thumb').forEach(thumb=>{const raw=s.idx+Number(thumb.dataset.offset),inside=raw>=0&&raw<PHOTOS.length,index=Math.max(0,Math.min(PHOTOS.length-1,raw)),p=PHOTOS[index],img=thumb.querySelector('img');thumb.classList.toggle('is-empty',!inside);if(img&&img.getAttribute('src')!==p.thumb)img.src=p.thumb;img.alt=Number(thumb.dataset.offset)===0?`Current photo ${p.id}`:`Photo ${p.id}`;});
+}
+// clearFlickTargets()：封装本功能相关步骤；调用时按内部语句执行。
+function clearFlickTargets(){if(MODE!=='flicksort')return;$$('.corner-album').forEach(el=>el.classList.remove('is-targeted'));}
+// resetFlickCard()：封装本功能相关步骤；调用时按内部语句执行。
+function resetFlickCard(animate=true){if(MODE!=='flicksort')return;const stage=$('#touchZone'),card=$('#gestureCard');stage?.classList.remove('is-dragging');clearFlickTargets();if(!card)return;card.style.transition=animate&&!REDUCE_MOTION?'transform 280ms cubic-bezier(.22,1,.36,1), opacity 180ms ease':'';card.style.transform='';card.style.opacity='';if(animate&&!REDUCE_MOTION)setTimeout(()=>{card.style.transition='';},290);}
+// previewFlickGesture()：封装本功能相关步骤；调用时按内部语句执行。
+function previewFlickGesture(dx,dy,action,distance){
+ if(MODE!=='flicksort')return;
+ const stage=$('#touchZone'),card=$('#gestureCard');if(!stage||!card)return;
+ stage.classList.toggle('is-dragging',distance>=5);const damp=action&&LABELS[action]?.name?.length?0.72:0.42,tx=dx*damp,ty=dy*damp,rot=Math.max(-7,Math.min(7,dx*.025));
+ card.style.transform=`translate3d(${tx}px,${ty}px,0) rotate(${rot}deg) scale(1.012)`;
+ $$('.corner-album').forEach(el=>el.classList.toggle('is-targeted',distance>=24&&el.dataset.corner===action));
+}
+// releaseFlickGesture()：封装本功能相关步骤；调用时按内部语句执行。
+function releaseFlickGesture(action,dx,dy){
+ if(MODE!=='flicksort')return;
+ const stage=$('#touchZone'),card=$('#gestureCard'),photo=$('#mainPhoto');
+ if(!stage||!card||!photo){resetFlickCard(false);return;}
+ if(!action||REDUCE_MOTION){resetFlickCard(true);return;}
+ const ghost=document.createElement('div'),w=stage.clientWidth,h=stage.clientHeight,isCategory=Boolean(LABELS[action]);
+ ghost.className='flick-ghost';ghost.style.backgroundImage=`url("${photo.currentSrc||photo.src}")`;stage.appendChild(ghost);
+ card.style.transition='none';card.style.transform='';card.style.opacity='0';stage.classList.remove('is-dragging');clearFlickTargets();
+ requestAnimationFrame(()=>{card.style.transition='opacity 170ms ease';card.style.opacity='1';const corner={edit:[-.62,-.58],keep:[.62,-.58],maybe:[-.62,.58],reject:[.62,.58]}[action];ghost.style.transform=isCategory?`translate3d(${corner[0]*w}px,${corner[1]*h}px,0) rotate(${Math.sign(corner[0])*11}deg) scale(.08)`:`translate3d(${action==='next'?-1.18*w:1.18*w}px,${Math.max(-8,Math.min(8,dy*.08))}px,0) rotate(${action==='next'?-8:8}deg) scale(.96)`;ghost.style.opacity=isCategory?'.16':'0';ghost.style.filter=isCategory?'blur(1.5px)':'none';});
+ setTimeout(()=>{ghost.remove();card.style.transition='';card.style.opacity='';},360);
+}
+// render()：依据state刷新界面显示；数据不是存储在DOM里的文字中。
+function render(){
+ const p=PHOTOS[s.idx],photo=$('#mainPhoto');if(photo.getAttribute('src')!==p.src)photo.src=p.src;photo.alt='Sample photo '+p.id+': '+p.scene;$('#photoCounter').textContent=PAD(p.id)+' / '+PHOTOS.length;$('#photoTitle').textContent=p.scene;$('#photoId').textContent=`PHOTO #${PAD(p.id)} · SHOWCASE GALLERY`;$('#timelineFill').style.width=((s.idx+1)/PHOTOS.length*100)+'%';const tag=$('#currentTag');tag.hidden=!s.categories[s.idx];tag.className='current-tag '+(s.categories[s.idx]||'');tag.textContent=s.categories[s.idx]?LABELS[s.categories[s.idx]].name:'';$('#undoBtn').disabled=s.history.length===0;const n=s.categories.filter(Boolean).length;$('#classificationSummary').textContent=n+' / '+PHOTOS.length+' SORTED';Object.keys(LABELS).forEach(k=>{const e=$('#stat'+k[0].toUpperCase()+k.slice(1));if(e)e.textContent=s.categories.filter(x=>x===k).length;});$$('.label-btn').forEach(b=>b.classList.toggle('is-current',s.categories[s.idx]===b.dataset.label));renderFlickVisuals();
+}
+// changePhoto()：左右滑动时更改照片索引并记录导航事件。
+function changePhoto(n,source='swipe',meta={}){const prev=s.idx;const target=Math.max(0,Math.min(PHOTOS.length-1,prev+n));if(prev===target){showToast('End of gallery');ev('navigation_edge',{source,from:prev+1,to:target+1,...meta});return false;}s.idx=target;if(s.phase==='practice'||s.phase==='main')s.trialNav++;ev('navigate',{source,from:prev+1,to:target+1,direction:n>0?'next':'previous',...meta});render();return true;}
+// classify()：将标签写进该照片的分类记录，同时保存可撤销历史。
+function classify(label,source='button',meta={}){if(!LABELS[label])return;const before=s.categories[s.idx];s.history.push({idx:s.idx,prev:before,next:label,at:iso()});s.categories[s.idx]=label;const onTrial=s.phase==='practice'||s.phase==='main';if(onTrial){const task=s.tasks[s.taskIndex];if(task){if(!s.trialFirstAction)s.trialFirstAction={label,photo:s.idx+1};if(s.idx===task.photo&&!s.trialFirstActionTarget)s.trialFirstActionTarget=label;else if(s.idx!==task.photo)s.trialWrongPhoto++;}if(before&&before!==label)s.trialReclass++;}
+ev('classify',{source,category:label,previous_category:before||'',...meta});render();showToast(LABELS[label].name+' ✓');}
+// undo()：撤销最近一次分类，更改标签；原照片并未删除。
+function undo(){const prev=s.history.pop();if(!prev){showToast('Nothing to undo');return;}s.categories[prev.idx]=prev.prev;if(s.phase==='practice'||s.phase==='main')s.trialUndo++;ev('undo',{photo_id:prev.idx+1,undone:prev.next,restored:prev.prev||'none'});render();showToast('Undone');}
+// classifyCounts()：封装本功能相关步骤；调用时按内部语句执行。
+function classifyCounts(){return Object.keys(LABELS).map(k=>({k,n:s.categories.filter(x=>x===k).length}));}
+// taskText()：封装本功能相关步骤；调用时按内部语句执行。
+function taskText(){if(s.phase==='demo'){ $('#taskKicker').textContent='DEMO SHOWCASE · NO TEST RUN';$('#taskCount').textContent=`${PHOTOS.length} varied showcase images`;$('#taskTitle').textContent=MODE==='classic'?'CLASSIC · BUTTONS':'FLICKSORT · GESTURES';$('#taskDescription').textContent=MODE==='classic'?'Browse: ← next / → previous. Choose Keep, Edit, Maybe or Reject with the four visible buttons. You can always Undo.':'Browse: ← next / → previous. Classify with ↖ Edit, ↗ Keep, ↙ Maybe, ↘ Reject; release to confirm, and Undo if needed.';return;}
+if(s.phase==='finished'){ $('#taskKicker').textContent='STUDY FINISHED';$('#taskCount').textContent=s.trials.length+' trials';$('#taskTitle').textContent='Thanks for testing.';$('#taskDescription').textContent='Your data is ready to export.';return;}
+const t=s.tasks[s.taskIndex];if(!t)return;$('#taskKicker').textContent=s.phase==='practice'?'PRACTICE · NOT SCORED':'STUDY · '+s.pid;$('#taskCount').textContent=(s.taskIndex+1)+' / '+s.tasks.length;$('#taskTitle').textContent='Find Photo #'+PAD(t.photo)+' · '+(t.probe?'Navigate only':LABELS[t.category].name);$('#taskDescription').textContent=t.probe?'Reach the target photo WITHOUT classifying any photo.':'Use '+(MODE==='classic'?'a button':'a diagonal swipe')+' to mark '+LABELS[t.category].name+'.';$('#studyActionTitle').textContent=t.probe?'Finish navigation probe':'Finish this trial';$('#studyActionSub').textContent=t.probe?'Submit at target photo':'Use Submit after choosing a category';}
+// resetTrial()：封装本功能相关步骤；调用时按内部语句执行。
+function resetTrial(){s.history=[];s.trialStart=time();s.trialNav=0;s.trialUndo=0;s.trialCancel=0;s.trialReclass=0;s.trialWrongPhoto=0;s.trialFirstAction=null;s.trialFirstActionTarget=null;s.trialEvents=s.eventLog.length;const t=s.tasks[s.taskIndex];if(t?.resetIndex!=null){s.idx=t.resetIndex;s.history=[];s.categories=Array(PHOTOS.length).fill(null);}taskText();render();ev('trial_start',{task_description:taskDescription(t),target_photo_id:t?.photo||'',target_category:t?.category||''});}
+// taskDescription()：封装本功能相关步骤；调用时按内部语句执行。
+function taskDescription(t){if(!t)return '';return t.probe?`Navigate to Photo ${PAD(t.photo)} without classifying`:`Find Photo ${PAD(t.photo)}; classify as ${LABELS[t.category].name}`;}
+// buildTasks()：旧版按Low/High Navigation模式生成照片目标和分类任务。
+function buildTasks(demand,reps){const tasks=[];for(let rep=0;rep<reps;rep++){const offset=(rep%2)*12;const route=ROUTES[demand];for(let j=0;j<12;j++){tasks.push({photo:offset+route[j],category:CATS[(j+rep*3)%12],probe:false,rep,resetIndex:j===0?offset:undefined});}}for(let i=0;i<4;i++)tasks.push({photo:[3,10,4,12][i]+((reps-1)%2)*12,category:null,probe:true,rep:reps});return tasks;}
+// showStudyStage()：封装本功能相关步骤；调用时按内部语句执行。
+function showStudyStage(){taskText();render();}
+// beginStudy()：旧版读取实验设置并启动任务。
+function beginStudy(){const pid=($('#participantField')?.value||'').trim().replace(/[^a-zA-Z0-9_-]/g,'').slice(0,24);if(!pid){$('#participantField').focus();return;}s.pid=pid;s.demand=$('#demandField').value;s.order=$('#groupField').value;s.repeat=Number($('#repsField').value);s.categories=Array(PHOTOS.length).fill(null);s.history=[];s.eventLog=[];s.trials=[];s.idx=0;s.phase='practice';s.taskIndex=0;s.tasks=[{photo:1,category:'keep',probe:false,resetIndex:0},{photo:2,category:'edit',probe:false},{photo:3,category:'maybe',probe:false},{photo:4,category:'reject',probe:false}];s.finished=false;closeModal();ev('study_started',{navigation_demand:s.demand,assigned_group:s.order,repetitions:s.repeat});resetTrial();showToast('Practice · four trials');}
+// submitTrial()：检查试次是否完成并保存数据，再进入下一个任务或技术区块。
+function submitTrial(){if(!['practice','main'].includes(s.phase))return;const t=s.tasks[s.taskIndex];const response=s.categories[t.photo-1]||'';const first=s.trialFirstActionTarget||'';const elapsed=Math.round(time()-s.trialStart);const correct=t.probe?Number(s.idx+1===t.photo&&s.eventLog.slice(s.trialEvents).every(e=>e.event_type!=='classify')):Number(response===t.category);const trial={participant_id:s.pid,technique:MODE,navigation_demand:s.demand,condition_1:MODE,condition_2:s.demand,condition_id:(MODE==='classic'?'button':'gesture')+'_'+s.demand,group_order:s.order,block_no:1,batch_no:t.probe?'probe':t.rep+1,trial_no:s.taskIndex+1,practice_flag:s.phase==='practice',target_photo_id:t.photo,target_category:t.category||'',task_description:taskDescription(t),user_response:response,first_category_action:first,first_attempt_error:t.probe?'':Number(first!==t.category),accuracy:correct,final_error:1-correct,trial_start_time:new Date(Date.now()-elapsed).toISOString(),trial_end_time:iso(),trial_duration_ms:elapsed,photo_transition_count:s.trialNav,undo_count:s.trialUndo,reclassification_count:s.trialReclass,cancel_count:s.trialCancel,wrong_photo_classification_count:s.trialWrongPhoto,timeout:false,probe:t.probe};s.trials.push(trial);ev('trial_submitted',{accuracy:correct,duration_ms:elapsed,response,target_category:t.category||'',target_photo_id:t.photo});s.taskIndex++;
+ if(s.taskIndex<s.tasks.length){resetTrial();return;}
+ if(s.phase==='practice'){s.phase='main';s.tasks=buildTasks(s.demand,s.repeat);s.taskIndex=0;openModal('Ready for the main study',`<div class="mini-card">Practice is complete. Your scored trials start next. No correctness feedback will be shown during the main block.</div><button class="primary-button" id="continueMain">Begin scored trials →</button>`);$('#modalOverlay').dataset.locked='true';$('#continueMain').onclick=()=>{$('#modalOverlay').dataset.locked='false';closeModal();resetTrial();};return;}
+ s.phase='finished';s.finished=true;showStudyStage();openResults();}
+// openModal()：封装本功能相关步骤；调用时按内部语句执行。
+function openModal(title,html,eyebrow='FLICKSORT LAB'){ $('#modalOverlay').dataset.locked='false';$('#modalTitle').textContent=title;$('#modalEyebrow').textContent=eyebrow;$('#modalBody').innerHTML=html;$('#modalOverlay').hidden=false;}
+// closeModal()：封装本功能相关步骤；调用时按内部语句执行。
+function closeModal(){if($('#modalOverlay').dataset.locked==='true')return;$('#modalOverlay').hidden=true;}
+// modalSetup()：封装本功能相关步骤；调用时按内部语句执行。
+function modalSetup(){const message=s.phase==='practice'||s.phase==='main'?'<p><strong>Warning:</strong> Starting a new run clears the active run. Export current data first.</p>':'';openModal('Configure a study run',`${message}<p>Use the same participant ID across both versions. Each run tests one Technique × Navigation Demand condition.</p><label for="participantField">Participant ID (anonymous)</label><input id="participantField" placeholder="e.g. P01" autocomplete="off" maxlength="24"><label for="demandField">Navigation Demand</label><select id="demandField"><option value="low">Low — sequential browsing</option><option value="high">High — repeated forward/back navigation</option></select><label for="groupField">Counterbalancing group</label><select id="groupField"><option value="G1">Group 1 · A-B-D-C</option><option value="G2">Group 2 · B-C-A-D</option><option value="G3">Group 3 · C-D-B-A</option><option value="G4">Group 4 · D-A-C-B</option></select><label for="repsField">Trial batches (prototype)</label><select id="repsField"><option value="1">1 batch · 12 tasks + 4 navigation probes</option><option value="3">3 batches · 36 tasks + 4 navigation probes</option></select><div class="config-hint">Pilot mode: uses 24 bundled illustrative photos. Expand and counterbalance photo sets before formal data collection.</div><button class="primary-button" id="startRun">Start practice →</button>`);$('#startRun').onclick=()=>{if((s.phase==='practice'||s.phase==='main')&&!confirm('Discard current study run? Please export first if needed.'))return;beginStudy();};}
+// openResults()：旧版统计单次条件的测量结果。
+function openResults(){const formal=s.trials.filter(t=>!t.practice_flag&&!t.probe);const valid=formal.length;const errors=formal.filter(t=>t.final_error).length;const avg=valid?Math.round(formal.reduce((a,t)=>a+t.trial_duration_ms,0)/valid/1000*10)/10:0;const unintended=s.trials.filter(t=>!t.practice_flag&&t.probe&&t.final_error).length;openModal('Study block complete',`<p>${s.pid} · ${MODE.toUpperCase()} · ${s.demand.toUpperCase()} navigation</p><div class="results-grid"><div><strong>${valid}</strong><small>Classifications</small></div><div><strong>${avg}s</strong><small>Avg. trial time</small></div><div><strong>${errors}</strong><small>Final errors</small></div></div><div class="mini-card"><strong>Navigation probes:</strong> ${unintended} / 4 probe tasks unsuccessful. Interpret category activations separately from wrong destinations in the exported event log.</div><div class="button-row"><button id="exportTrials">↓ Trials CSV</button><button id="exportEvents">↓ Events CSV</button></div><button class="primary-button" id="restartStudy">Configure another condition →</button><p class="mini-caption">The result summary is descriptive. No automatic statistical conclusion is produced by this prototype.</p>`);bindExportButtons();$('#restartStudy').onclick=modalSetup;}
+// bindExportButtons()：封装本功能相关步骤；调用时按内部语句执行。
+function bindExportButtons(){const trial=$('#exportTrials');if(trial)trial.onclick=()=>csvDownload(`FlickSort_${s.pid}_${MODE}_${s.demand}_trials.csv`,s.trials);const event=$('#exportEvents');if(event)event.onclick=()=>csvDownload(`FlickSort_${s.pid}_${MODE}_${s.demand}_events.csv`,s.eventLog);}
+// openExport()：封装本功能相关步骤；调用时按内部语句执行。
+function openExport(){openModal('Export study data',`<p>All data stay in this browser until you export them. Export after every participant × condition block.</p><div class="mini-card"><strong>${s.trials.length}</strong> trial rows · <strong>${s.eventLog.length}</strong> event rows · participant <strong>${s.pid}</strong></div><div class="button-row"><button id="exportTrials">↓ Trials CSV</button><button id="exportEvents">↓ Events CSV</button></div><p class="mini-caption">The events CSV contains gesture vectors, angular decisions and classifications. The trials CSV contains task times and correctness. Data are not transmitted to a server.</p>`);bindExportButtons();}
+// openHelp()：封装本功能相关步骤；调用时按内部语句执行。
+function openHelp(){openModal('How to use '+(MODE==='classic'?'Classic':'FlickSort'),`<p>Normal horizontal swipes always navigate photos. A category is applied to the currently displayed picture.</p><div class="key-table"><div class="key-chip">← Next photo</div><div class="key-chip">→ Previous photo</div>${MODE==='classic'?'<div class="key-chip">Tap ✓ Keep</div><div class="key-chip">Tap ✎ Edit</div><div class="key-chip">Tap ? Maybe</div><div class="key-chip">Tap × Reject</div>':'<div class="key-chip">↗ Keep</div><div class="key-chip">↖ Edit</div><div class="key-chip">↙ Maybe</div><div class="key-chip">↘ Reject</div>'}</div><div class="mini-card">${MODE==='classic'?'Tap one of the four buttons under the photo.':'No long-press or mode switch is needed for an individual photo. Touch and swipe diagonally; release to confirm. Short or unclear strokes cancel safely.'}</div><p class="mini-caption">Undo restores the previously assigned category. Reject never deletes any file. Desktop: drag with a mouse to simulate swipes, or use ←/→ arrow keys when outside a study run.</p><button id="doneHelp" class="primary-button">Got it</button>`);$('#doneHelp').onclick=closeModal;}
+// openGrid()：封装本功能相关步骤；调用时按内部语句执行。
+function openGrid(){if(s.phase==='main'||s.phase==='practice'){showToast('Grid disabled during study');return;}openModal('All sample photos',`<p>Tap any image to open it in the gallery. Photos are bundled for offline demo use.</p><div class="grid-photos">${PHOTOS.map(p=>`<button aria-label="Open photo ${p.id}" data-photo="${p.id-1}"><img loading="lazy" src="${p.thumb}" alt="${p.scene}"><span class="gnum">${PAD(p.id)}</span>${s.categories[p.id-1]?`<span class="glabel">${LABELS[s.categories[p.id-1]].name}</span>`:''}</button>`).join('')}</div>`);$$('[data-photo]').forEach(b=>b.onclick=()=>{s.idx=Number(b.dataset.photo);ev('grid_navigation');render();closeModal();});}
+// interpretGesture()：用dx/dy计算滑动距离及角度，返回六个方向动作之一或取消原因。
+function interpretGesture(dx,dy,minDistance=60){const dist=Math.hypot(dx,dy);if(dist<minDistance)return {action:null,reason:'too short',distance:dist};const absFromHorizontal=Math.atan2(Math.abs(dy),Math.abs(dx))*180/Math.PI;let action=null,reason='ambiguous';if(absFromHorizontal<=20){action=dx<0?'next':'previous';reason='horizontal';}else if(absFromHorizontal>=30&&absFromHorizontal<=60){action=dy<0?(dx<0?'edit':'keep'):(dx<0?'maybe':'reject');reason='diagonal';}return {action,reason,distance:dist,angle:Math.atan2(dy,dx)*180/Math.PI,absFromHorizontal};}
+// onPointerDown()：旧版记录手指按下位置。
+function onPointerDown(e){if(e.button!=null&&e.button!==0)return;if(s.activePointer)return;if(e.pointerType==='touch'&&e.isPrimary===false)return;s.activePointer={id:e.pointerId,x:e.clientX,y:e.clientY,t:time(),type:e.pointerType};$('#touchZone').setPointerCapture?.(e.pointerId);resetFlickCard(false);cue(null);}
+// onPointerMove()：旧版显示实时方向反馈。
+function onPointerMove(e){const p=s.activePointer;if(!p||p.id!==e.pointerId)return;const dx=e.clientX-p.x,dy=e.clientY-p.y,dist=Math.hypot(dx,dy),act=interpretGesture(dx,dy,0);if(MODE==='flicksort'&&e.cancelable)e.preventDefault();previewFlickGesture(dx,dy,act.action,dist);if(dist<24){cue(null);return;}if(MODE==='classic'&&act.action&&LABELS[act.action]){cue('cancel','Use buttons to classify');return;}if(act.action){cue(act.action,dist<60?'Keep moving…':undefined);s.lastPreview=act.action;}else cue('cancel',act.reason==='ambiguous'?'Change direction or release':'Swipe farther');}
+// onPointerUp()：旧版在松手后执行六方向判定。
+function onPointerUp(e){const p=s.activePointer;if(!p||p.id!==e.pointerId)return;s.activePointer=null;cue(null);const dx=e.clientX-p.x,dy=e.clientY-p.y,duration=Math.max(1,time()-p.t),r=interpretGesture(dx,dy);releaseFlickGesture(r.action,dx,dy);const meta={pointer_type:p.type,gesture_dx:Math.round(dx),gesture_dy:Math.round(dy),distance_px:Math.round(r.distance),angle_deg:Math.round(r.angle||0),duration_ms:Math.round(duration),speed_px_ms:Number((r.distance/duration).toFixed(3)),recognized_action:r.action||'cancel',decision_reason:r.reason};
+if(r.action==='next'||r.action==='previous'){changePhoto(r.action==='next'?1:-1,'swipe',meta);return;}
+if(MODE==='flicksort'&&LABELS[r.action]){classify(r.action,'gesture',meta);return;}
+if(r.distance>=18){if(s.phase==='main'||s.phase==='practice')s.trialCancel++;ev('gesture_cancel',meta);if(r.distance>=45)showToast('Gesture not recognized');}}
+// onPointerCancel()：封装本功能相关步骤；调用时按内部语句执行。
+function onPointerCancel(e){if(s.activePointer?.id===e.pointerId){s.activePointer=null;cue(null);resetFlickCard(true);ev('pointer_cancel');}}
+$$('.label-btn').forEach(b=>b.onclick=()=>classify(b.dataset.label,'button'));
+$('#touchZone').addEventListener('pointerdown',onPointerDown);$('#touchZone').addEventListener('pointermove',onPointerMove);$('#touchZone').addEventListener('pointerup',onPointerUp);$('#touchZone').addEventListener('pointercancel',onPointerCancel);
+$('#undoBtn').onclick=undo;$('#helpBtn').onclick=openHelp;$('#gridBtn').onclick=openGrid;// No public test setup in the two standalone showcases. The footer shortcut opens help instead.
+$('#saveBtn').onclick=openHelp;$('#modalClose').onclick=closeModal;$('#modalOverlay').addEventListener('click',e=>{if(e.target.id==='modalOverlay')closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(s.phase!=='demo'||!$('#modalOverlay').hidden)return;if(e.key==='ArrowLeft'){e.preventDefault();changePhoto(1,'keyboard');}else if(e.key==='ArrowRight'){e.preventDefault();changePhoto(-1,'keyboard');}});
+window.addEventListener('beforeunload',e=>{if(s.trials.length&&!s.finished){e.preventDefault();e.returnValue='';}});
+$('#mainPhoto').addEventListener('error',()=>{showToast('Photo file unavailable');});
+render();taskText();ev('demo_loaded');
+})();

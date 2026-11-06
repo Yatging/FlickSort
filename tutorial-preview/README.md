@@ -1,0 +1,144 @@
+# FlickSort V4 · 2×2 Within-Subjects Experiment
+
+新版入口：`/experiment/`；独立管理员入口：`/admin/`。旧版 Classic、FlickSort、V3 保留在原路径。公开公测无需邀请码；公测记录标为 `pilot`，不计入 `real` 正式实验。正式招募仍关闭。
+
+## 本地启动（Windows）
+
+1. 完整解压 `FlickSort`，进入含本 README 的文件夹。在文件夹地址栏输入 `powershell` 并回车。
+2. 运行 `py -m http.server 8000 --bind 127.0.0.1`。如果系统使用 `python` 命令，则运行 `python -m http.server 8000 --bind 127.0.0.1`。需 Python 3；网页本身无需 Node 或安装依赖。
+3. 浏览器进入 `http://localhost:8000/experiment/`。两个 Demo 分别为 `/classic.html` 和 `/flicksort.html`；旧测试为 `/study-v3/`。实验页使用模块、JSON、IndexedDB 和 Service Worker，必须通过 HTTP/HTTPS 打开，不能直接双击。
+4. 公开公测无需邀请码。联网时自动同步，离线时保存 IndexedDB 并待恢复后重试。仍可暂停、退出恢复、下载 Trials/Events CSV。首次联网打开后缓存资源，以便离线恢复。不要清理浏览器数据；同一浏览器同一时间只允许一个实验标签。
+5. 关闭服务：在该终端按 Ctrl+C。手机访问需研究员在可信局域网启动服务器；正式部署请使用 HTTPS。实体手机完整验收待完成。
+
+## 实验配置与资料
+
+- A Classic/Low、B Classic/High、C FlickSort/Low、D FlickSort/High。
+- 2 Blocks × 4条件 × 6 Trials = 48；每条件合计12。8次 Practice 只记录 Events，不进入正式 Trials。
+- Balanced Latin Square 的四行随机分配；公测样本较少时各行人数不保证完全相等，分析前需核查顺序分布。Low 顺序目标，High 非顺序目标；两技术匹配同套图片、同一分类规则。
+- 为限制公测滥用，服务器每天（UTC）最多新建120个公测会话；已创建的会话不受该名额限制。配额是全局限制，不是逐 IP 防护，恶意请求可能耗尽名额；达到上限时本机排队保留，需次日重试上传。
+- `experiment/config.js` 只填公开 URL/key；Pilot可选每条件4/8/12。不要把 service-role key、密码或招募码写入公开仓库。
+- 同一设备可在结果页选择“开始下一位参与者”；只有数据全部同步且云端确认完成后才允许清除本地副本。该入口与低导航起点已通过隔离浏览器回归，实体手机仍需检查。
+- [部署与安全验收](docs/EXPERIMENT_DEPLOYMENT.md)、[管理员说明](docs/ADMIN_GUIDE.md)、[Week 9 实验流程](docs/EXPERIMENT_PROTOCOL.md)、[测试结果](docs/TEST_REPORT.md)。
+- Schema：`supabase/migrations/202610300001_experiment.sql`；服务端：`supabase/functions/ingest/index.ts`。
+
+## 开发测试
+
+需要 Node 24+（服务端验证器测试使用内置 TypeScript 类型剥离）。
+
+```text
+node --test tests/experiment.test.mjs tests/ingest.test.mjs
+node study-v3/test_scoring.cjs
+node study-v3/test_trial_logging.cjs
+node tests/home_navigation.cjs
+node tests/showcase_smoke.cjs
+```
+
+完整浏览器回归：安装 Playwright，设置 NODE_PATH 如有需要；`tests/experiment-browser.cjs` 默认使用 Windows Edge（其他系统请调整 executablePath），运行 `node tests/experiment-browser.cjs`。该测试使用隔离浏览器 profile，产生的仅为 Test 数据，云端采用明确标识的 Mock，不连接真实数据库。
+
+---
+
+# 原版文档（Team Assignment 1 留档）
+
+## Standalone image-selection interaction study (V3)
+
+The [`study-v3/`](study-v3/) page tests the FlickSort image selector with objective CAPTCHA-style photo tasks without changing the original `classic.html`, `flicksort.html`, `app.js`, CSS, assets, or their existing 2×2 data structure. On GitHub Pages, open `/FlickSort/study-v3/`.
+
+Every web page now includes an **EN / 中文** switch. The choice is stored locally and follows the participant across the homepage, both legacy demos, the V3 study and the stimulus review sheet. Translation is presentation-only: CSV headers, condition codes, image IDs, answer codes and build identifiers remain stable in English for combined analysis.
+
+- **Demo Mode:** four representative classification tasks and two navigation-only trials.
+- **Full Pilot Mode:** four unscored tutorial tasks, Level 1 (12 images: bus visible → Keep; otherwise → Reject), Level 2 (12 mutually exclusive bus/car combinations), four navigation-only trials, and a compact results screen.
+- Participants do not choose a technique. Each chapter randomly selects its first technique, then runs two contiguous technique blocks: Demo uses 2+2 photos and each full 12-photo chapter uses 6+6. Participants finish the current Classic or FlickSort block before switching to the other. Level 1 is balanced 3 Keep/3 Reject per block; Level 2 uses complementary 2/1/2/1 and 1/2/1/2 category distributions, with randomized technique order counterbalancing the two blocks across participants. The assignment seed, block index, block size and per-photo technique are logged. FlickSort retains the stacked-card drag and release animation with no long press.
+- Classification blocks have no required processing order within the active group. Participants may browse freely and classify any current photo in that group. Continue/Submit is blocked until every photo in the active block has a final category and the interface lists unfinished photo IDs.
+- The setup page generates an anonymous participant ID automatically. It remains editable before the run begins.
+- V3 stimuli are 24 original photorealistic city scenes stored as independent PNG crops, with two repository-local source sheets and crop metadata in `study-v3/generate_assets.js`. `image_manifest.json` and `image_manifest.csv` record the intended bus/car content, answer and reason for each image. They do not use or imitate the CityUHK logo.
+- The manifest deliberately says `human_reviewed: false` and `visual_review_status: pending_independent_human_review`. Generator structure and browser rendering can be checked during development, but this must not be represented as independent human verification. Complete that review before formal participant collection.
+- `study-v3/asset-review.html` renders all 24 images beside their intended labels and reasons as a printable review sheet for that independent check.
+- `study-v3/VERIFICATION.md` records the checks actually completed and the remaining physical-device, independent-review and pilot-benchmark limitations.
+- Results show accuracy, active operation time, cancels, Undo, navigation miscues, navigation success and a rounded Overall Score. The score uses `70×classification accuracy + 20×clip((2×T_ref−T)/T_ref,0,1) + 10×navigation accuracy`. `T_ref` is currently fixed at **180 seconds** and is explicitly labelled a **provisional demonstration benchmark, not pilot-validated**.
+- Cancels and Undo remain separate and do not change the Overall Score. Gesture cancellation is technique-specific and Undo can be reasonable correction; formal controlled analysis must use time, accuracy and error measures separately.
+- Trial CSV distinguishes final `content_judgment_error` from explicitly logged `gesture_cancel`, `navigation_mistouch`, and user-labelled `accidental_input` Undo events. It does not infer a recognition failure from the final label.
+- V3 Trial CSV includes UTC ISO 8601 `trial_start_time` and `trial_end_time` on tutorial, formal classification, and navigation rows. For a classification image, start means its first display in that phase and end means the classification event that produced the final effective label. Reclassification replaces the end time; Undo restores the previous effective label and its earlier end time, or removes the row-ready classification until a new choice is made. Every attempt remains in Events CSV. `submitted_at` is separately the tutorial/navigation submit or the final chapter submission time and is never substituted for an unknown classification end. For navigation, the trial begins when the target task is shown and ends when the participant submits; therefore its end and submit instants intentionally coincide. The legacy `trial_duration_ms`, `classified_at`, and `submitted_at` fields remain present.
+
+Serve the repository over HTTP and open `http://localhost:8000/study-v3/`. Direct `file://` opening is intentionally rejected because V3 loads its manifest as a separate audited file.
+
+Run `node study-v3/test_scoring.cjs` and `node study-v3/test_trial_logging.cjs` for the scoring/gesture suite and the three-path Trial CSV timing regression suite.
+
+This GitHub Pages deployment intentionally remains local-data-only. A secure shared data store cannot be added to a static public page without selecting and configuring a server-side service, access control, retention policy and authorized data owner. Trials and events therefore remain available as CSV downloads; no participant data are transmitted by this build.
+
+V3 adds a new route only. The legacy Low/High Navigation Demand prototype and its CSV fields remain available unchanged at `classic.html` and `flicksort.html` for continuity with the planned 2×2 experiment.
+
+**Two mobile-responsive free-play showcase pages with the same 24 displayed photos, navigation and categories.** Experiment data collection is available in `study-v3/` only.
+
+- `classic.html` — traditional mobile-gallery browsing + **four classification buttons**.
+- `flicksort.html` — conventional horizontal browsing + **four diagonal classification gestures**, with no long press.
+
+The two pages share `shared.css`, `app.js` and a folder of 24 **bundled sample photos**, so no internet connection or account is required for the actual interface. The interface uses system-font fallbacks and requires no online font service.
+
+`flicksort.css` is an additional FlickSort-only presentation layer. It supplies the editorial desktop setting, dark stacked-card viewer, corner labels, filmstrip and release animations without changing the Classic control layout. Gesture recognition and event logging still run synchronously on pointer release; visual fly-out effects are non-blocking, and `prefers-reduced-motion` removes them.
+
+## Open
+
+Unzip the whole folder (preserve the `assets/` subfolder). The easiest desktop option is opening `classic.html` or `flicksort.html` directly in a browser. For the most reliable mobile experience, serve the folder over your local network using:
+
+```bash
+cd FlickSort-Prototype
+python -m http.server 8000 --bind 0.0.0.0
+```
+
+Open `http://<your-computer-local-IP>:8000/classic.html` or `/flicksort.html` on a phone connected to the same Wi-Fi. Some corporate/college networks isolate devices; a web deployment is another option. The code does not require an API key or backend. Deployment to HTTPS is recommended before real participant recruitment. Do not expose the local development server to public networks.
+
+## Direct interaction
+
+| Input | Classic | FlickSort |
+| --- | --- | --- |
+| ← Swipe left | Next | Next |
+| → Swipe right | Previous | Previous |
+| ↗ Swipe up-right | No category action | Keep |
+| ↖ Swipe up-left | No category action | Edit |
+| ↙ Swipe down-left | No category action | Maybe |
+| ↘ Swipe down-right | No category action | Reject |
+| Tap four category buttons | Classify | Not shown |
+| Undo | Restores last classification | Restores last classification |
+
+Drag with a mouse on desktop to simulate a touch swipe. The gallery swipe target uses `pointer` events and is intended for mobile touchscreens. Reject labels a photo; it never deletes an image.
+
+**Unified recognition rules (unvalidated):** Legacy Demo and V3 now share a minimum 60 CSS px displacement, horizontal sectors ≤20° from the nearest horizontal axis, diagonal sectors 30°–60° (45° ±15°), and cancellation elsewhere. These round-number thresholds and 10° dead band are preliminary design choices awaiting human pilot calibration, not exact values established by cited studies. Recognition uses touch start/end dx/dy, not full stroke straightness. Full-path stability checks and 20px edge exclusion are proposed future work, not implemented.
+
+**Initial recognition specification (unvalidated):** displacement ≥ 60 CSS px; horizontal when axis deviation ≤20°; diagonal when 30–60° from horizontal; other directions cancel. At short motion distances the interface previews the candidate without committing it. Recognition is evaluated on release, not on long press. Calibrate these defaults with a pilot study on real phones before collecting formal data.
+
+## Built-in study configuration
+
+Tap **Start test** in either page, then choose:
+1. Anonymous Participant ID (`P01`, for example).
+2. Navigation Demand: **Low**, sequential targets 01→12; or **High**, nonsequential targets.
+3. Group order (G1–G4) for documenting counterbalancing.
+4. **1** or **3** pilot batches (12 or 36 instructed classification tasks), followed by four navigation-only probes.
+
+Four unscored practice tasks run first. After training, click “Begin scored trials” to start recording the main tasks. For each classification trial, find the target photo, assign the prompted category, and click **Submit**; both interfaces use an identical Submit button. When ready, export **Trials CSV** and **Events CSV** (one file of each per participant × condition). Data are kept **in memory only** until downloaded. They are not sent to a server. Download before reloading/closing.
+
+To complete the full four conditions, each participant must open and test **both** pages, each once at Low and once at High navigation demand. Follow the order specified in the separate experiment design document (G1: A-B-D-C, etc.).
+
+> **Important limitation:** This is a **pilot/testable prototype**, not a fully validated experimental apparatus. The 24 bundled sample images are reused across batches if 3 repetitions are selected. A confirmatory experiment should expand and counterbalance photo sets, stabilize thresholds based on a pilot, verify participant consent and instructions, and test that study segments meet the course's 30–45 minute requirement. The study manager currently starts one participant × condition run at a time; it does not automatically orchestrate the full four-block sequence across the two HTML pages. Times and categorization accuracy should be analyzed externally (JASP/R/Python).
+
+## CSV fields
+
+Trials include `participant_id`, `technique`, `navigation_demand`, `condition_1`, `condition_2`, `target_photo_id`, `target_category`, `user_response`, `first_category_action`, `first_attempt_error`, `accuracy`, `final_error`, `trial_duration_ms`, `photo_transition_count`, `undo_count`, `reclassification_count`, `cancel_count`, `practice_flag`, `probe`, etc.
+
+Events include `event_timestamp`, `event_type`, `gesture_dx`, `gesture_dy`, `distance_px`, `angle_deg`, `duration_ms`, `speed_px_ms`, and `recognized_action`. Event logs include classified photo IDs and trial indices. `first_attempt_error` is based on the first category attempted **on the target photo**, while wrong-photo classifications are counted separately. For unbiased navigation interference metrics, examine **probe events**; the probe's pass/fail combines target-reach status with unintended category actions and is not a substitute for counting category activations.
+
+## Sources and privacy
+
+24 sample images are derived from the bundled demo images in the open-source `scikit-image` distribution (coffee, cat, astronaut, motorcycle, rocket, Hubble deep field, camera, moon), each cropped/color-varied to create three burst-like examples. Verify image licensing and provenance before publicly redistributing or using in a formal publication. Replace sample photos with team-owned or clearly licensed study stimuli before final submission. Avoid photos with personally identifying participants without consent.
+
+## Files
+
+- `classic.html` and `flicksort.html`: two separate entry pages.
+- `shared.css`: matched layout, phone frame and responsive foundations used by both versions.
+- `flicksort.css`: FlickSort-only visual treatment, card-stack motion and reduced-motion fallback.
+- `app.js`: photo navigation, classification, angle recognition, practice/main study manager and CSV export.
+- `assets/photos/01.jpg ... 24.jpg`: full-size example images.
+- `assets/thumbs/01.jpg ... 24.jpg`: grid thumbnails.
+- `build_assets.py`: offline photo-generation build script for the demo sample set.
+
+**Research scope:** Buttons vs FlickSort × Low vs High Navigation is a 2×2 within-subjects design. The current program measures this comparison; it does *not* independently evaluate user-specific recognition thresholds, adaptive hints or unaided gesture discoverability. Those require separate controlled conditions and study designs.
+
